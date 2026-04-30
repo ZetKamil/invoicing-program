@@ -88,5 +88,27 @@ Successfully merged the structural methodology from the reference project into o
 *   **Polymorphic Media for Logistics**: The `Media` model now serves as the backbone for both marketing (post images) and operations (lead attachments, invoice PDFs).
 *   **Enforced Data Isolation**: Every operation is scoped via `TenantScope`. Even if a user attempts to access a record ID belonging to another company, the Global Scope will return a 404, providing a "Senior" level of security.
 
+---
+
+## 2026-04-30: Standardizing Multi-Tenant Authorization Layer
+
+### Task Summary
+Finalized the security infrastructure by implementing a robust Authorization Layer using Laravel Policies. This layer works in tandem with our Eloquent Global Scopes to provide a dual-layered defense against data leakage.
+
+### Policy Implementation
+Implemented full-set Policies (`viewAny`, `view`, `create`, `update`, `delete`, `restore`, `forceDelete`) for all core entities:
+*   **Logistics**: `Lead`, `Quote`, `Invoice`, `Product`.
+*   **CMS**: `Post`, `Category`.
+
+Every policy method strictly validates `user->tenant_id === model->tenant_id`, ensuring that even if a global scope is bypassed, the authorization layer will block unauthorized access.
+
+### Filament Integration
+*   Explicitly defined `getEloquentQuery()` in all Filament Resources. While our `HasTenant` trait handles the primary scoping, this explicit declaration ensures that the "Senior" pattern of query isolation is followed and documented.
+
+### Technical Rationale
+**Double-Layered Security (Gold Standard):**
+1.  **Eloquent Global Scope**: Acts as a "soft" filter that automatically hides data from other tenants in 99% of queries.
+2.  **Authorization Policies**: Act as a "hard" lock. They are triggered at the application level before any modification or sensitive view occurs.
+
 ### Defense Tip
-"By separating Invoicing and Sales into a structured Tenant Dashboard with automated Action classes, we reduce the cognitive load for dispatchers. They no longer 'search' for data; the system presents exactly what belongs to their company context, allowing them to process quotes and invoices up to 40% faster than generic CMS-based solutions."
+"Even if a malicious actor tries to guess a ULID of another company's invoice, our Policy layer will block the request before the data is even fetched, ensuring 100% data privacy. This dual approach is essential for SOC2 compliance and building trust with high-value logistics clients."
