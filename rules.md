@@ -1,5 +1,8 @@
 # Project Rules: Invoicing/Webshop CMS (Laravel 13 + Livewire 4)
 
+## Project Context
+This project is a B2B SaaS and CRM for the Logistics sector named Master-Digit. It is NOT a dynamic retail shop. The primary focus is Lead Capture (from external transport forms) and Invoice/Quote management for logistics companies.
+
 ## Core Tech Stack
 - Framework: Laravel 13 (Latest Conventions)
 - Frontend: Livewire 4 (Single File Components - SFC)
@@ -60,3 +63,17 @@
 - Before a major change, list the files that will be affected.
 - If multiple solutions exist, choose the most "Senior/Scalable" approach.
 - Every feature must be demo-ready after `php artisan migrate:fresh --seed`.
+
+## 8. Mandatory Task Lifecycle & Documentation
+EVERY TIME you (the AI) execute a task or change code, you MUST follow this sequence:
+1. **Analyze:** Check `rules.md` to ensure compliance with Laravel 13 + Livewire 4 standards.
+2. **Execute:** Perform the code changes.
+3. **Log:** Append an entry to `DEV_JOURNAL.md` (create it if not exists). 
+    - The entry MUST use the following template:
+
+    ### [Date/Time] - Task: [Short Task Name]
+    - **Files Modified:** List of files.
+    - **Technical Logic:** Explain the logic used (e.g., Why this Action was created? Why this specific Hook was used?).
+    - **Senior Concept:** Explain the architectural pattern (e.g., Dependency Injection, DTO, Repository-ish pattern).
+    - **Exam Defense Tip:** A 1-2 sentence explanation I can use during my presentation to prove I understand this part.
+    - **Keywords to Learn:** List 3 technical terms used in this task.

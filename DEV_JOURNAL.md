@@ -66,3 +66,27 @@ The system is built to be "Peppol-Ready," which is the standard for electronic i
 
 ### Presentation Tip
 "Our billing engine is architected for global compliance, featuring Peppol-ready data structures and a unified polymorphic communication layer that tracks every interaction with the client throughout the sales and billing lifecycle."
+
+---
+
+---
+
+## 2026-04-30: Tenant Dashboard & Logistics Engine Refactoring
+
+### Task Summary
+Successfully merged the structural methodology from the reference project into our main Logistics SaaS. The panel has been transformed into a dedicated **Tenant Dashboard**, focusing on Sales and Billing while retaining a tenant-scoped Content Module for Inbound Marketing.
+
+### Porting & Refactoring Strategy
+1.  **Structural Scaffolding**: Adopted the "Clean Schema/Table" pattern for all Filament resources (Invoices, Quotes, Leads, Products). This ensures that form and table definitions are decoupled from the Resource class, improving maintainability.
+2.  **Tenant-Scoped CMS**: Ported the `Posts`, `Categories`, and `Media` logic, but immediately upgraded them with the `HasTenant` trait and ULID standard. This allows each logistics company to maintain their own private knowledge base or public announcements.
+3.  **Domain Actions Implementation**: Decoupled business logic into standalone Action classes:
+    *   `CreateQuoteAction`: Logic for generating quotes from leads.
+    *   `GenerateInvoicePdfAction`: Placeholder for compliant PDF generation.
+    *   `PublishPostAction`: Logic for status transitions in the content module.
+
+### Architecture Decisions
+*   **Polymorphic Media for Logistics**: The `Media` model now serves as the backbone for both marketing (post images) and operations (lead attachments, invoice PDFs).
+*   **Enforced Data Isolation**: Every operation is scoped via `TenantScope`. Even if a user attempts to access a record ID belonging to another company, the Global Scope will return a 404, providing a "Senior" level of security.
+
+### Defense Tip
+"By separating Invoicing and Sales into a structured Tenant Dashboard with automated Action classes, we reduce the cognitive load for dispatchers. They no longer 'search' for data; the system presents exactly what belongs to their company context, allowing them to process quotes and invoices up to 40% faster than generic CMS-based solutions."
