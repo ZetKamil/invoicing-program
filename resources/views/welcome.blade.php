@@ -53,8 +53,8 @@
                     Ultrasnelle websites met een ingebouwd Smart Quote-systeem voor Vlaamse transporteurs. Uw dispatcher ontvangt enkel nog volledige, gestructureerde offerteaanvragen.
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <flux:button variant="primary" size="lg">🔍 Gratis AI-audit aanvragen</flux:button>
-                    <flux:button variant="ghost" size="lg" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Bekijk pakketten</flux:button>
+                    <flux:button variant="primary">🔍 Gratis AI-audit aanvragen</flux:button>
+                    <flux:button variant="ghost" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Bekijk pakketten</flux:button>
                 </div>
             </div>
         </div>
