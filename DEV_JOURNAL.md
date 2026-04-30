@@ -110,5 +110,22 @@ Every policy method strictly validates `user->tenant_id === model->tenant_id`, e
 1.  **Eloquent Global Scope**: Acts as a "soft" filter that automatically hides data from other tenants in 99% of queries.
 2.  **Authorization Policies**: Act as a "hard" lock. They are triggered at the application level before any modification or sensitive view occurs.
 
+---
+
+## 2026-04-30: Agency Dogfooding & Public Lead Capture
+
+### Task Summary
+Successfully integrated the "Logi-Web PRO" agency as the platform's first tenant, effectively "dogfooding" our own software to manage our agency's sales pipeline. Ported the frontend design into a reactive Livewire 4 + Flux UI landing page.
+
+### Implementation Details
+1.  **Agency Seeding**: Created `AgencySeeder` to initialize "Logi-Web PRO" and a primary administrator. This ensures that the agency has its own isolated space in the dashboard to receive and manage leads from the public website.
+2.  **Lead Capture Pipeline**:
+    *   **Livewire SFC**: Implemented `PackageInquiryForm` as a Single File Component, providing a seamless, reactive experience for potential clients.
+    *   **Data Enrichment**: Added a `metadata` JSON column to the `leads` table to capture package-specific choices without cluttering the primary schema.
+    *   **Action-Based Storage**: The inquiry form uses `CreateLeadAction` to bridge the public-facing website and the secured multi-tenant backend.
+
+### Data Flow
+Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboard (scoped to Logi-Web PRO).
+
 ### Defense Tip
-"Even if a malicious actor tries to guess a ULID of another company's invoice, our Policy layer will block the request before the data is even fetched, ensuring 100% data privacy. This dual approach is essential for SOC2 compliance and building trust with high-value logistics clients."
+"Our platform is so robust that we use it ourselves to manage our agency's sales pipeline, proving the system's reliability before our logistics clients even sign up. This 'dogfooding' approach ensures that we catch UX friction points in the real world, providing a battle-tested product to our users."
