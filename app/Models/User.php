@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\UserRole;
 use App\Traits\HasTenant;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -16,7 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable(['tenant_id', 'name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUlids, HasTenant, Notifiable, TwoFactorAuthenticatable;
@@ -45,5 +47,13 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Determine if the user can access the Filament panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER;
     }
 }
