@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status'])]
+#[Fillable(['tenant_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status', 'metadata'])]
 class Lead extends Model
 {
     /** @use HasFactory<\Database\Factories\LeadFactory> */
@@ -26,6 +26,7 @@ class Lead extends Model
     {
         return [
             'status' => LeadStatus::class,
+            'metadata' => 'array',
         ];
     }
 
