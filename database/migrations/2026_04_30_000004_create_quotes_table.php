@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('quotes', function (Blueprint $table) {
-            $table->id();
+            $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('lead_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('lead_id')->constrained()->cascadeOnDelete();
             $table->string('quote_number')->unique();
             $table->decimal('total_amount', 12, 2);
             $table->date('valid_until');

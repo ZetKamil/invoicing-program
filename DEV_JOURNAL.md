@@ -40,3 +40,29 @@ The system is designed so that when a potential client interacts with a "Lead Ma
 
 ### Presentation Tip
 "By encapsulating the quote generation process within a dedicated Domain Action, we decouple complex business rules from our controllers, ensuring high reusability and maintainability as our sales pipeline logic evolves."
+
+---
+
+## 2026-04-30: Billing and Communication Engine
+
+### Task Summary
+Implemented the core billing infrastructure, including Products, Invoices, and automated Communication logging. We also standardized the entire database to use ULIDs for all primary and foreign keys.
+
+### Design Patterns
+**Polymorphic Communications (`MorphTo`):**
+We implemented a polymorphic `related_model` relationship in the `communications` table. This allows the system to:
+1. **Unify Interaction Logs**: Both `Quotes` and `Invoices` share a single communication history table.
+2. **Extensibility**: Future modules (like "Support Tickets" or "Orders") can easily log communications without modifying the schema.
+3. **Streamlined UI**: A single Livewire component can render the communication history for any related model by simply passing the polymorphic relation.
+
+**Automated Calculation Logic (Observers):**
+Calculated fields like `InvoiceItem` totals are handled by the `InvoiceItemObserver`. This ensures that business logic remains centralized and consistent regardless of whether an item is created via the UI, an API, or a background job.
+
+### Architecture Decisions: Peppol-Ready Billing
+The system is built to be "Peppol-Ready," which is the standard for electronic invoicing in the EU and globally. We've included:
+1. **`ubl_xml_path`**: Storage for the Universal Business Language (UBL) XML file, required for Peppol compliance.
+2. **`buyer_reference`**: A mandatory field in many e-invoicing standards to identify the purchaser.
+3. **`due_date`**: Strict date management for automated overdue status transitions.
+
+### Presentation Tip
+"Our billing engine is architected for global compliance, featuring Peppol-ready data structures and a unified polymorphic communication layer that tracks every interaction with the client throughout the sales and billing lifecycle."
