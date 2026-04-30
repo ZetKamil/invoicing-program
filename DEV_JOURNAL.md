@@ -129,3 +129,23 @@ Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboa
 
 ### Defense Tip
 "Our platform is so robust that we use it ourselves to manage our agency's sales pipeline, proving the system's reliability before our logistics clients even sign up. This 'dogfooding' approach ensures that we catch UX friction points in the real world, providing a battle-tested product to our users."
+
+---
+
+## 2026-04-30: Decoupling & Project Independence
+
+### Task Summary
+Successfully decoupled the `facturatieprogramma` application from the `transdigit-master` reference folder, transforming the project into a 100% autonomous entity. This involved a full migration of assets, components, and logic, followed by a rigorous path and namespace audit.
+
+### Decoupling Strategy
+1. **Asset Autonomous Migration**: All CSS, JS, and public media (posts, icons, logos) were moved from the reference folder into the main project's `resources` and `storage` directories.
+2. **Component Porting**: Migrated several critical UI components and layouts (`frontend`, `layouts`) and Livewire views that were previously being "referenced" or duplicated in the old structure.
+3. **Widget Integration**: Ported the dynamic Filament widgets (Post Stats, Recent Posts, etc.) into `app/Filament/Widgets`, ensuring they are correctly discovered by the main Admin Panel Provider.
+4. **Namespace & Path Verification**: Performed a codebase-wide scan for "transdigit-master" strings and hardcoded paths to ensure zero external dependencies remain.
+
+### Architecture Decisions
+* **Standalone Integrity**: By consolidating all resources within the main repository, we've eliminated the "crash on delete" risk, ensuring the app is deployment-ready as a single unit.
+* **Autoloader Refresh**: Executed a full `composer dump-autoload` to re-map all ported classes under the primary `App` namespace, ensuring optimal performance and reliable class discovery.
+
+### Presentation Tip
+"Our application is now fully independent, featuring a consolidated asset pipeline and a unified component library. By decoupling from the legacy reference structure, we've achieved a 'Production-Ready' state where the codebase is completely self-contained and ready for CI/CD pipelines."
