@@ -11,20 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leads', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
-            $table->string('company_name');
-            $table->string('contact_person');
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('audit_report_url')->nullable();
-            $table->string('status')->default('new')->index();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->decimal('price', 12, 2);
+            $table->string('type');
+            $table->boolean('is_recurring')->default(false);
             $table->timestamps();
             $table->softDeletes();
-            
-            // Index for performance when querying leads by tenant
-            $table->index(['tenant_id', 'status']);
+
+            $table->index(['tenant_id', 'type']);
         });
     }
 
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leads');
+        Schema::dropIfExists('products');
     }
 };

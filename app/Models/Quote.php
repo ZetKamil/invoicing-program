@@ -6,6 +6,7 @@ use App\Enums\QuoteStatus;
 use App\Traits\HasTenant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Quote extends Model
 {
     /** @use HasFactory<\Database\Factories\QuoteFactory> */
-    use HasFactory, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasTenant, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.

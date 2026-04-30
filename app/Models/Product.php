@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use App\Enums\LeadStatus;
+use App\Enums\ProductType;
 use App\Traits\HasTenant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status'])]
-class Lead extends Model
+#[Fillable(['tenant_id', 'name', 'description', 'price', 'type', 'is_recurring'])]
+class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\LeadFactory> */
+    /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory, HasUlids, HasTenant, SoftDeletes;
 
     /**
@@ -25,15 +24,9 @@ class Lead extends Model
     protected function casts(): array
     {
         return [
-            'status' => LeadStatus::class,
+            'price' => 'decimal:2',
+            'type' => ProductType::class,
+            'is_recurring' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the quotes for the lead.
-     */
-    public function quotes(): HasMany
-    {
-        return $this->hasMany(Quote::class);
     }
 }
