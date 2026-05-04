@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Quotes\Schemas;
 
 use App\Enums\QuoteStatus;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;

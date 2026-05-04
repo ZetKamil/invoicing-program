@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Leads\Schemas;
 
 use App\Enums\LeadStatus;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Schema;

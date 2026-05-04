@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
-use App\Traits\HasTenant;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -21,7 +20,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, HasTenant, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasUlids, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.

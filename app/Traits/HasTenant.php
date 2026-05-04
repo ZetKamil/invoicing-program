@@ -16,8 +16,8 @@ trait HasTenant
         static::addGlobalScope(new TenantScope());
 
         static::creating(function (Model $model) {
-            if (Auth::check() && ! $model->tenant_id) {
-                $model->tenant_id = Auth::user()->tenant_id;
+            if (\Illuminate\Support\Facades\Auth::check() && ! $model->tenant_id) {
+                $model->tenant_id = \Illuminate\Support\Facades\Auth::user()->tenant_id;
             }
         });
     }
