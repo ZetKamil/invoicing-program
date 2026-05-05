@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxStyles
@@ -43,7 +43,7 @@
       line-height: 1.65;
       font-size: 16px;
     }
-    h1, h2, h3, h4, h5 { font-family: 'Syne', sans-serif; line-height: 1.12; }
+    h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; line-height: 1.12; }
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; }
     button { cursor: pointer; font-family: 'DM Sans', sans-serif; }
@@ -70,7 +70,7 @@
       background: var(--orange); color: #fff;
       border: none; padding: 14px 28px;
       border-radius: 8px;
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
     }
@@ -84,7 +84,7 @@
       background: transparent; color: var(--text);
       border: 1px solid var(--dim); padding: 14px 28px;
       border-radius: 8px;
-      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px;
+      font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px;
       transition: border-color 0.2s, color 0.2s;
     }
     .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
@@ -103,7 +103,7 @@
       height: 100%; display: flex; align-items: center; justify-content: space-between;
     }
     .nav-logo {
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 19px;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 19px;
       color: #fff; letter-spacing: -0.5px;
     }
     .nav-logo em { color: var(--orange); font-style: normal; }
@@ -117,7 +117,7 @@
       background: var(--orange); color: #fff;
       border: none; padding: 9px 20px;
       border-radius: 7px;
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.15s;
     }
@@ -183,7 +183,7 @@
       border-top: 1px solid var(--border);
     }
     .stat-num {
-      font-family: 'Syne', sans-serif; font-size: 38px;
+      font-family: 'Outfit', sans-serif; font-size: 38px;
       font-weight: 800; color: #fff; line-height: 1;
     }
     .stat-num span { color: var(--orange); }
@@ -223,7 +223,7 @@
       font-size: 22px; margin-bottom: 20px;
     }
     .prob-title {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 17px; color: #fff; margin-bottom: 10px;
     }
     .prob-text { font-size: 14px; color: var(--muted); line-height: 1.7; }
@@ -259,7 +259,7 @@
       text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
     }
     .pkg-price {
-      font-family: 'Syne', sans-serif; font-size: 52px;
+      font-family: 'Outfit', sans-serif; font-size: 52px;
       font-weight: 800; color: #fff; line-height: 1;
     }
     .pkg-price sup { font-size: 22px; color: var(--orange); vertical-align: super; }
@@ -287,7 +287,7 @@
       color: var(--orange);
       border: 1px solid var(--border-o);
       padding: 13px; border-radius: 9px;
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13.5px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13.5px;
       letter-spacing: 0.3px;
       transition: background 0.2s, color 0.2s;
     }
@@ -314,13 +314,13 @@
       border: 2px solid var(--border-o);
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 22px;
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange);
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange);
       position: relative; z-index: 1;
       transition: background 0.3s, border-color 0.3s;
     }
     .step:hover .step-num { background: rgba(249,115,22,0.12); border-color: var(--orange); }
     .step-title {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 16px; color: #fff; margin-bottom: 9px;
     }
     .step-text { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
@@ -347,7 +347,7 @@
     .testi-quote::before {
       content: '"';
       position: absolute; left: 0; top: -8px;
-      font-family: 'Syne', sans-serif; font-size: 52px;
+      font-family: 'Outfit', sans-serif; font-size: 52px;
       color: rgba(249,115,22,0.28); line-height: 1; font-style: normal;
     }
     .testi-author { display: flex; align-items: center; gap: 14px; }
@@ -356,11 +356,11 @@
       background: rgba(249,115,22,0.12);
       border: 2px solid rgba(249,115,22,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--orange);
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; color: var(--orange);
       flex-shrink: 0;
     }
     .author-name {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 14px; color: #fff;
     }
     .author-role { font-size: 12px; color: var(--dim); margin-top: 2px; }
@@ -375,7 +375,7 @@
     }
     .sb-item { text-align: center; }
     .sb-num {
-      font-family: 'Syne', sans-serif; font-size: 46px;
+      font-family: 'Outfit', sans-serif; font-size: 46px;
       font-weight: 800; color: #fff; line-height: 1;
     }
     .sb-num span { color: rgba(8,17,31,0.7); }
@@ -398,7 +398,7 @@
       font-size: 18px;
     }
     .af-title {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 15.5px; color: #fff; margin-bottom: 5px;
     }
     .af-text { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
@@ -447,7 +447,7 @@
       text-transform: uppercase; color: var(--orange); margin-bottom: 10px;
     }
     .ac-name {
-      font-family: 'Syne', sans-serif; font-size: 22px;
+      font-family: 'Outfit', sans-serif; font-size: 22px;
       font-weight: 800; color: #fff; margin-bottom: 3px;
     }
     .ac-role { font-size: 13px; color: var(--dim); margin-bottom: 20px; }
@@ -493,7 +493,7 @@
       text-transform: uppercase; color: var(--orange); margin-bottom: 10px;
     }
     .blog-title {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 16px; color: #fff; margin-bottom: 10px; line-height: 1.35;
     }
     .blog-excerpt { font-size: 13.5px; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
@@ -516,7 +516,7 @@
       display: flex; align-items: center; justify-content: center; font-size: 18px;
     }
     .qi-title {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 15px; color: #fff; margin-bottom: 4px;
     }
     .qi-text { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
@@ -569,7 +569,7 @@
       text-transform: uppercase; color: var(--dim); margin-bottom: 5px;
     }
     .ci-val {
-      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 15.5px; color: #fff;
     }
     
@@ -586,7 +586,7 @@
     .footer-brand .nav-logo { margin-bottom: 12px; }
     .footer-brand p { font-size: 13.5px; color: var(--dim); max-width: 280px; line-height: 1.65; }
     .footer-col h4 {
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 12px;
       text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 18px;
     }
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
