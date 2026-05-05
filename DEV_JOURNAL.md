@@ -129,3 +129,28 @@ Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboa
 
 ### Defense Tip
 "Our platform is so robust that we use it ourselves to manage our agency's sales pipeline, proving the system's reliability before our logistics clients even sign up. This 'dogfooding' approach ensures that we catch UX friction points in the real world, providing a battle-tested product to our users."
+
+---
+
+## 2026-05-05: Strategic Agency Seeding
+
+### Task Summary
+Implemented a comprehensive seeding strategy to populate the database with the primary Agency data and demo records. This ensures the system is ready for testing multi-tenancy and logistics logic with real-world scenarios.
+
+### Implementation Details
+1.  **Dedicated Seeders**: Split seeding into logical components:
+    *   `TenantSeeder`: Initializes the "Logi-Web PRO" tenant with default currency and contact info.
+    *   `UserSeeder`: Creates the primary Admin account linked to the agency.
+    *   `ProductSeeder`: Seeds the core business packages (Start, Pro, Enterprise) with correct types and pricing.
+    *   `DemoDataSeeder`: Generates sample Leads and Quotes to populate the dashboard.
+2.  **Domain Action Integration**: Used `CreateQuoteAction` within the seeder to ensure that demo data is generated using the same business logic as the live application.
+3.  **Model Factories**: Created/Updated factories for `Lead`, `Quote`, and `Product` to maintain clean and scalable test data generation.
+4.  **ULID Consistency**: Ensured all primary and foreign keys use ULIDs, maintaining our architectural standard.
+
+### Technical Rationale
+**Dogfooding via Seeding:**
+By using a dedicated Seeder for our own agency, we implement 'Dogfooding'—using our SaaS to manage our own sales. This ensures the system is production-ready and correctly scopes data from day one. It also provides a consistent starting point for any developer or tester.
+
+### Presentation Tip
+"By automating the setup of our own agency's data, we ensure that every development environment starts with a fully functional sales pipeline, allowing us to 'dogfood' our features immediately."
+
