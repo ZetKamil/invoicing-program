@@ -26,10 +26,22 @@ class UserSeeder extends Seeder
             [
                 'tenant_id' => $tenant->id,
                 'name' => 'Primary Admin',
-                'password' => Hash::make('password'), // Use a secure password in production
+                'password' => Hash::make('password'),
                 'role' => UserRole::ADMIN,
                 'email_verified_at' => now(),
             ]
         );
+
+        User::updateOrCreate(
+            ['email' => 'kamil@test.com'],
+            [
+                'tenant_id' => $tenant->id,
+                'name' => 'Kamil Admin',
+                'password' => Hash::make('12345678'),
+                'role' => UserRole::ADMIN,
+                'email_verified_at' => now(),
+            ]
+        );
+
     }
 }
