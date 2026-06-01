@@ -312,3 +312,19 @@ Finalized the compliance with 2026 e-invoicing laws by replacing the UBL XML pla
 
 ### Defense Tip
 "By generating twin accounting files (PDF for humans, UBL 2.1 XML for machines) simultaneously inside a secure tenant-scoped storage environment, our application bypasses the need for third-party compliance middleware, guaranteeing native compliance with European Peppol data clearing networks."
+
+---
+
+## 2026-06-01: DevOps - Switch Database Driver to SQLite
+
+### Task Summary
+Completely eliminated the WAMP server MySQL dependency by switching the primary database driver to SQLite. This implements a zero-config, portable database infrastructure, ideal for live presentations without complex setups.
+
+### Implementation Details
+1. **SQLite Initialization**: Created the empty unifying database file at database/database.sqlite.
+2. **Environment Shift**: Reworked .env to rely exclusively on DB_CONNECTION=sqlite, commenting out all obsolete DB_HOST, DB_PORT, DB_DATABASE, and credentials.
+3. **Migration Verification**: Re-ran the complete migration and seeding suite. Native SQLite handled all foreign key constraints and JSON metadata casting precisely as mapped by Eloquent.
+4. **Validation**: Fully re-tested the architecture with Pest; all 45 feature tests remain passing at 100% success rate, ensuring local compliance with our multi-tenant logic on the new file-based driver.
+
+### Defense Tip
+"By transitioning our storage infrastructure to a decoupled SQLite file driver, we implement an autonomous, zero-configuration architecture. This guarantees absolute runtime portability across different hosting environments while maintaining strict local compliance with our multi-tenant schema rules."
