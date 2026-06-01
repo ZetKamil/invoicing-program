@@ -75,7 +75,6 @@ class StripeWebhookController extends Controller
                         Log::info("Provisioned new tenant: {$tenant->name} via SaaS Webhook.");
                         \Illuminate\Support\Facades\Cache::forget("registration_{$registrationId}");
                     }
-                }
             } else {
                 // Handle standard one-off invoice payments
                 $invoiceId = $session->metadata->invoice_id ?? null;

@@ -53,14 +53,27 @@ class InvoiceForm
                             ->disabled(),
                     ])->columns(2),
 
-                Section::make('Status')
+                Section::make('Status & Payment')
                     ->schema([
                         ToggleButtons::make('status')
                             ->options(InvoiceStatus::class)
                             ->inline()
                             ->default(InvoiceStatus::DRAFT)
                             ->required(),
-                    ]),
+                            
+                        TextInput::make('stripe_payment_intent_id')
+                            ->label('Stripe Payment Intent ID')
+                            ->disabled()
+                            ->helperText('Filled automatically when paid via Stripe webhook.'),
+                            
+                        \Filament\Forms\Components\Placeholder::make('payment_link')
+                            ->label('Public Payment Link')
+                            ->content(function (?\App\Models\Invoice $record) {
+                                if (!$record || !$record->id) return '-';
+                                $url = route('invoice.pay', ['invoice' => $record->id]);
+                                return new \Illuminate\Support\HtmlString("<a href=\"{$url}\" target=\"_blank\" class=\"text-blue-600 underline\">{$url}</a>");
+                            }),
+                    ])->columns(3),
             ]);
     }
 }
