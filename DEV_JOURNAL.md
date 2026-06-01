@@ -165,3 +165,20 @@ Implemented the public-facing Lead Capture form using Livewire 4 Single File Com
 ### Presentation Tip
 "By utilizing Livewire 4 Single File Components linked to independent Domain Actions, our public frontend remains blazing fast and decoupled from the backend database layer, adhering to clean DDD (Domain-Driven Design) principles."
 
+
+---
+
+## 2026-06-01: Issue #23 - Lead to Quote Filament Action Integration
+
+### Task Summary
+Implemented the business logic inside the Tenant Dashboard that allows a dispatcher to convert a `Lead` into a `Quote` seamlessly using Filament Custom Actions.
+
+### Implementation Details
+1. **Filament Custom Actions**: Added a `Create Quote` action to both the `LeadsTable` (Table Action) and `EditLead` page (Page Action). The button is conditionally visible only if the Lead status is `New` or `Audited`.
+2. **Domain Action Execution**: The Filament action resolves and triggers `CreateQuoteAction` dynamically. It calculates a base amount depending on the selected package (stored in Lead's metadata).
+3. **UX & Notifications**: After a successful generation, the Lead is marked as `Converted`, a success toast notification is dispatched, and the user is immediately redirected to the new Quote's edit page.
+4. **Multi-Tenant Security**: Enforced an explicit `tenant_id` check within the action closure. Even if the UI is manipulated, a dispatcher from Tenant A cannot trigger a quote generation for a Lead belonging to Tenant B.
+
+### Defense Tip
+"By triggering encapsulated Domain Actions directly from Filament Custom Actions, we maintain clean separation of concerns. The UI layer only captures the intent, while the business rule of transitioning a Lead to a Quote remains completely isolated and highly testable."
+
