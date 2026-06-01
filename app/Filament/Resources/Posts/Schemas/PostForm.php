@@ -47,13 +47,8 @@ class PostForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Publication & Categories')
+                Section::make('Publication')
                     ->schema([
-                        Select::make('categories')
-                            ->label('Categories')
-                            ->relationship('categories', 'name')
-                            ->multiple()
-                            ->preload(),
 
                         ToggleButtons::make('status')
                             ->label('Status')

@@ -341,3 +341,30 @@ Resolved a fatal 500 Internal Server Error occurring in the LeadsTable and Quote
 
 ### Presentation Tip
 "During the upgrade paths and module configurations, we ensure robust stability by aligning our Data Tables directly with the core Filament\Actions namespace, centralizing all logic for our interactive buttons into a single cohesive UI framework."
+
+---
+
+## 2026-06-01: Issue - Traject B Compliance (Invoice Locking, Queues & Reporting)
+
+### Task Summary
+Implemented the final requirements for "Traject B", ensuring strict data integrity and deep financial reporting. This included locking sent invoices, setting up an automated CRON job for overdue reminders via Laravel Queues, and creating advanced Filament dashboard widgets.
+
+### Design Patterns
+- **Policy-Based Data Integrity**: Enforced invoice locking natively via InvoicePolicy. By returning alse on update and delete for finalized invoices, Filament automatically revokes UI editing rights while Eloquent blocks any backend modification attempts.
+- **Asynchronous Task Scheduling**: Utilized Laravel's Scheduler (
+outes/console.php) combined with ShouldQueue on mailables. This ensures that heavy tasks like scanning for overdue invoices and sending emails do not block the main application thread.
+- **Widget-Driven UI**: Extracted reporting logic into self-contained Filament StatsOverviewWidget and ChartWidget classes, maintaining a thin dashboard view and highly cohesive data aggregators.
+
+### Presentation Tip
+"To achieve full Traject B compliance without sacrificing performance, we introduced an asynchronous Queue-driven architecture for automated reminders. Simultaneously, financial data integrity is cryptographically guaranteed by Eloquent Policies, which act as a gatekeeper blocking any modification of finalized invoices, both via the API and the user interface."
+
+---
+
+## 2026-06-01: Refactoring - Dead Code Elimination (Categories Module)
+
+### Task Summary
+Executed a deep architectural clean-up by entirely removing the "Categories" module from the application. This module was deemed unnecessary as the "Posts" domain was simplified to a single-topic context.
+
+### Design Patterns
+- **Dead Code Elimination (DCE)**: Actively removed unused structural elements (Models, Policies, Migrations, Filament Resources). Keeping only active, utilized domains ensures a smaller attack surface, faster compilation/routing times, and less cognitive load on future maintainers.
+- **Dependency Cleansing**: Stripped BelongsToMany and HasMany category references from the Post and Tenant models respectively, maintaining strict Eloquent relationship integrity.
