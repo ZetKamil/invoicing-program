@@ -216,3 +216,29 @@ Implemented the automated billing core capable of converting an accepted `Quote`
 ### Defense Tip
 "By enforcing a rigid Quote-to-Invoice transition via a standalone Domain Action, we prevent financial discrepancies. The system guarantees that an invoice exactly mirrors the approved quote, eliminating human manual entry errors and maintaining strict audit trails."
 
+
+---
+
+## 2026-06-01: Issues #26, #27, and #28 - Stripe Payment Gateway & Public Invoice Portal
+
+### Task Summary
+Implemented the full end-to-end payment gateway scaffolding, allowing customers to view and pay their invoices securely via Stripe, and automating the billing status lifecycle upon successful payment.
+
+### Implementation Details
+1. **Public Invoice Portal (Issue #26)**:
+   - Created a Livewire 4 SFC (`InvoicePayPortal`) accessible via the secure `/pay/{invoice:id}` route.
+   - The UI matches the "Business Blue" styling and allows the customer to review line items, totals, and due dates without needing an account.
+2. **Stripe Checkout Service (Issue #27)**:
+   - Integrated the official Stripe PHP SDK within `StripeService`.
+   - The `createCheckoutSessionForInvoice` method strictly converts decimals into integer cents (×100) as required by Stripe.
+   - Embedded the `invoice_id` into the Stripe session `metadata` to preserve context across redirects.
+3. **Webhook & Automation Engine (Issue #28)**:
+   - Configured `StripeWebhookController` at `/webhook/stripe` (exempted from CSRF in `bootstrap/app.php`).
+   - The controller listens for `checkout.session.completed` events.
+   - Using `Invoice::withoutGlobalScopes()`, the system bypasses tenant-auth requirements (since webhooks are unauthenticated server-to-server events) to find the correct invoice.
+   - The Invoice is automatically transitioned to `Paid` with a timestamp.
+   - Triggered `LogCommunicationAction` to securely record "Invoice Mark As Paid via Stripe" as a System Event.
+
+### Defense Tip
+"By utilizing secure tokenized URLs with ULIDs for the customer payment portal, we maximize conversion rates by removing registration barriers for freight payers, while maintaining cryptographic isolation from our internal /dashboard infrastructure."
+
