@@ -198,3 +198,21 @@ Implemented the dispatch mechanism for sending Quotes via email and logging the 
 ### Defense Tip
 "By using a polymorphic communication layer, we track every touchpoint with the customer across different modules (Quotes, Invoices) in one unified history table, providing the dispatcher with a full 360-degree view of client interactions."
 
+
+---
+
+## 2026-06-01: Issue #25 - Quote to Invoice Conversion & PDF Engine
+
+### Task Summary
+Implemented the automated billing core capable of converting an accepted `Quote` into a `Draft Invoice`, complete with automatic item mirroring, exact tax calculations, and dynamic PDF generation.
+
+### Implementation Details
+1. **Conversion Logic**: Created `CreateInvoiceFromQuoteAction` which takes a `Quote` and wraps the creation of the `Invoice` and `InvoiceItem` inside a secure database transaction.
+   - It automatically generates a unique `invoice_number` (`INV-YYYY-XXXX`) scoped securely to the `tenant_id`.
+   - Calculates the `subtotal`, 21% `tax_rate`, and `total_amount` with absolute mathematical precision (`decimal:12,2`).
+2. **PDF Generation**: Implemented `GenerateInvoicePdfAction`. Currently utilizing a clean Blade-to-HTML implementation that acts as a structured foundation for PDF rendering. It saves the resulting file into local storage (`storage/app/tenants/{tenant_id}/invoices/`) and updates the `ubl_xml_path` metadata reference.
+3. **Filament Integration**: Added the "Convert to Invoice" action to the `QuoteResource`. It is conditionally visible (only for `SENT` or `ACCEPTED` quotes) and handles the full pipeline: status update -> invoice creation -> PDF generation -> UI redirect.
+
+### Defense Tip
+"By enforcing a rigid Quote-to-Invoice transition via a standalone Domain Action, we prevent financial discrepancies. The system guarantees that an invoice exactly mirrors the approved quote, eliminating human manual entry errors and maintaining strict audit trails."
+
