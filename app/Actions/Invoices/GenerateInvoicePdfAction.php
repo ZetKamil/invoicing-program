@@ -26,11 +26,32 @@ class GenerateInvoicePdfAction
         // Save to secure local storage
         Storage::put($path, $html);
 
+        // Generate UBL 2.1 XML
+        $xmlPath = $this->generateUblXml($invoice);
+
         // Update the document reference metadata
         $invoice->update([
-            'ubl_xml_path' => $path, // Reusing this field as a document reference placeholder
+            'ubl_xml_path' => $xmlPath,
         ]);
 
         return $invoice;
+    }
+
+    /**
+     * Generate Peppol-compatible UBL 2.1 XML for the Invoice.
+     */
+    protected function generateUblXml(Invoice $invoice): string
+    {
+        // Render the XML view without any formatting artifacts
+        $xml = View::make('invoices.ubl', compact('invoice'))->render();
+
+        // Generate a path scoped to the tenant
+        $filename = $invoice->invoice_number . '.xml';
+        $path = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
+
+        // Save to secure local storage
+        Storage::put($path, trim($xml));
+
+        return $path;
     }
 }

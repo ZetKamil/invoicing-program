@@ -262,3 +262,20 @@ Transformed the demo platform into a true SaaS application by locking tenant cre
 ### Defense Tip
 "By passing a temporary, cryptographically secure UUID token to Stripe metadata instead of raw user payloads, we eliminate data leakage risks. The application employs a Webhook-First provisioning lifecycle, ensuring that multi-tenant infrastructure is only engineered after financial clearing is cryptographically verified."
 
+
+---
+
+## 2026-06-01: Issue #30 - Peppol-Ready UBL 2.1 XML Generation
+
+### Task Summary
+Completed the billing engine compliance for 2026 European standards by implementing fully native UBL 2.1 XML document generation alongside the standard PDF generation.
+
+### Implementation Details
+1. **UBL Blade Template**: Created `resources/views/invoices/ubl.blade.php` adhering strictly to Peppol BIS Billing 3.0 schema and standard UBL namespaces (`cbc`, `cac`). It maps the invoice details, tax calculations, and party identities.
+2. **Dual-Document Pipeline**: Extended `GenerateInvoicePdfAction` to process the new XML view alongside the HTML/PDF pipeline.
+3. **Tenant-Isolated Storage**: The resulting XML string is injected into the secure filesystem (`storage/app/tenants/{tenant_id}/invoices/{invoice_number}.xml`).
+4. **Metadata Linking**: The `ubl_xml_path` column on the `Invoice` model is automatically updated to trace to the new compliant file.
+
+### Defense Tip
+"By generating twin-document outputs (human-readable PDF + machine-readable UBL 2.1 XML), the platform achieves native compatibility with the European Peppol network, directly supporting automated cross-border logistics clearing workflows without middleware overhead."
+
