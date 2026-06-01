@@ -129,3 +129,18 @@ Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboa
 
 ### Defense Tip
 "Our platform is so robust that we use it ourselves to manage our agency's sales pipeline, proving the system's reliability before our logistics clients even sign up. This 'dogfooding' approach ensures that we catch UX friction points in the real world, providing a battle-tested product to our users."
+
+---
+
+## 2026-06-01: Issue #21 - Strategic Agency Seeding
+
+### Task Summary
+Populated the database with primary Agency data and demo records to test Multi-tenancy and Logistics logic using dedicated seeders.
+
+### Seeding Strategy
+1. **Tenant & Admin Seeding**: Created `TenantSeeder` for "Logi-Web PRO" and `UserSeeder` for the primary Admin account linked via `tenant_id`.
+2. **Product Catalog**: Seeded 3 main packages (Start, Pro, Enterprise) as `ProductType::LICENSE` into the `products` table using `ProductSeeder`.
+3. **Demo Data**: Generated demo Leads and Quotes assigned to Logi-Web PRO using `LeadQuoteSeeder`. Crucially, this utilizes the `CreateQuoteAction` and `LeadFactory` to ensure quotes follow exact domain logic.
+
+### Defense Tip
+"By using a dedicated Seeder for our own agency, we implement 'Dogfooding'—using our SaaS to manage our own sales. This ensures the system is production-ready and correctly scopes data from day one."

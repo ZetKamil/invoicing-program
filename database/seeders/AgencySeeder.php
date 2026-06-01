@@ -31,5 +31,12 @@ class AgencySeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => UserRole::ADMIN,
         ]);
+                User::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Admin Logi-Web',
+            'email' => 'kamil@test.com',
+            'password' => Hash::make('password'),
+            'role' => UserRole::ADMIN,
+        ]);
     }
 }

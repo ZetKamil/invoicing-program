@@ -15,6 +15,7 @@ class CreateQuoteAction
     public function handle(Lead $lead, float $totalAmount, int $validDays = 14): Quote
     {
         $quote = new Quote();
+        $quote->tenant_id = $lead->tenant_id;
         $quote->lead_id = $lead->id;
         $quote->quote_number = $this->generateQuoteNumber();
         $quote->total_amount = $totalAmount;
