@@ -87,6 +87,7 @@ class StripeWebhookController extends Controller
                         $invoice->update([
                             'status' => InvoiceStatus::PAID,
                             'paid_at' => now(),
+                            'stripe_payment_intent_id' => $session->payment_intent ?? null,
                         ]);
 
                         $logCommunicationAction->execute(
