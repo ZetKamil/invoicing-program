@@ -242,3 +242,23 @@ Implemented the full end-to-end payment gateway scaffolding, allowing customers 
 ### Defense Tip
 "By utilizing secure tokenized URLs with ULIDs for the customer payment portal, we maximize conversion rates by removing registration barriers for freight payers, while maintaining cryptographic isolation from our internal /dashboard infrastructure."
 
+
+---
+
+## 2026-06-01: Issue #31 - SaaS Monetization & Webhook-First Onboarding
+
+### Task Summary
+Transformed the demo platform into a true SaaS application by locking tenant creation and dashboard access behind a real-world Stripe Subscription engine.
+
+### Implementation Details
+1. **Database Adjustments**: Added `stripe_subscription_id` and `stripe_subscription_status` directly to the `tenants` table.
+2. **Subscription Checkout Service**: Enhanced `StripeService` to generate Subscription-mode checkout sessions, automatically mapping internal plans (`start`, `pro`) to their corresponding Stripe Price IDs.
+3. **Public SaaS Onboarding Form**: Created the `RegisterTenant` Livewire SFC available at `/register`. Replaced Filament's default registration to enforce the payment gateway upfront.
+4. **Webhook-First Provisioning Architecture**: 
+   - Modifed `StripeWebhookController` to intercept `checkout.session.completed` for subscriptions.
+   - Handled `customer.subscription.updated` / `deleted` to synchronize tenant statuses.
+5. **Dashboard Paywall**: Developed `CheckSubscriptionStatus` middleware and hooked it into the Filament `AdminPanelProvider`'s `authMiddleware` array. If a user logs in but their tenant's subscription is lapsed, they are immediately redirected to `/billing-required`.
+
+### Defense Tip
+"By passing a temporary, cryptographically secure UUID token to Stripe metadata instead of raw user payloads, we eliminate data leakage risks. The application employs a Webhook-First provisioning lifecycle, ensuring that multi-tenant infrastructure is only engineered after financial clearing is cryptographically verified."
+

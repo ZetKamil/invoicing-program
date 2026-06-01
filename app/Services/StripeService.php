@@ -49,4 +49,39 @@ class StripeService
 
         return redirect()->away($session->url);
     }
+
+    /**
+     * Create a Stripe Checkout Session for a new Tenant Subscription.
+     */
+    public function createCheckoutSessionForSubscription(string $registrationId, string $plan)
+    {
+        // Map internal plans to Stripe Price IDs (use dummy IDs for testing/development)
+        $priceId = match(strtolower($plan)) {
+            'start' => config('services.stripe.price_start', 'price_test_start'),
+            'pro' => config('services.stripe.price_pro', 'price_test_pro'),
+            default => config('services.stripe.price_start', 'price_test_start'),
+        };
+
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price' => $priceId,
+                'quantity' => 1,
+            ]],
+            'mode' => 'subscription',
+            'success_url' => route('home') . '?subscription=success',
+            'cancel_url' => route('register') . '?canceled=true',
+            'metadata' => [
+                'registration_id' => $registrationId,
+            ],
+            // Trial period for the Start plan, etc can be configured here
+            'subscription_data' => [
+                'metadata' => [
+                    'registration_id' => $registrationId,
+                ],
+            ]
+        ]);
+
+        return redirect()->away($session->url);
+    }
 }

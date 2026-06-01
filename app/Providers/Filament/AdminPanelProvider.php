@@ -28,7 +28,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('dashboard')
             ->path('dashboard')
             ->login()
-            ->registration() // Allow new tenants to register
             ->colors([
                 'primary' => Color::Blue, // More professional color
             ])
@@ -55,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\CheckSubscriptionStatus::class,
             ]);
     }
 }

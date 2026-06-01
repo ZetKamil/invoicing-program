@@ -47,30 +47,69 @@ class StripeWebhookController extends Controller
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
 
-            // Extract invoice ID from metadata
-            $invoiceId = $session->metadata->invoice_id ?? null;
+            if ($session->mode === 'subscription') {
+                $registrationId = $session->metadata->registration_id ?? null;
+                
+                if ($registrationId) {
+                    $registrationData = \Illuminate\Support\Facades\Cache::get("registration_{$registrationId}");
+                    
+                    if ($registrationData) {
+                        // Provision Tenant
+                        $tenant = \App\Models\Tenant::create([
+                            'name' => $registrationData['company_name'],
+                            'slug' => \Illuminate\Support\Str::slug($registrationData['company_name']) . '-' . strtolower(\Illuminate\Support\Str::random(4)),
+                            'stripe_id' => $session->customer,
+                            'stripe_subscription_id' => $session->subscription,
+                            'stripe_subscription_status' => 'active',
+                        ]);
 
-            if ($invoiceId) {
-                // Bypass global scopes since the webhook is not authenticated as a user
-                $invoice = Invoice::withoutGlobalScopes()->find($invoiceId);
+                        // Create Admin User
+                        $user = \App\Models\User::create([
+                            'tenant_id' => $tenant->id,
+                            'name' => 'Admin',
+                            'email' => $registrationData['email'],
+                            'password' => $registrationData['password'], // Already hashed
+                            'role' => \App\Enums\UserRole::ADMIN,
+                        ]);
 
-                if ($invoice && $invoice->status !== InvoiceStatus::PAID) {
-                    $invoice->update([
-                        'status' => InvoiceStatus::PAID,
-                        'paid_at' => now(),
-                    ]);
-
-                    // Trigger communication log
-                    $logCommunicationAction->execute(
-                        $invoice->tenant_id,
-                        'Invoice Mark As Paid via Stripe',
-                        $invoice,
-                        CommType::SYSTEM,
-                        'Stripe Checkout Session ID: ' . $session->id
-                    );
-
-                    Log::info("Invoice {$invoice->invoice_number} marked as paid via Stripe webhook.");
+                        Log::info("Provisioned new tenant: {$tenant->name} via SaaS Webhook.");
+                        \Illuminate\Support\Facades\Cache::forget("registration_{$registrationId}");
+                    }
                 }
+            } else {
+                // Handle standard one-off invoice payments
+                $invoiceId = $session->metadata->invoice_id ?? null;
+
+                if ($invoiceId) {
+                    $invoice = Invoice::withoutGlobalScopes()->find($invoiceId);
+
+                    if ($invoice && $invoice->status !== InvoiceStatus::PAID) {
+                        $invoice->update([
+                            'status' => InvoiceStatus::PAID,
+                            'paid_at' => now(),
+                        ]);
+
+                        $logCommunicationAction->execute(
+                            $invoice->tenant_id,
+                            'Invoice Mark As Paid via Stripe',
+                            $invoice,
+                            CommType::SYSTEM,
+                            'Stripe Checkout Session ID: ' . $session->id
+                        );
+
+                        Log::info("Invoice {$invoice->invoice_number} marked as paid via Stripe webhook.");
+                    }
+                }
+            }
+        } elseif (in_array($event->type, ['customer.subscription.updated', 'customer.subscription.deleted'])) {
+            $subscription = $event->data->object;
+            $tenant = \App\Models\Tenant::where('stripe_subscription_id', $subscription->id)->first();
+            
+            if ($tenant) {
+                $tenant->update([
+                    'stripe_subscription_status' => $subscription->status,
+                ]);
+                Log::info("Updated subscription status for tenant: {$tenant->name} to {$subscription->status}.");
             }
         }
 
