@@ -55,4 +55,12 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER;
     }
+
+    /**
+     * Get the tenant that the user belongs to.
+     */
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 }
