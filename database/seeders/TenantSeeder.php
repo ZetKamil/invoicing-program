@@ -12,6 +12,7 @@ class TenantSeeder extends Seeder
         Tenant::create([
             'name' => 'Logi-Web PRO',
             'slug' => 'logi-web-pro',
+            'stripe_subscription_status' => 'active',
             'settings' => [
                 'currency' => 'EUR',
                 'contact_info' => 'contact@logiweb.pro',

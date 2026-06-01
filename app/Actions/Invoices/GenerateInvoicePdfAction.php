@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\View;
 
 class GenerateInvoicePdfAction
 {
+    public function __construct(
+        protected GenerateUblXmlAction $generateUblXmlAction
+    ) {}
+
     /**
      * Generate PDF (or HTML placeholder) for the Invoice.
      */
@@ -27,7 +31,7 @@ class GenerateInvoicePdfAction
         Storage::put($path, $html);
 
         // Generate UBL 2.1 XML
-        $xmlPath = $this->generateUblXml($invoice);
+        $xmlPath = $this->generateUblXmlAction->execute($invoice);
 
         // Update the document reference metadata
         $invoice->update([
@@ -35,23 +39,5 @@ class GenerateInvoicePdfAction
         ]);
 
         return $invoice;
-    }
-
-    /**
-     * Generate Peppol-compatible UBL 2.1 XML for the Invoice.
-     */
-    protected function generateUblXml(Invoice $invoice): string
-    {
-        // Render the XML view without any formatting artifacts
-        $xml = View::make('invoices.ubl', compact('invoice'))->render();
-
-        // Generate a path scoped to the tenant
-        $filename = $invoice->invoice_number . '.xml';
-        $path = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
-
-        // Save to secure local storage
-        Storage::put($path, trim($xml));
-
-        return $path;
     }
 }
