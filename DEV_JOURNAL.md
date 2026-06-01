@@ -328,3 +328,16 @@ Completely eliminated the WAMP server MySQL dependency by switching the primary 
 
 ### Defense Tip
 "By transitioning our storage infrastructure to a decoupled SQLite file driver, we implement an autonomous, zero-configuration architecture. This guarantees absolute runtime portability across different hosting environments while maintaining strict local compliance with our multi-tenant schema rules."
+
+---
+
+## 2026-06-01: DevOps - Filament v3 Action Namespace Fix
+
+### Task Summary
+Resolved a fatal 500 Internal Server Error occurring in the LeadsTable and QuotesTable. The error was caused by legacy namespace references (Filament\Tables\Actions\Action) that were fully deprecated and refactored in Filament v3. 
+
+### Design Patterns
+- **Package Architecture Evolution**: In Filament v3, all custom actions are centralized under the core Filament\Actions package rather than being divided into page-specific and table-specific namespaces. By uniformly adapting our tables to inject \Filament\Actions\Action, we adhere to the modern architectural standard expected by the Filament core engine.
+
+### Presentation Tip
+"During the upgrade paths and module configurations, we ensure robust stability by aligning our Data Tables directly with the core Filament\Actions namespace, centralizing all logic for our interactive buttons into a single cohesive UI framework."
