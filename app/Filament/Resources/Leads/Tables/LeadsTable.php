@@ -35,7 +35,7 @@ class LeadsTable
                 //
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('create_quote')
+                \Filament\Actions\Action::make('create_quote')
                     ->label('Create Quote')
                     ->icon('heroicon-o-document-plus')
                     ->color('success')
