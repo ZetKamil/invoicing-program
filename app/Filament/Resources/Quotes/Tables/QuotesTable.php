@@ -37,6 +37,33 @@ class QuotesTable
                 //
             ])
             ->recordActions([
+                \Filament\Tables\Actions\Action::make('send_quote')
+                    ->label('Send Quote via Email')
+                    ->icon('heroicon-o-envelope')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
+                        if ($record->tenant_id !== auth()->user()->tenant_id) {
+                            abort(403, 'Unauthorized action.');
+                        }
+    
+                        if (!$record->lead || !$record->lead->email) {
+                            \Filament\Notifications\Notification::make()->title('Lead has no email address.')->danger()->send();
+                            return;
+                        }
+    
+                        \Illuminate\Support\Facades\Mail::to($record->lead->email)->send(new \App\Mail\QuoteInquiryMail($record));
+    
+                        $subject = 'Your Quote from ' . $record->tenant->name;
+                        $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL);
+    
+                        $record->update(['status' => \App\Enums\QuoteStatus::SENT]);
+    
+                        \Filament\Notifications\Notification::make()
+                            ->title('Quote sent and communication logged successfully!')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
             ])
             ->toolbarActions([

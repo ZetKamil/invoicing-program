@@ -182,3 +182,19 @@ Implemented the business logic inside the Tenant Dashboard that allows a dispatc
 ### Defense Tip
 "By triggering encapsulated Domain Actions directly from Filament Custom Actions, we maintain clean separation of concerns. The UI layer only captures the intent, while the business rule of transitioning a Lead to a Quote remains completely isolated and highly testable."
 
+
+---
+
+## 2026-06-01: Issue #24 - Email Dispatcher & Communication Logs
+
+### Task Summary
+Implemented the dispatch mechanism for sending Quotes via email and logging the interaction in a centralized polymorphic communications table.
+
+### Implementation Details
+1. **Email Implementation**: Created `QuoteInquiryMail` and its corresponding Blade template (`mail.quote-inquiry`) utilizing the clean "Business Blue" styling. It dynamically pulls tenant data and quote totals.
+2. **Polymorphic Logging**: Introduced `LogCommunicationAction` which records every email sent into the `communications` table. It links dynamically to the `Quote` via polymorphic relations (`related_type`, `related_id`).
+3. **Filament Integration**: Added the "Send Quote via Email" action to the `QuoteResource` (both Table and Page). The action ensures tenant authorization, sends the email, triggers the log action, and updates the quote status to `QuoteStatus::SENT`.
+
+### Defense Tip
+"By using a polymorphic communication layer, we track every touchpoint with the customer across different modules (Quotes, Invoices) in one unified history table, providing the dispatcher with a full 360-degree view of client interactions."
+
