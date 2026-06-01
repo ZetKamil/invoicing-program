@@ -10,7 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
+#[Layout('layouts.guest')]
 class RegisterTenant extends Component
 {
     #[Validate('required|min:3')]

@@ -623,6 +623,7 @@
 </head>
 <body>
     @yield('content')
+    {{ $slot ?? '' }}
     
     @fluxScripts
 </body>
