@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Quote;
+use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -10,31 +10,44 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class QuoteInquiryMail extends Mailable implements ShouldQueue
+class InvoiceReminderMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    /**
+     * Create a new message instance.
+     */
     public function __construct(
-        public Quote $quote
+        public Invoice $invoice
     ) {}
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Quote from ' . $this->quote->tenant->name,
+            subject: 'Reminder: Invoice ' . $this->invoice->invoice_number . ' is Overdue',
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(
-            view: 'mail.quote-inquiry',
+            view: 'emails.invoices.reminder',
         );
     }
 
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
     public function attachments(): array
     {
-        // Placeholder for PDF attachment
         return [];
     }
 }

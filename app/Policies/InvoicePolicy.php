@@ -37,6 +37,9 @@ class InvoicePolicy
      */
     public function update(User $user, Invoice $invoice): bool
     {
+        if (in_array($invoice->status, [\App\Enums\InvoiceStatus::SENT, \App\Enums\InvoiceStatus::PAID, \App\Enums\InvoiceStatus::OVERDUE])) {
+            return false;
+        }
         return $user->tenant_id === $invoice->tenant_id;
     }
 
@@ -45,6 +48,9 @@ class InvoicePolicy
      */
     public function delete(User $user, Invoice $invoice): bool
     {
+        if (in_array($invoice->status, [\App\Enums\InvoiceStatus::SENT, \App\Enums\InvoiceStatus::PAID, \App\Enums\InvoiceStatus::OVERDUE])) {
+            return false;
+        }
         return $user->tenant_id === $invoice->tenant_id;
     }
 
