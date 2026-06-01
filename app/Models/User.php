@@ -15,12 +15,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
+use App\Traits\HasTenant;
+
 #[Fillable(['tenant_id', 'name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasUlids, Notifiable, TwoFactorAuthenticatable, HasTenant;
 
     /**
      * Get the attributes that should be cast.
@@ -54,13 +56,5 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER;
-    }
-
-    /**
-     * Get the tenant that the user belongs to.
-     */
-    public function tenant()
-    {
-        return $this->belongsTo(Tenant::class);
     }
 }
