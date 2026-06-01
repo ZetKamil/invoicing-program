@@ -13,6 +13,33 @@ class EditQuote extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('convert_to_invoice')
+                ->label('Convert to Invoice')
+                ->icon('heroicon-o-document-currency-euro')
+                ->color('success')
+                ->requiresConfirmation()
+                ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
+                ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
+                    if ($record->tenant_id !== auth()->user()->tenant_id) {
+                        abort(403, 'Unauthorized action.');
+                    }
+
+                    // Create Invoice
+                    $invoice = $createInvoiceAction->execute($record);
+
+                    // Generate PDF (HTML placeholder)
+                    $generatePdfAction->execute($invoice);
+
+                    // Update Quote status
+                    $record->update(['status' => \App\Enums\QuoteStatus::CONVERTED]);
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Quote converted to Invoice successfully!')
+                        ->success()
+                        ->send();
+
+                    return redirect()->to(\App\Filament\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
+                }),
             \Filament\Actions\Action::make('send_quote')
                 ->label('Send Quote via Email')
                 ->icon('heroicon-o-envelope')
