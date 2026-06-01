@@ -144,3 +144,24 @@ Populated the database with primary Agency data and demo records to test Multi-t
 
 ### Defense Tip
 "By using a dedicated Seeder for our own agency, we implement 'Dogfooding'—using our SaaS to manage our own sales. This ensures the system is production-ready and correctly scopes data from day one."
+
+---
+
+## 2026-06-01: Issue #22 - Public Lead Capture Form (Livewire 4 SFC)
+
+### Task Summary
+Implemented the public-facing Lead Capture form using Livewire 4 Single File Component (SFC) standard. The form allows potential clients to select a package (Start, Pro, Enterprise) and submit their contact details seamlessly.
+
+### Implementation Details
+1. **Livewire SFC**: Created `app/Livewire/Public/PackageInquiryForm.php` combining component logic (state, validation) and Blade template (using Tailwind CSS & Flux UI) in a single file.
+2. **Data Flow & Action Integration**: 
+   - Public Pricing Table (Guest Visitor) 
+   - → Submits `PackageInquiryForm` (validated via `#[Validate]`) 
+   - → Triggers `CreateLeadAction`
+   - → Assigns the Lead to "Logi-Web PRO" tenant & stores package in metadata
+   - → Appears securely inside the Multi-tenant Dashboard.
+3. **Security**: Accessible publicly but protected by robust Livewire property validation rules (e.g. `required|min:3`, `email`).
+
+### Presentation Tip
+"By utilizing Livewire 4 Single File Components linked to independent Domain Actions, our public frontend remains blazing fast and decoupled from the backend database layer, adhering to clean DDD (Domain-Driven Design) principles."
+
