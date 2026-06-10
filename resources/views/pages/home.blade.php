@@ -1,29 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
-<!-- ===================== NAVBAR ===================== -->
-<nav id="navbar">
-  <div class="nav-inner">
-    <div class="nav-logo">TransDigit<em>.</em></div>
-    <ul class="nav-links">
-      <li><a href="#services">Diensten</a></li>
-      <li><a href="#hoewerkhet">Hoe het werkt</a></li>
-      <li><a href="#smartquote">Smart Quote</a></li>
-      <li><a href="#about">Over ons</a></li>
-      <li><a href="#blog">Blog</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <button class="nav-cta" onclick="document.getElementById('audit').scrollIntoView({behavior:'smooth'})">
-      Gratis audit →
-    </button>
-  </div>
-</nav>
 
 <!-- ===================== HERO ===================== -->
 <section id="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow-1"></div>
-  <div class="hero-glow-2"></div>
+    <div class="hero-grid"></div>
   <div class="container">
     <div class="hero-content">
       <div class="hero-badge" id="hb">
@@ -111,7 +92,7 @@
           <li><span class="feat-check">✓</span> Hosting inbegrepen</li>
           <li><span class="feat-check">✓</span> SSL-certificaat</li>
         </ul>
-        <button class="pkg-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Kies Start</button>
+        <button class="pkg-btn" onclick="selectPackage('Start')">Kies Start</button>
       </div>
       <!-- PRO -->
       <div class="pkg-card popular">
@@ -129,13 +110,13 @@
           <li><span class="feat-check">✓</span> Kwartaalrapportage</li>
           <li><span class="feat-check">✓</span> E-mail notificaties</li>
         </ul>
-        <button class="pkg-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Kies Pro Transport</button>
+        <button class="pkg-btn" onclick="selectPackage('Pro Transport')">Kies Pro Transport</button>
       </div>
       <!-- ENTERPRISE -->
       <div class="pkg-card">
         <div class="pkg-tier">Enterprise</div>
-        <div class="pkg-price"><sup>€</sup>1.950<span style="font-size:22px;color:var(--muted)">+</span></div>
-        <div class="pkg-recur">eenmalig + €149/maand</div>
+        <div class="pkg-price" style="font-size: 32px;">Prijs op maat</div>
+        <div class="pkg-recur">afhankelijk van uw project</div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features">
           <li><span class="feat-check">✓</span> Volledige procesautomatisering</li>
@@ -146,7 +127,7 @@
           <li><span class="feat-check">✓</span> Prioriteits-support</li>
           <li><span class="feat-check">✓</span> TMS-uitbreiding mogelijk</li>
         </ul>
-        <button class="pkg-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Vraag offerte aan</button>
+        <button class="pkg-btn" onclick="selectPackage('Enterprise')">Vraag offerte aan</button>
       </div>
     </div>
   </div>
@@ -288,11 +269,11 @@
       <div class="audit-form-box">
         <h3>Start uw gratis audit</h3>
         <p>Vul uw gegevens in en ontvang binnen 24 uur een gepersonaliseerd rapport — volledig gratis, zonder verplichtingen.</p>
-        <div class="aform">
+        <div class="aform" id="audit-form-container">
           <input type="text" placeholder="Bedrijfsnaam" />
           <input type="url" placeholder="URL huidige website (bv. www.uwbedrijf.be)" />
           <input type="email" placeholder="Uw e-mailadres" />
-          <button class="btn-primary" style="justify-content:center;width:100%">🔍 Analyseer mijn website</button>
+          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitAudit(event)">🔍 Analyseer mijn website</button>
         </div>
       </div>
     </div>
@@ -339,7 +320,7 @@
       <div class="quote-form-box">
         <h3>Demo: Offerteaanvraag</h3>
         <p>Zo ziet uw klant het formulier — elk veld verplicht, geen chaos meer.</p>
-        <div class="qform">
+        <div class="qform" id="quote-form-container">
           <div class="qform-row">
             <div class="fgroup">
               <label>Bedrijfsnaam</label>
@@ -391,7 +372,7 @@
             <label>Extra opmerkingen</label>
             <textarea rows="3" placeholder="Laadplatform aanwezig? Specifieke vereisten?"></textarea>
           </div>
-          <button class="btn-primary" style="justify-content:center;width:100%">📤 Offerte aanvragen</button>
+          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitQuote(event)">📤 Offerte aanvragen</button>
         </div>
       </div>
     </div>
@@ -440,7 +421,9 @@
     <h2 class="section-title">Inzichten voor Vlaamse<br>transporteurs.</h2>
     <div class="blog-grid">
       <div class="blog-card">
-        <div class="blog-thumb" style="background:linear-gradient(135deg,#0D1E35,#142845)">📄</div>
+        <div class="blog-thumb" style="padding: 0;">
+          <img src="{{ asset('images/blog/blog_einvoicing.png') }}" alt="E-facturering 2026" style="width:100%; height:100%; object-fit:cover;" />
+        </div>
         <div class="blog-body">
           <div class="blog-cat">Regelgeving</div>
           <div class="blog-title">E-facturering verplicht in 2026: wat moet uw transportbedrijf nu al doen?</div>
@@ -449,7 +432,9 @@
         </div>
       </div>
       <div class="blog-card">
-        <div class="blog-thumb" style="background:linear-gradient(135deg,#142845,#1A3460)">🎯</div>
+        <div class="blog-thumb" style="padding: 0;">
+          <img src="{{ asset('images/blog/blog_dispatcher.png') }}" alt="Smart Quote Formulier" style="width:100%; height:100%; object-fit:cover;" />
+        </div>
         <div class="blog-body">
           <div class="blog-cat">Digitalisering</div>
           <div class="blog-title">Hoe een Smart Quote-formulier uw dispatcher 2 uur per dag bespaart</div>
@@ -458,7 +443,9 @@
         </div>
       </div>
       <div class="blog-card">
-        <div class="blog-thumb" style="background:linear-gradient(135deg,#08111F,#0D1E35)">🔍</div>
+        <div class="blog-thumb" style="padding: 0;">
+          <img src="{{ asset('images/blog/blog_seo.png') }}" alt="Lokale SEO" style="width:100%; height:100%; object-fit:cover;" />
+        </div>
         <div class="blog-body">
           <div class="blog-cat">SEO & Vindbaarheid</div>
           <div class="blog-title">Lokale SEO voor transporteurs: zo staat u boven uw concurrenten in Roeselare</div>
@@ -514,49 +501,6 @@
   </div>
 </section>
 
-<!-- ===================== FOOTER ===================== -->
-<footer>
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <div class="nav-logo">TransDigit<em style="color:var(--orange);font-style:normal">.</em></div>
-        <p>Digitale transformatie voor Vlaamse transport- och logistiekbedrijven. Van website tot ERP — in uw eigen tempo.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Navigatie</h4>
-        <ul>
-          <li><a href="#services">Diensten & Pakketten</a></li>
-          <li><a href="#hoewerkhet">Hoe het werkt</a></li>
-          <li><a href="#smartquote">Smart Quote</a></li>
-          <li><a href="#testimonials">Referenties</a></li>
-          <li><a href="#blog">Blog</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Juridisch</h4>
-        <ul>
-          <li><a href="#">Privacybeleid</a></li>
-          <li><a href="#">Algemene voorwaarden</a></li>
-          <li><a href="#">Cookie-instellingen</a></li>
-          <li><a href="#">BTW: BE 0XXX.XXX.XXX</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="#">info@transdigitmaster.be</a></li>
-          <li><a href="#">West-Vlaanderen, België</a></li>
-          <li><a href="#">LinkedIn</a></li>
-          <li><a href="#audit">Gratis audit</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2025 TransDigit Master — Logi-Web PRO. Alle rechten voorbehouden.</p>
-      <span class="footer-badge">🇧🇪 Made in West-Vlaanderen</span>
-    </div>
-  </div>
-</footer>
 
 <script>
 gsap.registerPlugin(ScrollTrigger);
@@ -607,8 +551,53 @@ fadeEls.forEach((el, i) => {
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
   nav.style.background = window.scrollY > 60
-    ? 'rgba(8,17,31,0.98)'
-    : 'rgba(8,17,31,0.88)';
+    ? 'rgba(9,9,11,0.85)'
+    : 'rgba(9,9,11,0.95)';
 });
+
+// Form logic
+function submitAudit(e) {
+  const btn = e.target;
+  btn.innerHTML = "⏳ Analyseren...";
+  btn.style.opacity = "0.7";
+  btn.style.pointerEvents = "none";
+  setTimeout(() => {
+    document.getElementById('audit-form-container').innerHTML = `
+      <div style="text-align:center; padding: 24px; background: rgba(212,255,0,0.05); border: 1px solid var(--orange); border-radius: 12px;">
+        <h4 style="color: #fff; font-size: 18px; margin-bottom: 8px;">Audit aangevraagd! ✅</h4>
+        <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">De AI heeft uw website succesvol gescand. U ontvangt het rapport binnen 24 uur in uw mailbox.</p>
+      </div>
+    `;
+  }, 1500);
+}
+
+function submitQuote(e) {
+  const btn = e.target;
+  btn.innerHTML = "⏳ Verzenden...";
+  btn.style.opacity = "0.7";
+  btn.style.pointerEvents = "none";
+  setTimeout(() => {
+    document.getElementById('quote-form-container').innerHTML = `
+      <div style="text-align:center; padding: 34px; background: rgba(212,255,0,0.05); border: 1px solid var(--orange); border-radius: 12px; height: 100%; display:flex; flex-direction:column; justify-content:center;">
+        <div style="font-size: 40px; margin-bottom: 15px;">📦</div>
+        <h4 style="color: #fff; font-size: 20px; margin-bottom: 8px;">Dossier succesvol verzonden!</h4>
+        <p style="color: var(--muted); font-size: 15px; line-height: 1.6;">Dit is hoe uw klant het ervaart. De aanvraag zit nu veilig in uw Mini-CRM. Uw dispatcher kan direct aan de slag met een volledig dossier.</p>
+      </div>
+    `;
+  }, 1200);
+}
+
+function selectPackage(pkgName) {
+  document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+  setTimeout(() => {
+    // Try to find the livewire textarea
+    const textarea = document.querySelector('textarea[wire\\\\:model="message"], textarea');
+    if (textarea) {
+      textarea.value = "Beste, ik ben geïnteresseerd in het " + pkgName + " pakket. Graag plannen we een vrijblijvend intakegesprek in.";
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      textarea.focus();
+    }
+  }, 800);
+}
 </script>
 @endsection

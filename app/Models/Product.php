@@ -9,12 +9,22 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\Builder;
 
 #[Fillable(['tenant_id', 'name', 'description', 'price', 'type', 'is_recurring'])]
 class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasTenant, SoftDeletes, Prunable;
+
+    /**
+     * Get the prunable model query.
+     */
+    public function prunable(): Builder
+    {
+        return static::where('deleted_at', '<=', now()->subYear());
+    }
 
     /**
      * Get the attributes that should be cast.

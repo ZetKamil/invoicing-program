@@ -22,6 +22,17 @@ class QuoteResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sales';
 
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        if (! $user || ! $user->tenant) {
+            return false;
+        }
+
+        $packages = $user->tenant->active_packages ?? [];
+        return in_array('2', $packages) || in_array('3', $packages);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return QuoteForm::configure($schema);
@@ -34,7 +45,7 @@ class QuoteResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        return parent::getEloquentQuery()->with('lead');
     }
 
     public static function getPages(): array

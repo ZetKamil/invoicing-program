@@ -40,9 +40,15 @@ class CreateInvoiceFromQuoteAction
                 'status' => InvoiceStatus::DRAFT,
             ]);
 
+            $product = \App\Models\Product::firstOrCreate(
+                ['tenant_id' => $quote->tenant_id, 'name' => 'Custom Quote Service'],
+                ['description' => 'Generic service for quotes', 'price' => 0, 'type' => \App\Enums\ProductType::SERVICE]
+            );
+
             // Since QuoteItems do not exist, we create a generic line item representing the quote.
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
+                'product_id' => $product->id,
                 'description' => 'Services as per Quote ' . $quote->quote_number,
                 'quantity' => 1,
                 'unit_price' => $subtotal,

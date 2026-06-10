@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         
         \App\Models\InvoiceItem::observe(\App\Observers\InvoiceItemObserver::class);
+        \App\Models\QuoteItem::observe(\App\Observers\QuoteItemObserver::class);
         \App\Models\Media::observe(\App\Observers\MediaObserver::class);
     }
 

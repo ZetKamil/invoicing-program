@@ -368,3 +368,46 @@ Executed a deep architectural clean-up by entirely removing the "Categories" mod
 ### Design Patterns
 - **Dead Code Elimination (DCE)**: Actively removed unused structural elements (Models, Policies, Migrations, Filament Resources). Keeping only active, utilized domains ensures a smaller attack surface, faster compilation/routing times, and less cognitive load on future maintainers.
 - **Dependency Cleansing**: Stripped BelongsToMany and HasMany category references from the Post and Tenant models respectively, maintaining strict Eloquent relationship integrity.
+
+---
+
+## 2026-06-08: Issue - Super-Admin Impersonation (Tenant Switching)
+
+### Task Summary
+Implemented a Super-Admin architecture allowing the main platform owner to seamlessly impersonate any Tenant User. This facilitates rapid debugging and customer support by bypassing strict Global Scopes directly from the Filament dashboard.
+
+### Design Patterns
+- **Super-Admin Bypass**: Extended the `User` model with an `is_super_admin` flag. Created a dedicated `GlobalUserResource` that explicitly invokes `withoutGlobalScopes()` to break the Multi-Tenant isolation barrier exclusively for authorized platform owners.
+- **Session Swapping**: Integrated the `stechstudio/filament-impersonate` package. This enables a secure state transition where the Super-Admin temporarily assumes the identity and permissions of a client, complete with a persistent UI banner to revert the session.
+
+### Presentation Tip
+"To provide instant customer support without requesting credentials, we engineered a Super-Admin Impersonation module. It securely fractures the Eloquent Global Scope isolation just for the platform owner, allowing them to hot-swap their session into any tenant's dashboard with a single click."
+
+---
+
+## 2026-06-08: VLAIO Pricing Calibration & Manual Lead Intake
+
+### Task Summary
+Calibrated the front-end pricing and back-end seeders to strictly reflect the approved VLAIO subsidy pricing matrix. Simultaneously implemented a "Manual Intake" flow to allow dispatchers (or Super-Admins) to manually register inbound leads over phone/email.
+
+### Design Patterns
+- **Manual Intake via Modals**: Converted the `LeadResource` creation flow into a Slide-Over modal in Filament, providing a fast, non-intrusive data entry mechanism for dispatchers.
+- **Tenant Auto-Linking**: Structured the Super-Admin creation of a new `Tenant` to automatically register an associated B2B `Lead` within the primary agency's (Logi-Web PRO) pipeline. This enables immediate generation of a setup invoice (e.g., €2.450) natively within the system.
+
+### Presentation Tip
+"By bridging Super-Admin operations with the native B2B CRM, we automated our own billing pipeline. Onboarding a new client instantly drops a ready-to-bill Lead into our agency's dashboard, strictly adhering to the VLAIO subsidy cost matrix."
+
+---
+
+## 2026-06-08: Modular Feature Flagging (Package Assignment)
+
+### Task Summary
+Implemented a dynamic subscription-based Feature Flagging engine. The visibility and accessibility of dashboard modules (e.g., Invoicing) are now strictly governed by the specific subscription packages purchased by the logistics provider.
+
+### Design Patterns
+- **JSON Attribute Arrays**: Introduced an `active_packages` JSON column to the `Tenant` model, avoiding complex many-to-many pivot tables for simple boolean-like flags. 
+- **Resource Interception**: Overrode the `canViewAny()` authorization policy in Filament Resources (e.g., `InvoiceResource`). The system actively intercepts navigation building and route access, returning `403 Access Denied` if a required module identifier (like `3` for Invoices) is missing from the tenant's payload.
+- **Super-Admin Mutability**: Deployed a `CheckboxList` in the Super-Admin dashboard, giving platform owners instantaneous capability to toggle features for clients on the fly.
+
+### Presentation Tip
+"We deployed a highly modular Feature Flagging engine. It leverages Eloquent's native JSON casting and Filament's policy resolution to construct dynamic, pay-walled dashboards. If a client hasn't purchased the Invoicing module, the system entirely strips it from the UI and cryptographically seals the endpoints."
