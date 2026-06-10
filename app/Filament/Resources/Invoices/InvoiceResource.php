@@ -22,6 +22,16 @@ class InvoiceResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Billing';
 
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        if (! $user || ! $user->tenant) {
+            return false;
+        }
+
+        return in_array('3', $user->tenant->active_packages ?? []);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return InvoiceForm::configure($schema);

@@ -13,4 +13,24 @@ class InvoiceItemObserver
     {
         $invoiceItem->total = $invoiceItem->quantity * $invoiceItem->unit_price * (1 + $invoiceItem->tax_rate / 100);
     }
+
+    /**
+     * Handle the InvoiceItem "saved" event.
+     */
+    public function saved(InvoiceItem $invoiceItem): void
+    {
+        if ($invoiceItem->invoice) {
+            $invoiceItem->invoice->recalculateTotals();
+        }
+    }
+
+    /**
+     * Handle the InvoiceItem "deleted" event.
+     */
+    public function deleted(InvoiceItem $invoiceItem): void
+    {
+        if ($invoiceItem->invoice) {
+            $invoiceItem->invoice->recalculateTotals();
+        }
+    }
 }

@@ -16,27 +16,36 @@ class ProductSeeder extends Seeder
         if ($tenant) {
             Product::create([
                 'tenant_id' => $tenant->id,
-                'name' => 'Package 1: Start',
-                'description' => 'Start package for new businesses.',
-                'price' => 99.00,
-                'type' => ProductType::LICENSE,
-                'is_recurring' => true,
+                'name' => 'Webdesign: Basic Setup',
+                'description' => 'One-time setup for basic webdesign.',
+                'price' => 850.00,
+                'type' => ProductType::SERVICE,
+                'is_recurring' => false,
             ]);
 
             Product::create([
                 'tenant_id' => $tenant->id,
-                'name' => 'Package 2: Pro',
-                'description' => 'Pro package for growing businesses.',
-                'price' => 199.00,
-                'type' => ProductType::LICENSE,
-                'is_recurring' => true,
+                'name' => 'Webdesign: Pro Transport Edition',
+                'description' => 'One-time setup with mini-CRM for logistics.',
+                'price' => 2450.00,
+                'type' => ProductType::SERVICE,
+                'is_recurring' => false,
             ]);
 
             Product::create([
                 'tenant_id' => $tenant->id,
-                'name' => 'Package 3: Enterprise',
-                'description' => 'Enterprise package for large organizations. Contact us.',
-                'price' => 0.00,
+                'name' => 'Master-Digit: Software Licentie & Support',
+                'description' => 'Yearly SaaS license / equivalent to €50/mo MRR.',
+                'price' => 600.00,
+                'type' => ProductType::LICENSE,
+                'is_recurring' => true,
+            ]);
+            
+            Product::create([
+                'tenant_id' => $tenant->id,
+                'name' => 'Master-Digit: Premium Modules & API',
+                'description' => 'Yearly advanced e-invoicing extension.',
+                'price' => 1188.00,
                 'type' => ProductType::LICENSE,
                 'is_recurring' => true,
             ]);

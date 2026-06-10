@@ -24,6 +24,13 @@ class Invoice extends Model
     use HasFactory, HasUlids, HasTenant, SoftDeletes;
 
     /**
+     * The relations to eager load on every query.
+     *
+     * @var array
+     */
+    protected $with = ['customer'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -55,5 +62,16 @@ class Invoice extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    /**
+     * Recalculate invoice totals based on items.
+     */
+    public function recalculateTotals(): void
+    {
+        $this->subtotal = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price'));
+        $this->tax_total = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price * (tax_rate / 100)'));
+        $this->total_amount = $this->subtotal + $this->tax_total;
+        $this->saveQuietly();
     }
 }

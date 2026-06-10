@@ -50,4 +50,21 @@ class Quote extends Model
               ->where('status', '!=', QuoteStatus::DECLINED)
               ->where('valid_until', '<', now()->startOfDay());
     }
+
+    /**
+     * Get the items associated with the quote.
+     */
+    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QuoteItem::class);
+    }
+
+    /**
+     * Recalculate quote totals based on items.
+     */
+    public function recalculateTotals(): void
+    {
+        $this->total_amount = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price * (1 + tax_rate / 100)'));
+        $this->saveQuietly();
+    }
 }

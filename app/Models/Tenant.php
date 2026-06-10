@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'slug', 'vat_number', 'peppol_id', 'stripe_id', 'stripe_subscription_id', 'stripe_subscription_status', 'settings'])]
+#[Fillable(['name', 'slug', 'vat_number', 'peppol_id', 'stripe_id', 'stripe_subscription_id', 'stripe_subscription_status', 'settings', 'active_packages'])]
 class Tenant extends Model
 {
     /** @use HasFactory<\Database\Factories\TenantFactory> */
@@ -23,6 +23,7 @@ class Tenant extends Model
     {
         return [
             'settings' => 'array',
+            'active_packages' => 'array',
         ];
     }
 
@@ -59,8 +60,4 @@ class Tenant extends Model
         return $this->hasMany(Post::class);
     }
 
-    public function categories(): HasMany
-    {
-        return $this->hasMany(Category::class);
-    }
 }

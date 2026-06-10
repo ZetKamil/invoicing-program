@@ -19,20 +19,24 @@
     /* ===== RESET & BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy:       #08111F;
-      --navy-mid:   #0D1E35;
-      --navy-light: #142845;
-      --navy-card:  #0F1E32;
-      --orange:     #F97316;
-      --orange-d:   #DC6A0E;
-      --orange-glow:rgba(249,115,22,0.15);
+      /* Industrial Zinc Palette */
+      --navy:       #09090b;
+      --navy-mid:   #121214;
+      --navy-light: #18181b;
+      --navy-card:  #18181b;
+      /* Electric Lime Accent */
+      --orange:     #D4FF00;
+      --orange-d:   #bce600;
+      --orange-glow:rgba(212,255,0,0.15);
       --gold:       #FBBF24;
       --white:      #FFFFFF;
-      --text:       #D9E6F5;
-      --muted:      #7B9EC4;
-      --dim:        #3F5A7A;
-      --border:     rgba(139,163,199,0.1);
-      --border-o:   rgba(249,115,22,0.25);
+      --text:       #f4f4f5;
+      --muted:      #a1a1aa;
+      --dim:        #52525b;
+      --border:     rgba(255,255,255,0.08);
+      --border-o:   rgba(212,255,0,0.25);
+      
+      --accent-text: #09090b; /* Dark text for bright lime buttons */
     }
     html { scroll-behavior: smooth; }
     body {
@@ -52,7 +56,7 @@
     .container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
     .section-tag {
       display: inline-block;
-      font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+      font-size: 11px; font-weight: 800; letter-spacing: 2.5px;
       text-transform: uppercase; color: var(--orange);
       margin-bottom: 14px;
     }
@@ -67,17 +71,17 @@
     }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      background: var(--orange); color: #fff;
+      background: var(--orange); color: var(--accent-text);
       border: none; padding: 14px 28px;
       border-radius: 8px;
-      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
     }
     .btn-primary:hover {
       background: var(--orange-d);
       transform: translateY(-2px);
-      box-shadow: 0 10px 36px rgba(249,115,22,0.35);
+      box-shadow: 0 10px 36px rgba(212,255,0,0.25);
     }
     .btn-outline {
       display: inline-flex; align-items: center; gap: 8px;
@@ -93,7 +97,7 @@
     #navbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 999;
       height: 70px;
-      background: rgba(8,17,31,0.88);
+      background: rgba(9,9,11,0.85);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       transition: background 0.3s;
@@ -114,10 +118,10 @@
     }
     .nav-links a:hover { color: var(--orange); }
     .nav-cta {
-      background: var(--orange); color: #fff;
+      background: var(--orange); color: var(--accent-text);
       border: none; padding: 9px 20px;
       border-radius: 7px;
-      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 13px;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.15s;
     }
@@ -378,7 +382,7 @@
       font-family: 'Outfit', sans-serif; font-size: 46px;
       font-weight: 800; color: #fff; line-height: 1;
     }
-    .sb-num span { color: rgba(8,17,31,0.7); }
+    .sb-num span { color: rgba(9,9,11,0.7); }
     .sb-label { font-size: 13px; color: rgba(255,255,255,0.78); margin-top: 5px; }
 
     /* ===== AUDIT ===== */
@@ -575,7 +579,7 @@
     
     /* ===== FOOTER ===== */
     footer {
-      background: #050D18; padding: 60px 0 32px;
+      background: var(--navy); padding: 60px 0 32px;
       border-top: 1px solid var(--border);
     }
     .footer-inner {
@@ -622,8 +626,12 @@
     </style>
 </head>
 <body>
+    @include('partials.navbar')
+    
     @yield('content')
     {{ $slot ?? '' }}
+    
+    @include('partials.footer')
     
     @fluxScripts
 </body>

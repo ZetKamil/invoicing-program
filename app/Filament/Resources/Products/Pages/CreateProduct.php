@@ -9,11 +9,4 @@ use Illuminate\Support\Facades\Auth;
 class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $data['tenant_id'] = Auth::user()->tenant_id;
-
-        return $data;
-    }
 }

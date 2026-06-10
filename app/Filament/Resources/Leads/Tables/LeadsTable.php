@@ -64,9 +64,9 @@ class LeadsTable
                             
                         return redirect()->to(\App\Filament\Resources\Quotes\QuoteResource::getUrl('edit', ['record' => $quote->id]));
                     }),
-                EditAction::make(),
+                EditAction::make()->slideOver(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
                 'email' => 'admin@logiweb.pro',
                 'password' => Hash::make('password'),
                 'role' => UserRole::ADMIN,
+                'is_super_admin' => true,
             ]);
         }
     }

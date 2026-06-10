@@ -10,12 +10,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\Builder;
 
 #[Fillable(['tenant_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status', 'metadata'])]
 class Lead extends Model
 {
     /** @use HasFactory<\Database\Factories\LeadFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasTenant, SoftDeletes, Prunable;
+
+    /**
+     * Get the prunable model query.
+     */
+    public function prunable(): Builder
+    {
+        return static::where('deleted_at', '<=', now()->subYear());
+    }
 
     /**
      * Get the attributes that should be cast.

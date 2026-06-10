@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Filament\Resources\Tenants\Schemas;
+
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+
+class TenantForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Tenant Details')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required(),
+                        TextInput::make('slug')
+                            ->required(),
+                        TextInput::make('vat_number'),
+                        TextInput::make('peppol_id'),
+                        TextInput::make('stripe_id'),
+                        Textarea::make('settings')
+                            ->columnSpanFull(),
+                        CheckboxList::make('active_packages')
+                            ->options([
+                                '1' => 'Webdesign: Basic Setup',
+                                '2' => 'Webdesign: Pro Transport Edition',
+                                '3' => 'Master-Digit Core: Invoicing & Peppol XML',
+                                '4' => 'Extension: Truck GPS Tracking',
+                                '5' => 'Extension: Delivery Monitoring',
+                                '6' => 'Extension: Fleet Management (TMS)',
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                        TextInput::make('stripe_subscription_id'),
+                        TextInput::make('stripe_subscription_status'),
+                    ])->columns(2),
+
+                Section::make('Primary Administrator')
+                    ->schema([
+                        TextInput::make('admin_email')
+                            ->email()
+                            ->required(),
+                        TextInput::make('admin_password')
+                            ->password()
+                            ->required(),
+                    ])->columns(2),
+            ]);
+    }
+}

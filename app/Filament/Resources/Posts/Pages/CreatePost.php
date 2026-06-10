@@ -13,7 +13,6 @@ class CreatePost extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = Auth::id();
-        $data['tenant_id'] = Auth::user()->tenant_id;
 
         return $data;
     }

@@ -17,7 +17,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 use App\Traits\HasTenant;
 
-#[Fillable(['tenant_id', 'name', 'email', 'password', 'role'])]
+#[Fillable(['tenant_id', 'name', 'email', 'password', 'role', 'is_super_admin'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'is_super_admin' => 'boolean',
         ];
     }
 
@@ -55,6 +56,22 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER;
+        return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER || $this->role === UserRole::DISPATCHER || $this->is_super_admin;
+    }
+
+    /**
+     * Determine if the user can impersonate others.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->is_super_admin;
+    }
+
+    /**
+     * Determine if the user can be impersonated.
+     */
+    public function canBeImpersonated(): bool
+    {
+        return ! $this->is_super_admin;
     }
 }

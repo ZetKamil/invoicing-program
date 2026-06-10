@@ -27,7 +27,7 @@ class PostForm
                             ->label('Title')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                            ->afterStateUpdated(fn(string $operation, $state, $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
                         TextInput::make('slug')
                             ->label('Slug')
@@ -47,13 +47,8 @@ class PostForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Publication & Categories')
+                Section::make('Publication')
                     ->schema([
-                        Select::make('categories')
-                            ->label('Categories')
-                            ->relationship('categories', 'name')
-                            ->multiple()
-                            ->preload(),
 
                         ToggleButtons::make('status')
                             ->label('Status')
@@ -73,13 +68,13 @@ class PostForm
                             ->image()
                             ->directory('posts')
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('alt_text')
                             ->label('Alt Text'),
-                        
+
                         Hidden::make('is_featured')
                             ->default(true),
-                        
+
                         Hidden::make('disk')
                             ->default('public'),
                     ])->columns(2),

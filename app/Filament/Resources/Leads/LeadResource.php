@@ -41,8 +41,6 @@ class LeadResource extends Resource
     {
         return [
             'index' => ListLeads::route('/'),
-            'create' => CreateLead::route('/create'),
-            'edit' => EditLead::route('/{record}/edit'),
         ];
     }
 }

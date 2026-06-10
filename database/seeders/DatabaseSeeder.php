@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             LeadQuoteSeeder::class,
             InvoiceSeeder::class,
+            ClientDemoSeeder::class,
         ]);
     }
 }
