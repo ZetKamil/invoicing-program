@@ -64,14 +64,32 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class);
     }
 
-    /**
-     * Recalculate invoice totals based on items.
-     */
     public function recalculateTotals(): void
     {
-        $this->subtotal = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price'));
-        $this->tax_total = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price * (tax_rate / 100)'));
-        $this->total_amount = $this->subtotal + $this->tax_total;
+        $sub = '0.00';
+        $tax = '0.00';
+        $total = '0.00';
+
+        foreach ($this->items as $item) {
+            $qty = (string) $item->quantity;
+            $price = (string) $item->unit_price;
+            $taxRate = (string) $item->tax_rate;
+
+            $lineSubtotal = bcmul($qty, $price, 10);
+            $taxMultiplier = bcdiv($taxRate, '100', 10);
+            $lineTax = bcmul($lineSubtotal, $taxMultiplier, 10);
+
+            $sub = bcadd($sub, $lineSubtotal, 10);
+            $tax = bcadd($tax, $lineTax, 10);
+        }
+
+        $this->subtotal = bcadd($sub, '0', 2);
+        $this->tax_total = bcadd($tax, '0', 2);
+        
+        // Zgodnie z zasadami księgowości: kwota całkowita = suma netto + suma podatku.
+        // Gwarantuje to brak rozjazdu o 1 grosz na łącznym dokumencie.
+        $this->total_amount = bcadd($this->subtotal, $this->tax_total, 2);
+        
         $this->saveQuietly();
     }
 }

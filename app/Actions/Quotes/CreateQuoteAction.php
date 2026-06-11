@@ -11,8 +11,11 @@ class CreateQuoteAction
 {
     /**
      * Handle the generation of a new quote from a lead.
+     *
+     * @param  string $totalAmount  Decimal string (BCMath convention). NEVER pass a PHP float.
+     *                              Example: '4500.00', not 4500.0
      */
-    public function handle(Lead $lead, float $totalAmount, int $validDays = 14): Quote
+    public function handle(Lead $lead, string $totalAmount, int $validDays = 14): Quote
     {
         $quote = new Quote();
         $quote->tenant_id = $lead->tenant_id;

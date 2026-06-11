@@ -3,6 +3,7 @@
 namespace App\Actions\Leads;
 
 use App\Enums\LeadStatus;
+use App\Events\LeadSubmittedEvent;
 use App\Models\Lead;
 use App\Models\Tenant;
 
@@ -10,24 +11,37 @@ class CreateLeadAction
 {
     /**
      * Execute the action to create a lead.
+     *
+     * After saving the Lead, dispatches LeadSubmittedEvent which broadcasts
+     * via Laravel Reverb to the private `dispatcher.{tenantId}` WebSocket channel.
+     * Dispatchers see a real-time notification in the Filament dashboard without
+     * refreshing — eliminating the polling latency bottleneck.
      */
     public function execute(array $data): Lead
     {
         // For public inquiries, we assign to the primary agency tenant (Logi-Web PRO)
         $agency = Tenant::where('slug', 'logi-web-pro')->firstOrFail();
 
-        return Lead::create([
-            'tenant_id' => $agency->id,
-            'company_name' => $data['company_name'],
+        $lead = Lead::create([
+            'tenant_id'      => $agency->id,
+            'company_name'   => $data['company_name'],
             'contact_person' => $data['contact_person'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'status' => LeadStatus::NEW,
-            'metadata' => [
+            'email'          => $data['email'],
+            'phone'          => $data['phone'] ?? null,
+            'status'         => LeadStatus::NEW,
+            'metadata'       => [
                 'package' => $data['package'] ?? 'unknown',
-                'source' => 'landing_page',
+                'source'  => 'landing_page',
                 'message' => $data['message'] ?? null,
             ],
         ]);
+
+        // Broadcast real-time notification to all authenticated dispatchers
+        // belonging to this tenant via the private Reverb WebSocket channel.
+        // Uses ShouldBroadcast — dispatched through the queue for zero HTTP latency.
+        LeadSubmittedEvent::dispatch($lead);
+
+        return $lead;
     }
 }
+

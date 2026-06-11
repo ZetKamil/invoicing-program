@@ -13,6 +13,15 @@ class QuoteItem extends Model
 {
     use HasFactory, HasUlids;
 
+    /**
+     * The relations to eager load on every query.
+     * Required by QuoteItemPolicy which checks $quoteItem->quote->tenant_id
+     * to avoid N+1 database queries during Filament list views.
+     *
+     * @var array<string>
+     */
+    protected $with = ['quote'];
+
     protected function casts(): array
     {
         return [

@@ -5,12 +5,22 @@ namespace App\Livewire\Public;
 use App\Actions\Leads\CreateLeadAction;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
+use Livewire\Attributes\Locked;
 use Flux\Flux;
 
 class PackageInquiryForm extends Component
 {
     public bool $isOpen = false;
     
+    /**
+     * The selected package name.
+     *
+     * SECURITY: Marked #[Locked] to prevent browser-side tampering.
+     * This value is set server-side via open() from a controlled set of valid packages.
+     * Without #[Locked], an attacker using DevTools could intercept the Livewire POST
+     * for submit() and inject any arbitrary string as the package name.
+     */
+    #[Locked]
     public string $package = '';
 
     #[Validate('required|min:3')]

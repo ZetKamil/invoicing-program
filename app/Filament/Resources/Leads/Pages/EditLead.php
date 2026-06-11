@@ -24,11 +24,12 @@ class EditLead extends EditRecord
                     }
                     
                     $package = $record->metadata['package'] ?? 'unknown';
+                    // BCMath string convention: string literals prevent float leakage into the financial pipeline.
                     $amount = match(strtolower($package)) {
-                        'start' => 99.00,
-                        'pro' => 199.00,
-                        'enterprise' => 0.00,
-                        default => 500.00,
+                        'start'      => '99.00',
+                        'pro'        => '199.00',
+                        'enterprise' => '0.00',
+                        default      => '500.00',
                     };
 
                     $quote = $createQuoteAction->handle($record, $amount, 14);

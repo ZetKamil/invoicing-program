@@ -46,11 +46,14 @@ class LeadsTable
                         }
                         
                         $package = $record->metadata['package'] ?? 'unknown';
+                        // BCMath string convention: use string literals, never PHP float literals.
+                        // Float literals (99.00) carry IEEE 754 binary representation into the
+                        // financial pipeline. String literals ('99.00') preserve decimal precision.
                         $amount = match(strtolower($package)) {
-                            'start' => 99.00,
-                            'pro' => 199.00,
-                            'enterprise' => 0.00,
-                            default => 500.00,
+                            'start'      => '99.00',
+                            'pro'        => '199.00',
+                            'enterprise' => '0.00',
+                            default      => '500.00',
                         };
 
                         $quote = $createQuoteAction->handle($record, $amount, 14);

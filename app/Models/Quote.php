@@ -59,12 +59,15 @@ class Quote extends Model
         return $this->hasMany(QuoteItem::class);
     }
 
-    /**
-     * Recalculate quote totals based on items.
-     */
     public function recalculateTotals(): void
     {
-        $this->total_amount = $this->items()->sum(\Illuminate\Support\Facades\DB::raw('quantity * unit_price * (1 + tax_rate / 100)'));
+        $total = '0.00';
+        foreach ($this->items as $item) {
+            // Using BCMath strings instead of SQLite float aggregation
+            // Observer already guarantees item->total is precise
+            $total = bcadd($total, (string) $item->total, 2);
+        }
+        $this->total_amount = $total;
         $this->saveQuietly();
     }
 }

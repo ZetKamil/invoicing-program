@@ -11,7 +11,20 @@ class InvoiceItemObserver
      */
     public function saving(InvoiceItem $invoiceItem): void
     {
-        $invoiceItem->total = $invoiceItem->quantity * $invoiceItem->unit_price * (1 + $invoiceItem->tax_rate / 100);
+        // FINANCIAL PRECISION: Use BCMath string arithmetic — never PHP float multiplication.
+        // IEEE 754 float drift (e.g. 3 × 14.90 × 1.21 = 54.0869999...) causes cent mismatches
+        // that fail Peppol UBL 2.1 schema validation and produce incorrect Stripe charges.
+        //
+        // Pattern: calculate (quantity × unit_price) × (1 + tax_rate / 100)
+        // All operands cast to string, intermediate scale=10 for precision, final scale=2.
+        $quantity  = (string) $invoiceItem->quantity;
+        $unitPrice = (string) $invoiceItem->unit_price;
+        $taxRate   = (string) $invoiceItem->tax_rate;
+
+        $taxMultiplier = bcadd('1', bcdiv($taxRate, '100', 10), 10);
+        $lineTotal     = bcmul(bcmul($quantity, $unitPrice, 10), $taxMultiplier, 2);
+
+        $invoiceItem->total = $lineTotal;
     }
 
     /**

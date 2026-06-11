@@ -7,7 +7,13 @@
     <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
     <cbc:ID>{{ $invoice->invoice_number }}</cbc:ID>
     <cbc:IssueDate>{{ $invoice->created_at->format('Y-m-d') }}</cbc:IssueDate>
+    {{-- DueDate is MANDATORY in Peppol BIS Billing 3.0 for payment terms specification --}}
+    <cbc:DueDate>{{ $invoice->due_date->format('Y-m-d') }}</cbc:DueDate>
     <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+    {{-- BuyerReference: mandatory in DE/NL profiles when provided by the buyer --}}
+    @if($invoice->buyer_reference)
+    <cbc:BuyerReference>{{ $invoice->buyer_reference }}</cbc:BuyerReference>
+    @endif
     <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
 
     <cac:AccountingSupplierParty>

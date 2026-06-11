@@ -41,7 +41,7 @@ trait HasTenant
         static::addGlobalScope(new TenantScope());
 ```
 **Co to jest:** Wstrzyknięcie naszego "Niewidzialnego Filtra" (który opisuję w następnym pliku).
-**Co masz powiedzieć:** *"To absolutnie kluczowa linijka z punktu widzenia bezpieczeństwa. Metoda addGlobalScope przypina naszą klasę TenantScope na stałe do rdzenia Query Buildera. Od tego momentu każde żądanie SQL z tego modelu zostanie przez nią przefiltrowane. Żadne zapytanie w systemie nie ominie tego filtru bez wyraźnego polecenia dewelopera."*
+**Co masz powiedzieć:** *" Metoda addGlobalScope przypina naszą klasę TenantScope na stałe do rdzenia Query Buildera. Od tego momentu każde żądanie SQL z tego modelu zostanie przez nią przefiltrowane. Żadne zapytanie w systemie nie ominie tego filtru bez wyraźnego polecenia dewelopera."*
 
 ```php
         static::creating(function (Model $model) {

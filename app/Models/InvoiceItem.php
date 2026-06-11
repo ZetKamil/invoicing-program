@@ -15,6 +15,15 @@ class InvoiceItem extends Model
     use HasFactory, HasUlids;
 
     /**
+     * The relations to eager load on every query.
+     * Required by InvoiceItemPolicy which checks $invoiceItem->invoice->tenant_id
+     * to avoid N+1 database queries during Filament list views.
+     *
+     * @var array<string>
+     */
+    protected $with = ['invoice'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
