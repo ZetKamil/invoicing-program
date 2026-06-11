@@ -33,6 +33,7 @@ class TenantForm
                                 '4' => 'Extension: Truck GPS Tracking',
                                 '5' => 'Extension: Delivery Monitoring',
                                 '6' => 'Extension: Fleet Management (TMS)',
+                                '7' => 'Extension: Products Management',
                             ])
                             ->columns(2)
                             ->columnSpanFull(),

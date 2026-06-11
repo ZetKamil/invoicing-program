@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'lead_id', 'quote_number', 'total_amount', 'valid_until', 'status', 'last_reminded_at'])]
+#[Fillable(['tenant_id', 'lead_id', 'quote_number', 'trailer_type', 'loading_address', 'delivery_address', 'description', 'metadata', 'total_amount', 'valid_until', 'status', 'last_reminded_at', 'cargo_weight_kg', 'pallet_count', 'loading_date', 'delivery_date', 'incoterms'])]
 class Quote extends Model
 {
     /** @use HasFactory<\Database\Factories\QuoteFactory> */
@@ -30,6 +30,7 @@ class Quote extends Model
             'total_amount' => 'decimal:2',
             'status' => QuoteStatus::class,
             'last_reminded_at' => 'datetime',
+            'metadata' => 'array',
         ];
     }
 

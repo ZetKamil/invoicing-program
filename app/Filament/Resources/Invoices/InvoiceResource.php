@@ -20,7 +20,10 @@ class InvoiceResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCurrencyEuro;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Billing';
+    protected static string|\UnitEnum|null $navigationGroup = 'Facturatie';
+
+    protected static ?string $modelLabel = 'Factuur';
+    protected static ?string $pluralModelLabel = 'Facturen';
 
     public static function canViewAny(): bool
     {
@@ -52,6 +55,7 @@ class InvoiceResource extends Resource
         return [
             'index' => ListInvoices::route('/'),
             'create' => CreateInvoice::route('/create'),
+            'view' => \App\Filament\Resources\Invoices\Pages\ViewInvoice::route('/{record}'),
             'edit' => EditInvoice::route('/{record}/edit'),
         ];
     }

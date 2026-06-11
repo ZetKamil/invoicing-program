@@ -18,9 +18,12 @@ class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxArrowDown;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sales';
+    protected static string|\UnitEnum|null $navigationGroup = 'Verkoop';
+
+    protected static ?string $modelLabel = 'Aanvraag';
+    protected static ?string $pluralModelLabel = 'Aanvragen';
 
     public static function form(Schema $schema): Schema
     {

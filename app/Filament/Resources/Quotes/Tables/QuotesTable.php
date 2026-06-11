@@ -15,21 +15,25 @@ class QuotesTable
         return $table
             ->columns([
                 TextColumn::make('quote_number')
+                    ->label('Offertenummer')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('lead.company_name')
-                    ->label('Lead')
+                    ->label('Aanvraag / Klant')
                     ->sortable(),
 
                 TextColumn::make('total_amount')
+                    ->label('Totaalbedrag')
                     ->money('EUR')
                     ->sortable(),
 
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge(),
 
                 TextColumn::make('valid_until')
+                    ->label('Geldig tot')
                     ->date()
                     ->sortable(),
             ])
@@ -38,14 +42,14 @@ class QuotesTable
             ])
             ->recordActions([
                 \Filament\Actions\Action::make('convert_to_invoice')
-                    ->label('Convert to Invoice')
+                    ->label('Zet om naar Factuur')
                     ->icon('heroicon-o-document-currency-euro')
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
                     ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
                         if ($record->tenant_id !== auth()->user()->tenant_id) {
-                            abort(403, 'Unauthorized action.');
+                            abort(403, 'Ongeautoriseerde actie.');
                         }
 
                         // Create Invoice
@@ -58,24 +62,24 @@ class QuotesTable
                         $record->update(['status' => \App\Enums\QuoteStatus::CONVERTED]);
 
                         \Filament\Notifications\Notification::make()
-                            ->title('Quote converted to Invoice successfully!')
+                            ->title('Offerte succesvol omgezet naar Factuur!')
                             ->success()
                             ->send();
 
                         return redirect()->to(\App\Filament\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
                     }),
                 \Filament\Actions\Action::make('send_quote')
-                    ->label('Send Quote via Email')
+                    ->label('Verstuur Offerte via E-mail')
                     ->icon('heroicon-o-envelope')
                     ->color('primary')
                     ->requiresConfirmation()
                     ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
                         if ($record->tenant_id !== auth()->user()->tenant_id) {
-                            abort(403, 'Unauthorized action.');
+                            abort(403, 'Ongeautoriseerde actie.');
                         }
     
                         if (!$record->lead || !$record->lead->email) {
-                            \Filament\Notifications\Notification::make()->title('Lead has no email address.')->danger()->send();
+                            \Filament\Notifications\Notification::make()->title('Aanvraag heeft geen e-mailadres.')->danger()->send();
                             return;
                         }
     
@@ -87,7 +91,7 @@ class QuotesTable
                         $record->update(['status' => \App\Enums\QuoteStatus::SENT]);
     
                         \Filament\Notifications\Notification::make()
-                            ->title('Quote sent and communication logged successfully!')
+                            ->title('Offerte verstuurd en gelogd!')
                             ->success()
                             ->send();
                     }),

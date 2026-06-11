@@ -15,6 +15,20 @@ class InvoicesTable
         return $table
             ->columns([
                 TextColumn::make('invoice_number')
+                    ->label('Factuurnummer')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('quote.quote_number')
+                    ->label('Bron Offerte')
+                    ->searchable()
+                    ->sortable()
+                    ->url(fn (\App\Models\Invoice $record): ?string => $record->quote_id ? \App\Filament\Resources\Quotes\QuoteResource::getUrl('edit', ['record' => $record->quote_id]) : null)
+                    ->color('primary')
+                    ->placeholder('-'),
+
+                TextColumn::make('customer.company_name')
+                    ->label('Klant / Aanvraag')
                     ->searchable()
                     ->sortable(),
 
@@ -39,6 +53,7 @@ class InvoicesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

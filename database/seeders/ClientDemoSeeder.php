@@ -189,6 +189,13 @@ class ClientDemoSeeder extends Seeder
                     'metadata'       => [
                         'bron'       => collect(['websiteformulier', 'telefoongesprek', 'doorverwijzing', 'koude_acquisitie'])->random(),
                         'vrachttype' => collect(['stortgoed', 'gekoeld', 'gevaarlijk', 'automotive', 'retail'])->random(),
+                        'trailer_type' => collect(['Huifwagen', 'Koelwagen', 'Container', 'Dieplader', 'Silo', 'Kipper', 'Tankwagen'])->random(),
+                        'cargo_weight_kg' => rand(1000, 24000),
+                        'pallet_count' => rand(1, 33),
+                        'loading_date' => now()->addDays(rand(1, 14))->format('Y-m-d'),
+                        'delivery_date' => now()->addDays(rand(15, 30))->format('Y-m-d'),
+                        'loading_address' => collect(['Wetstraat 16, 1000 Brussel, BE', 'Meir 1, 2000 Antwerpen, BE', 'Veldstraat 2, 9000 Gent, BE'])->random(),
+                        'delivery_address' => collect(['Damrak 1, 1012 LG Amsterdam, NL', 'Coolsingel 1, 3012 AA Rotterdam, NL', 'Champs-Élysées 1, 75008 Parijs, FR'])->random(),
                     ],
                 ]);
 
@@ -211,6 +218,14 @@ class ClientDemoSeeder extends Seeder
                     'total_amount' => $amount,
                     'valid_until'  => now()->addDays(rand(7, 30)),
                     'status'       => $quoteCycle[$qi % count($quoteCycle)],
+                    'trailer_type' => $lead->metadata['trailer_type'] ?? null,
+                    'cargo_weight_kg' => $lead->metadata['cargo_weight_kg'] ?? null,
+                    'pallet_count' => $lead->metadata['pallet_count'] ?? null,
+                    'loading_date' => $lead->metadata['loading_date'] ?? null,
+                    'delivery_date' => $lead->metadata['delivery_date'] ?? null,
+                    'loading_address' => $lead->metadata['loading_address'] ?? null,
+                    'delivery_address' => $lead->metadata['delivery_address'] ?? null,
+                    'description'  => 'Goederenvervoer op traject ' . ($lead->metadata['loading_address'] ?? '') . ' -> ' . ($lead->metadata['delivery_address'] ?? ''),
                 ]);
 
                 $tenantQuotes[] = [
@@ -246,6 +261,17 @@ class ClientDemoSeeder extends Seeder
                     'paid_at'        => $status === InvoiceStatus::PAID
                                             ? now()->subDays(rand(1, 20))
                                             : null,
+                    'trailer_type'   => $set['lead']->metadata['trailer_type'] ?? collect(['Huifwagen', 'Koelwagen', 'Container'])->random(),
+                    'cargo_weight_kg' => $set['lead']->metadata['cargo_weight_kg'] ?? rand(10000, 24000),
+                    'pallet_count'   => $set['lead']->metadata['pallet_count'] ?? rand(10, 33),
+                    'loading_date'   => $set['lead']->metadata['loading_date'] ?? now()->subDays(rand(10, 20))->format('Y-m-d'),
+                    'delivery_date'  => $set['lead']->metadata['delivery_date'] ?? now()->subDays(rand(1, 9))->format('Y-m-d'),
+                    'loading_address' => $set['lead']->metadata['loading_address'] ?? 'Industrielaan 1, 1000 Brussel, BE',
+                    'delivery_address' => $set['lead']->metadata['delivery_address'] ?? 'Logistiekweg 2, 2000 Antwerpen, BE',
+                    'cmr_number'     => 'CMR-' . rand(100000, 999999),
+                    'truck_license_plate'  => '1-' . chr(rand(65,90)) . chr(rand(65,90)) . chr(rand(65,90)) . '-' . rand(100, 999),
+                    'trailer_license_plate' => 'Q-' . chr(rand(65,90)) . chr(rand(65,90)) . chr(rand(65,90)) . '-' . rand(100, 999),
+                    'notes'          => 'Chauffeur meldde een lichte vertraging bij het laden.',
                 ]);
 
                 // One line item per invoice matching the original product

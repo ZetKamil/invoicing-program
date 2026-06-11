@@ -19,9 +19,12 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedMegaphone;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Communication';
+    protected static string|\UnitEnum|null $navigationGroup = 'Communicatie';
+
+    protected static ?string $modelLabel = 'Bericht';
+    protected static ?string $pluralModelLabel = 'Berichten';
 
     protected static ?int $navigationSort = 2;
 

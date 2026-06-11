@@ -1,0 +1,14 @@
+
+### [2026-06-11 11:15] - Task: Fix Inline Blade HEREDOC & Extract InvoicePayPortal View
+- **Files Modified:** `app/Livewire/Public/InvoicePayPortal.php`, `resources/views/livewire/public/invoice-pay-portal.blade.php`
+- **Technical Logic:** Moved the inline HTML (which was breaking PHP's HEREDOC due to Enum string conversion) into a dedicated Blade view file (`.blade.php`). Also added `downloadPdf()` method to handle dynamic generation and download of the PDF. Rebuilt assets using Vite to ensure Tailwind classes are available for the new view.
+- **Senior Concept:** MVC Pattern & Separation of Concerns. We explicitly separate the business logic (Controller/Livewire class) from the presentation logic (Blade view). Inline HTML in Livewire is a code smell and hard to maintain.
+- **Exam Defense Tip:** "By extracting the inline HTML into a dedicated Blade template, we ensure proper compilation by the Blade engine, fix the Enum-to-string crash, and enforce a clean separation of concerns in our architecture."
+- **Keywords to Learn:** `MVC`, `Blade`, `Tailwind Compilation`
+
+### [2026-06-11 11:35] - Task: Expose "Products" Feature to Tenants
+- **Files Modified:** `app/Filament/Resources/Tenants/Schemas/TenantForm.php`, `app/Filament/Resources/Products/ProductResource.php`
+- **Technical Logic:** Added a new 'Products Management' option to the Tenant active packages CheckboxList. Updated `ProductResource::canViewAny()` to check if the user is a super admin OR if the tenant's `active_packages` JSON array contains the ID for the Products package.
+- **Senior Concept:** Feature Toggling / Role-Based Access Control (RBAC). We dynamically show or hide entire modules based on the tenant's subscribed capabilities, stored as a casted JSON array on the Tenant model.
+- **Exam Defense Tip:** "To provide granular access control in our Multi-tenant environment, I implemented a feature toggle system. Filament resources use authorization Gates (`canViewAny()`) that check the tenant's subscribed packages, keeping the UI tailored and secure."
+- **Keywords to Learn:** `Feature Toggling`, `Authorization Gate`, `JSON Cast`

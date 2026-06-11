@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'invoice_number',
+    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
-    'buyer_reference', 'due_date', 'stripe_payment_intent_id',
-    'paid_at', 'status', 'last_reminder_sent_at'
+    'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
+    'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
+    'paid_at', 'status', 'last_reminder_sent_at', 'cargo_weight_kg', 'pallet_count', 'incoterms', 'driver_name', 'driver_phone', 'is_reverse_charge', 'cmr_document_path'
 ])]
 class Invoice extends Model
 {
@@ -41,6 +42,8 @@ class Invoice extends Model
             'subtotal' => 'decimal:2',
             'tax_total' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'loading_date' => 'date',
+            'delivery_date' => 'date',
             'due_date' => 'date',
             'paid_at' => 'datetime',
             'status' => InvoiceStatus::class,
@@ -54,6 +57,14 @@ class Invoice extends Model
     public function customer(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the quote that generated this invoice.
+     */
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
     }
 
     /**

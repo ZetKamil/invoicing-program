@@ -31,10 +31,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 ```php
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'invoice_number',
+    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
-    'buyer_reference', 'due_date', 'stripe_payment_intent_id',
-    'paid_at', 'status', 'last_reminder_sent_at'
+    'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
+    'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
+    'paid_at', 'status', 'last_reminder_sent_at', 'cargo_weight_kg', 'pallet_count', 'incoterms', 'driver_name', 'driver_phone', 'is_reverse_charge', 'cmr_document_path'
 ])]
 ```
 **Co masz powiedzieć jury:** *"Odszedłem od klasycznego przypisywania pól do chronionej tablicy `$fillable` na rzecz nowoczesnych Atrybutów (Attributes) z najnowszych wersji PHP. Definiuję tu zbiór autoryzowanych kolumn, blokując potencjalnym atakom typu Mass-Assignment szansę na nadpisanie kluczowych pól systemowych."*
@@ -81,8 +82,13 @@ class Invoice extends Model
     {
         return $this->morphTo();
     }
+
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
+    }
 ```
-**Co masz powiedzieć jury:** *"Ze względu na wymagania modelu biznesowego (gdzie dokument może należeć albo do surowego leada, albo klienta), odrzuciłem klasyczne podejście statycznych kluczy obcych na rzecz relacji polimorficznej `morphTo`. Unikamy tzw. długich tabel z pustymi kolumnami."*
+**Co masz powiedzieć jury:** *"Ze względu na wymagania zwinności, wdrożyłem relację polimorficzną `morphTo` dla klienta, unikając pustych kolumn. Dodatkowo, aby zachować tzw. Data Immutability, zapiąłem fakturę twardo z oryginalną wyceną przez `quote()`. Dzięki temu faktura zawsze stanowi legalny snapshot z momentu wykonania zlecenia."*
 
 > **Edukacja dla Ciebie:**
 > *   `: MorphTo` – Mówisz programistom: "Ta funkcja zwraca powiązanie z inną tabelą w bazie danych (polimorficzne)". Znowu silne typowanie chroni przed głupimi błędami.

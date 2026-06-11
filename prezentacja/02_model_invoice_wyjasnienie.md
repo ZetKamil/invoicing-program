@@ -29,10 +29,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 ```php
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'invoice_number',
+    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
-    'buyer_reference', 'due_date', 'stripe_payment_intent_id',
-    'paid_at', 'status', 'last_reminder_sent_at'
+    'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
+    'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
+    'paid_at', 'status', 'last_reminder_sent_at', 'cargo_weight_kg', 'pallet_count', 'incoterms', 'driver_name', 'driver_phone', 'is_reverse_charge', 'cmr_document_path'
 ])]
 ```
 **Co to jest:** To jest nowość z PHP 8 zaimplementowana od niedawna w Laravelu. Zamiast starych tablic ukrytych w zmiennej `$fillable`, użyto mechanizmu Atrybutów (Attributes) z PHP. Deklaruje to, które kolumny bazy mogą być masowo modyfikowane za pomocą wejściowej tablicy z formularza (ochrona przed `Mass Assignment Vulnerability`).
@@ -69,9 +70,14 @@ class Invoice extends Model
     {
         return $this->morphTo();
     }
+
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
+    }
 ```
-**Co to jest:** Relacja Polimorficzna (Polymorphic Relation). Pozwala fakturze przypiąć się nie tylko do jednej z góry ustalonej tabeli (np. do użytkownika), ale dynamicznie wpinać się do *różnych* tabel. Kolumny `customer_type` i `customer_id` przechowują informację do *jakiej tabeli* należy ten klucz obcy.
-**Co masz powiedzieć:** *"Ze względu na wymagania modelu biznesowego (gdzie dokument może należeć albo do surowego prospektu/leada, albo już stałego klienta/usera), odrzuciłem klasyczne podejście statycznych kluczy obcych na rzecz relacji polimorficznej `morphTo`. Skutkuje to dużo czystszą architekturą bazy danych: unikamy tzw. długich tabel z pustymi kolumnami `lead_id` czy `user_id`."*
+**Co to jest:** Relacja Polimorficzna (`customer`) oraz standardowa (`quote`). Pozwala fakturze dynamicznie należeć do rożnych tabel (prospekt lub stały klient), a jednoczesnie trzyma rygorystyczne powiązanie (snapshot) do oryginalnej wyceny z której powstała (`quote_id`).
+**Co masz powiedzieć:** *"Z uwagi na wymagania zwinności (Agility), wdrożyłem relację polimorficzną `morphTo` dla klienta, unikając pustych kolumn. Ponadto, wdrażając zasady Data Immutability, zapiąłem fakturę z oryginalną wyceną (`quote()`). Dzięki temu faktura jest prawdziwym, historycznym snapshotem operacji logistycznej, nienaruszającym oryginalnej umowy."*
 
 ```php
     public function items(): HasMany

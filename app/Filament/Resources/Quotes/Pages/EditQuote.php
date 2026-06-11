@@ -14,14 +14,14 @@ class EditQuote extends EditRecord
     {
         return [
             \Filament\Actions\Action::make('convert_to_invoice')
-                ->label('Convert to Invoice')
+                ->label('Zet om naar Factuur')
                 ->icon('heroicon-o-document-currency-euro')
                 ->color('success')
                 ->requiresConfirmation()
                 ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
                 ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
                     if ($record->tenant_id !== auth()->user()->tenant_id) {
-                        abort(403, 'Unauthorized action.');
+                        abort(403, 'Ongeautoriseerde actie.');
                     }
 
                     // Create Invoice
@@ -34,25 +34,25 @@ class EditQuote extends EditRecord
                     $record->update(['status' => \App\Enums\QuoteStatus::CONVERTED]);
 
                     \Filament\Notifications\Notification::make()
-                        ->title('Quote converted to Invoice successfully!')
+                        ->title('Offerte succesvol omgezet naar Factuur!')
                         ->success()
                         ->send();
 
                     return redirect()->to(\App\Filament\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
                 }),
             \Filament\Actions\Action::make('send_quote')
-                ->label('Send Quote via Email')
+                ->label('Verstuur Offerte via E-mail')
                 ->icon('heroicon-o-envelope')
                 ->color('primary')
                 ->requiresConfirmation()
                 ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
                     if ($record->tenant_id !== auth()->user()->tenant_id) {
-                        abort(403, 'Unauthorized action.');
+                        abort(403, 'Ongeautoriseerde actie.');
                     }
 
                     // Ensure lead email exists
                     if (!$record->lead || !$record->lead->email) {
-                        \Filament\Notifications\Notification::make()->title('Lead has no email address.')->danger()->send();
+                        \Filament\Notifications\Notification::make()->title('Aanvraag heeft geen e-mailadres.')->danger()->send();
                         return;
                     }
 
@@ -62,13 +62,14 @@ class EditQuote extends EditRecord
 
                     // Log communication
                     $subject = 'Your Quote from ' . $record->tenant->name;
-                    $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL);
+                    $body = 'Automated system email sent to ' . $record->lead->email . ' containing the quote.';
+                    $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
 
                     // Update status
                     $record->update(['status' => \App\Enums\QuoteStatus::SENT]);
 
                     \Filament\Notifications\Notification::make()
-                        ->title('Quote sent and communication logged successfully!')
+                        ->title('Offerte verstuurd en gelogd!')
                         ->success()
                         ->send();
                 }),

@@ -2,7 +2,10 @@
 
 namespace App\Enums;
 
-enum InvoiceStatus: string
+use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Contracts\HasColor;
+
+enum InvoiceStatus: string implements HasLabel, HasColor
 {
     case DRAFT = 'draft';
     case SENT = 'sent';
@@ -10,14 +13,25 @@ enum InvoiceStatus: string
     case OVERDUE = 'overdue';
     case VOID = 'void';
 
-    public function label(): string
+    public function getLabel(): ?string
     {
         return match($this) {
-            self::DRAFT => 'Draft',
-            self::SENT => 'Sent',
-            self::PAID => 'Paid',
-            self::OVERDUE => 'Overdue',
-            self::VOID => 'Void',
+            self::DRAFT => 'Concept',
+            self::SENT => 'Verzonden',
+            self::PAID => 'Betaald',
+            self::OVERDUE => 'Vervallen',
+            self::VOID => 'Geannuleerd',
+        };
+    }
+
+    public function getColor(): string|array|null
+    {
+        return match($this) {
+            self::DRAFT => 'info',
+            self::SENT => 'primary',
+            self::PAID => 'success',
+            self::OVERDUE => 'danger',
+            self::VOID => 'warning',
         };
     }
 }

@@ -15,7 +15,7 @@ class LogCommunicationAction
         return Communication::create([
             'tenant_id' => $tenantId,
             'subject' => $subject,
-            'body' => $body,
+            'body' => $body ?? '',
             'related_type' => get_class($relatedModel),
             'related_id' => $relatedModel->id,
             'type' => $type,

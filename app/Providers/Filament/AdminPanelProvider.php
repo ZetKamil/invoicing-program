@@ -42,6 +42,12 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            ->navigationGroups([
+                'Verkoop',
+                'Facturatie',
+                'Communicatie',
+                'Super Admin',
+            ])
             ->maxContentWidth('full')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

@@ -18,9 +18,22 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sales';
+    protected static string|\UnitEnum|null $navigationGroup = 'Verkoop';
+
+    protected static ?string $modelLabel = 'Product';
+    protected static ?string $pluralModelLabel = 'Producten';
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        if ($user->is_super_admin) {
+            return true;
+        }
+
+        return in_array('7', $user->tenant?->active_packages ?? []);
+    }
 
     public static function form(Schema $schema): Schema
     {

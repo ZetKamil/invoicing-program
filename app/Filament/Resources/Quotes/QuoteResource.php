@@ -18,9 +18,12 @@ class QuoteResource extends Resource
 {
     protected static ?string $model = Quote::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sales';
+    protected static string|\UnitEnum|null $navigationGroup = 'Verkoop';
+
+    protected static ?string $modelLabel = 'Offerte';
+    protected static ?string $pluralModelLabel = 'Offertes';
 
     public static function canViewAny(): bool
     {

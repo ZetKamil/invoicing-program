@@ -35,32 +35,56 @@ class CreateInvoiceFromQuoteAction
             $invoiceNumber = 'INV-' . $currentYear . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
 
             $invoice = Invoice::create([
-                'tenant_id'      => $quote->tenant_id,
-                'customer_type'  => get_class($quote->lead),
-                'customer_id'    => $quote->lead_id,
-                'invoice_number' => $invoiceNumber,
-                'subtotal'       => $subtotal,
-                'tax_total'      => $taxTotal,
-                'total_amount'   => $totalAmount,
-                'due_date'       => now()->addDays(30),
-                'status'         => InvoiceStatus::DRAFT,
+                'tenant_id'             => $quote->tenant_id,
+                'customer_type'         => get_class($quote->lead),
+                'customer_id'           => $quote->lead_id,
+                'quote_id'              => $quote->id,
+                'invoice_number'        => $invoiceNumber,
+                'trailer_type'          => $quote->trailer_type,
+                'cargo_weight_kg'       => $quote->cargo_weight_kg,
+                'pallet_count'          => $quote->pallet_count,
+                'loading_address'       => $quote->loading_address,
+                'loading_date'          => $quote->loading_date,
+                'delivery_address'      => $quote->delivery_address,
+                'delivery_date'         => $quote->delivery_date,
+                'incoterms'             => $quote->incoterms,
+                'notes'                 => $quote->description,
+                'subtotal'              => $subtotal,
+                'tax_total'             => $taxTotal,
+                'total_amount'          => $totalAmount,
+                'due_date'              => now()->addDays(30),
+                'status'                => InvoiceStatus::DRAFT,
             ]);
 
-            $product = \App\Models\Product::firstOrCreate(
-                ['tenant_id' => $quote->tenant_id, 'name' => 'Custom Quote Service'],
-                ['description' => 'Generic service for quotes', 'price' => 0, 'type' => \App\Enums\ProductType::SERVICE]
-            );
+            // Copy items if they exist, else create a generic one
+            if ($quote->items && $quote->items->count() > 0) {
+                foreach ($quote->items as $item) {
+                    InvoiceItem::create([
+                        'invoice_id'  => $invoice->id,
+                        'product_id'  => $item->product_id, // can be null
+                        'description' => $item->description,
+                        'quantity'    => $item->quantity,
+                        'unit_price'  => $item->unit_price,
+                        'tax_rate'    => $item->tax_rate,
+                        'total'       => $item->total,
+                    ]);
+                }
+            } else {
+                $product = \App\Models\Product::firstOrCreate(
+                    ['tenant_id' => $quote->tenant_id, 'name' => 'Custom Quote Service'],
+                    ['description' => 'Generic service for quotes', 'price' => 0, 'type' => \App\Enums\ProductType::SERVICE]
+                );
 
-            // Since QuoteItems do not exist, we create a generic line item representing the quote.
-            InvoiceItem::create([
-                'invoice_id'  => $invoice->id,
-                'product_id'  => $product->id,
-                'description' => 'Services as per Quote ' . $quote->quote_number,
-                'quantity'    => 1,
-                'unit_price'  => $subtotal,
-                'tax_rate'    => $taxRate,
-                'total'       => $subtotal,
-            ]);
+                InvoiceItem::create([
+                    'invoice_id'  => $invoice->id,
+                    'product_id'  => $product->id,
+                    'description' => 'Services as per Quote ' . $quote->quote_number,
+                    'quantity'    => 1,
+                    'unit_price'  => $subtotal,
+                    'tax_rate'    => $taxRate,
+                    'total'       => $subtotal,
+                ]);
+            }
 
             return $invoice;
         });
