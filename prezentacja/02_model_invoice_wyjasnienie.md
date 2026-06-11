@@ -15,7 +15,7 @@ W klasycznych, starych projektach cała skomplikowana logika bywa wypisywana w k
 ```php
 namespace App\Models;
 use App\Enums\InvoiceStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 ```php
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
+    'bedrijf_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
     'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
     'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
@@ -43,9 +43,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Invoice extends Model
 {
     /** @use HasFactory<\Database\Factories\InvoiceFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
 ```
-**Co to jest:** Definicja Klasy z podpiętymi czterema potężnymi Modułami (Traitami). `HasFactory` dla testów. `HasUlids` zmienia domyślne identyfikatory 1, 2, 3 na skomplikowane zbiory znaków. `HasTenant` opisywaliśmy wcześniej. `SoftDeletes` zamienia twarde usuwanie rekordu na dopisanie do niego daty kasacji, co pozwala na cofnięcie "kosza".
+**Co to jest:** Definicja Klasy z podpiętymi czterema potężnymi Modułami (Traitami). `HasFactory` dla testów. `HasUlids` zmienia domyślne identyfikatory 1, 2, 3 na skomplikowane zbiory znaków. `HasBedrijf` opisywaliśmy wcześniej. `SoftDeletes` zamienia twarde usuwanie rekordu na dopisanie do niego daty kasacji, co pozwala na cofnięcie "kosza".
 **Co masz powiedzieć:** *"Model wykorzystuje cztery filary infrastruktury. Szczególnie zwracam uwagę na trait `HasUlids`. Całkowicie porzuciłem standardowe, auto-inkrementowane ID na rzecz ULID-ów (Universally Unique Lexicographically Sortable Identifiers). Gwarantują one globalną odporność na ataki typu ID Enumeration, jednocześnie eliminując największą wadę starych UUID, czyli powolną fragmentację drzew decyzyjnych indeksów (B-Tree) w relacyjnych bazach danych, jako że ULID jest naturalnie sortowalny chronologicznie."*
 
 ```php

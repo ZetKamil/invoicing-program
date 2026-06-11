@@ -19,7 +19,9 @@ class GlobalUserResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Super Admin';
     
-    protected static ?string $modelLabel = 'Bedrijf User';
+    protected static ?string $modelLabel = 'Klant';
+    protected static ?string $pluralModelLabel = 'Klanten';
+    protected static ?string $navigationLabel = 'Klanten';
     
     protected static ?int $navigationSort = 100;
 

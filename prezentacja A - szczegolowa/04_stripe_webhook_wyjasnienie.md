@@ -99,7 +99,7 @@ class StripeWebhookController extends Controller
                     
                     if ($registrationData) {
                         // Tworzenie bazy firmy
-                        $tenant = \App\Models\Tenant::create([ ... ]);
+                        $bedrijf = \App\Models\Bedrijf::create([ ... ]);
                         \Illuminate\Support\Facades\Cache::forget("registration_{$registrationId}");
                     }
                 }

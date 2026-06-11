@@ -15,7 +15,7 @@ W klasycznych, starych projektach cała skomplikowana logika bywa wypisywana w k
 ```php
 namespace App\Models;
 use App\Enums\InvoiceStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 ```php
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
+    'bedrijf_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
     'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
     'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
@@ -43,13 +43,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 > **Edukacja dla Ciebie:**
 > *   `#[]` – Tzw. "Atrybut" w PHP 8. To "magiczna naklejka", którą przyklejamy nad klasą. Zawiera ona metadane. Zamiast pisać normalny kod w środku klasy, dajemy systemowi informację z góry.
 > *   `Fillable` – Mówi: "Tylko te wymienione pola mogą być nadpisane w bazie danych bezpośrednio z formularza internetowego". Wszystko inne zostanie zignorowane.
-> *   `[ 'tenant_id', ... ]` – Nawiasy kwadratowe `[]` w PHP oznaczają "Tablicę" (Array), czyli po prostu listę elementów. Podajemy w niej listę dozwolonych nazw kolumn ujętych w cudzysłowach `''`.
+> *   `[ 'bedrijf_id', ... ]` – Nawiasy kwadratowe `[]` w PHP oznaczają "Tablicę" (Array), czyli po prostu listę elementów. Podajemy w niej listę dozwolonych nazw kolumn ujętych w cudzysłowach `''`.
 
 ```php
 class Invoice extends Model
 {
     /** @use HasFactory<\Database\Factories\InvoiceFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
 ```
 **Co masz powiedzieć jury:** *"Model wykorzystuje cztery filary infrastruktury. Szczególnie zwracam uwagę na trait `HasUlids`. Całkowicie porzuciłem standardowe, auto-inkrementowane ID na rzecz ULID-ów (Universally Unique Lexicographically Sortable Identifiers)."*
 

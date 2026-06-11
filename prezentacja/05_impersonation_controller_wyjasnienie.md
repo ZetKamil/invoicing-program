@@ -4,7 +4,7 @@
 - `app/Http/Controllers/ImpersonationController.php`
 
 **Co musisz wiedzieć z lotu ptaka:**
-Jako Super Admin platformy, logujesz się od czasu do czasu do konta swoich klientów (tzw. "Wcielanie się" / Impersonacja), żeby zweryfikować awarię czy błąd klienta od środka. Kiedy chcesz stamtąd bezpiecznie opuścić panel (powrócić na swoje konto administracyjne), framework rzuca pod nogi wszystkie możliwe "kłody technologiczne". Wchodząc głęboko do wnętrza surowych mechanizmów autoryzacyjnych sesji pokonujesz mechanizm multi-dostępu `TenantScope` i mordercze blokady kradzieży danych z Laravel 11. To ten z plików "Pokaż jak rozwiązujesz naprawdę skomplikowane zagadki bezpieczeństwa i logiki pamięci operacyjnej".
+Jako Super Admin platformy, logujesz się od czasu do czasu do konta swoich klientów (tzw. "Wcielanie się" / Impersonacja), żeby zweryfikować awarię czy błąd klienta od środka. Kiedy chcesz stamtąd bezpiecznie opuścić panel (powrócić na swoje konto administracyjne), framework rzuca pod nogi wszystkie możliwe "kłody technologiczne". Wchodząc głęboko do wnętrza surowych mechanizmów autoryzacyjnych sesji pokonujesz mechanizm multi-dostępu `BedrijfScope` i mordercze blokady kradzieży danych z Laravel 11. To ten z plików "Pokaż jak rozwiązujesz naprawdę skomplikowane zagadki bezpieczeństwa i logiki pamięci operacyjnej".
 
 ---
 
@@ -34,11 +34,11 @@ class ImpersonationController extends Controller
 **Co masz powiedzieć:** *"Inicjując wyjście z trybu awaryjnego (Impersonacji), skanuję w locie bazę podręcznej sesji w poszukiwaniu tzw. Kotwicy Identyfikacyjnej (Anchor ID), za pomocą której mam udowodnić kto de facto się ukrywał pod powłoką konta."*
 
 ```php
-            // Bypass TenantScope to find the Super Admin in the DB
+            // Bypass BedrijfScope to find the Super Admin in the DB
             $superAdmin = User::withoutGlobalScopes()->find($superAdminId);
 ```
 **Co to jest:** Super Admin ma zablokowany dostęp do odczytu danych w cudzej firmie. Żeby powrócić na swoje konto i dociągnąć o sobie wszystkie zasady uprawnień bez rzucenia blokady przez framework bezpieczeństwa – wstrzykujesz w Buildera bazodanowego funkcję `withoutGlobalScopes()`.
-**Co masz powiedzieć:** *"Ponieważ jądro modelu User podlega całkowitej kontroli filtra zapór multi-dostępowych `TenantScope` - bez możliwości obejścia z zewnątrz, serwer zaciąłby się nie znajdując moich bazowych uprawnień administracyjnych w bazie zamkniętej z `AND tenant_id = 'cudzefirmyid'`. Używam techniki Global Scopes Bypass ignorując autoryzację do wyciągnięcia bezwzględnie profilu administratora po ID ULIDzie."*
+**Co masz powiedzieć:** *"Ponieważ jądro modelu User podlega całkowitej kontroli filtra zapór multi-dostępowych `BedrijfScope` - bez możliwości obejścia z zewnątrz, serwer zaciąłby się nie znajdując moich bazowych uprawnień administracyjnych w bazie zamkniętej z `AND bedrijf_id = 'cudzefirmyid'`. Używam techniki Global Scopes Bypass ignorując autoryzację do wyciągnięcia bezwzględnie profilu administratora po ID ULIDzie."*
 
 ```php
             if ($superAdmin) {

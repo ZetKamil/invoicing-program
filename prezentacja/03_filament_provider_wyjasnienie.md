@@ -74,10 +74,10 @@ class AdminPanelProvider extends PanelProvider
 ```php
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => Blade::render('@livewire("tenant-switcher")')
+                fn (): string => Blade::render('@livewire("bedrijf-switcher")')
             )
 ```
-**Co to jest:** Sposób, w jaki "wstrzyknąłeś" swój niestandardowy przycisk zmiany klienta (Tenanta) na prawą stronę paska górnego bez modyfikowania zabezpieczonych w vendorach plików Filamenta.
+**Co to jest:** Sposób, w jaki "wstrzyknąłeś" swój niestandardowy przycisk zmiany klienta (Bedrijf) na prawą stronę paska górnego bez modyfikowania zabezpieczonych w vendorach plików Filamenta.
 **Co masz powiedzieć:** *"To mój ulubiony element infrastruktury. Ponieważ rdzewne pliki interfejsu pochodzą z zewnętrznego vendora (comosera), ich bezpośrednia modyfikacja doprowadziłaby do zerwania procesu aktualizacji oprogramowania w przyszłości (tzw. vendor lock). W obronie przed tym wykorzystałem Zaczepy Renderowania (Render Hooks). Wskazałem strategiczne miejsce `USER_MENU_BEFORE` i za pomocą kompilatora Blade wstrzyknąłem w locie mój customowy komponent asynchroniczny `Livewire`, integrując go idealnie z fabrycznym środowiskiem."*
 
 ```php

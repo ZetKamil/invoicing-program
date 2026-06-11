@@ -48,7 +48,7 @@ Pracownik klika "Wyślij Ofertę"
 
 ---
 
-## 2. Multi-Tenant Security — Hardening Autoryzacji
+## 2. Multi-Bedrijf Security — Hardening Autoryzacji
 
 ### Znaleziona Podatność (Silent Policy Discovery Failure)
 
@@ -57,7 +57,7 @@ Nasze polityki autoryzacyjne (7 klas `Policy`) istniały i były merytorycznie p
 Dodatkowo wykryliśmy bottleneck wydajnościowy: `QuoteItemPolicy` i `InvoiceItemPolicy` sprawdzały przynależność do dzierżawcy przez relację:
 
 ```php
-return $user->tenant_id === $quoteItem->quote->tenant_id;
+return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
 ```
 
 Każde sprawdzenie autoryzacji w widoku listy Filamenta uruchamiało **dodatkowe zapytanie SQL** na pozycję (N+1 na poziomie polityk).
@@ -108,8 +108,8 @@ Faza 2 dodała kompozytowe indeksy na `leads`, `quotes`, i `invoices`. Audyt faz
 |---|---|---|
 | `quote_items` | `quote_id` (B-Tree) | SQLite **nie tworzy** indeksu FK automatycznie. Każde `$quote->items()` skanuje całą tabelę |
 | `invoice_items` | `invoice_id` (B-Tree) | Identyczny problem — każde wyświetlenie pozycji faktury to full scan |
-| `invoices` | `[tenant_id, due_date]` | Nocny cron `SendInvoiceReminders` filtruje po `due_date < today()` — bez indeksu daty, skanuje wszystkie faktury wszystkich dzierżawców |
-| `communications` | `[tenant_id, related_type, related_id]` | Polimorficzne logi aktywności (do faktur/ofert) nie mają żadnego indeksu — każdy widok historii komunikacji to O(n) |
+| `invoices` | `[bedrijf_id, due_date]` | Nocny cron `SendInvoiceReminders` filtruje po `due_date < today()` — bez indeksu daty, skanuje wszystkie faktury wszystkich dzierżawców |
+| `communications` | `[bedrijf_id, related_type, related_id]` | Polimorficzne logi aktywności (do faktur/ofert) nie mają żadnego indeksu — każdy widok historii komunikacji to O(n) |
 
 ### Zastosowane Rozwiązanie
 
@@ -125,13 +125,13 @@ Schema::table('invoice_items', fn ($t) =>
 
 // 2. Composite index for nightly overdue invoice cron
 Schema::table('invoices', fn ($t) => 
-    $t->index(['tenant_id', 'due_date'], 'invoices_tenant_due_date_index'));
+    $t->index(['bedrijf_id', 'due_date'], 'invoices_bedrijf_due_date_index'));
 
 // 3. Composite index for polymorphic activity log queries
 Schema::table('communications', fn ($t) => 
     $t->index(
-        ['tenant_id', 'related_type', 'related_id'],
-        'communications_tenant_related_index'
+        ['bedrijf_id', 'related_type', 'related_id'],
+        'communications_bedrijf_related_index'
     ));
 ```
 

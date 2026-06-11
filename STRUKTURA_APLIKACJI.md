@@ -14,10 +14,10 @@ Aplikacja oparta jest o najnowocześniejsze standardy ekosystemu PHP w 2024/2025
 ---
 
 ## 2. Multi-tenancy (Wielodostępność)
-To serce systemu. Aplikacja została zaprojektowana tak, aby wiele firm (Tenantów) mogło korzystać z niej niezależnie, mając pewność izolacji swoich danych.
+To serce systemu. Aplikacja została zaprojektowana tak, aby wiele firm (Bedrijfów) mogło korzystać z niej niezależnie, mając pewność izolacji swoich danych.
 
 - **Mechanizm Izolacji**: Wykorzystujemy `Global Scopes` w Eloquent.
-- **Trait `HasTenant`**: Każdy model (np. `Lead`, `Invoice`, `Quote`), który zawiera ten trait, automatycznie odfiltrowuje dane tak, aby użytkownik widział tylko rekordy swojej firmy (`tenant_id`).
+- **Trait `HasBedrijf`**: Każdy model (np. `Lead`, `Invoice`, `Quote`), który zawiera ten trait, automatycznie odfiltrowuje dane tak, aby użytkownik widział tylko rekordy swojej firmy (`bedrijf_id`).
 - **Bezpieczeństwo**: Nawet jeśli ktoś spróbuje zgadnąć ID faktury innej firmy, system zwróci błąd 404 dzięki globalnemu zakresowi (Global Scope).
 
 ---
@@ -35,7 +35,7 @@ To serce systemu. Aplikacja została zaprojektowana tak, aby wiele firm (Tenant�
 
 ### C. Moduł Komunikacji i CMS
 1. **Communications**: Polimorficzna relacja (`MorphTo`), która pozwala logować e-maile i notatki zarówno pod ofertami, jak i pod fakturami w jednej tabeli.
-2. **CMS**: Możliwość prowadzenia bloga/aktualności przez każdego Tenanta z osobna (`Posts`, `Categories`).
+2. **CMS**: Możliwość prowadzenia bloga/aktualności przez każdego Bedrijf z osobna (`Posts`, `Categories`).
 
 ---
 
@@ -45,7 +45,7 @@ Oto jak "rozmawiają" ze sobą elementy systemu:
 
 1. **Wejście**: Klient wypełnia formularz na stronie głównej (`welcome.blade.php`).
 2. **Przetwarzanie**: Komponent Livewire wywołuje akcję `CreateLeadAction`.
-3. **Baza Danych**: Tworzony jest rekord `Lead` z przypisanym `tenant_id` agencji (tzw. "dogfooding").
+3. **Baza Danych**: Tworzony jest rekord `Lead` z przypisanym `bedrijf_id` agencji (tzw. "dogfooding").
 4. **Dashboard**: Pracownik loguje się do panelu Filament, widzi nowego Leada i jednym kliknięciem (poprzez `CreateQuoteAction`) generuje Ofertę.
 5. **Finalizacja**: Po akceptacji oferty, system generuje Fakturę, tworzy plik PDF oraz plik XML (UBL) do e-fakturowania.
 
@@ -65,4 +65,4 @@ Oto jak "rozmawiają" ze sobą elementy systemu:
 Ta aplikacja to nie jest zwykły "skrypt w PHP". To pełnoprawna platforma **Enterprise-ready**. Dzięki izolacji danych na poziomie bazy (Scopes), polimorficznym relacjom i architekturze opartej o akcje, system jest niezwykle łatwy w rozbudowie. Możesz dodać nowy moduł (np. "Zarządzanie Kierowcami") w kilka godzin, kopiując wzorce z istniejących modułów.
 
 > [!TIP]
-> Jeśli chcesz dodać nową funkcjonalność, zawsze zacznij od stworzenia Modelu z traitem `HasTenant`, dodaj Migrację z `ulid` oraz stwórz `Action` dla logiki biznesowej. To utrzyma kod czystym i skalowalnym.
+> Jeśli chcesz dodać nową funkcjonalność, zawsze zacznij od stworzenia Modelu z traitem `HasBedrijf`, dodaj Migrację z `ulid` oraz stwórz `Action` dla logiki biznesowej. To utrzyma kod czystym i skalowalnym.

@@ -3,12 +3,12 @@
 ## 2026-04-30: Multi-tenancy Foundation
 
 ### Task Summary
-Initialized the multi-tenancy foundation by creating the `Tenant` model, a `HasTenant` trait for automated scoping, and updating the `User` model with roles and tenant association.
+Initialized the multi-tenancy foundation by creating the `Bedrijf` model, a `HasBedrijf` trait for automated scoping, and updating the `User` model with roles and bedrijf association.
 
 ### Design Patterns
-- **Global Scopes**: Used to ensure strict data isolation. By applying the `TenantScope` via the `HasTenant` trait, we guarantee that no logistics company can accidentally access another company's data.
+- **Global Scopes**: Used to ensure strict data isolation. By applying the `BedrijfScope` via the `HasBedrijf` trait, we guarantee that no logistics company can accidentally access another company's data.
 - **Enums**: Implemented `UserRole` as a PHP Backed Enum to ensure type safety and valid state across the application.
-- **Traits**: Used `HasTenant` to provide a reusable way to make any model "tenant-aware" with minimal boilerplate.
+- **Traits**: Used `HasBedrijf` to provide a reusable way to make any model "bedrijf-aware" with minimal boilerplate.
 
 ### Architecture Decisions: ULID vs UUID
 We chose **ULIDs (Universally Unique Lexicographically Sortable Identifiers)** over UUIDs for several reasons:
@@ -24,7 +24,7 @@ We chose **ULIDs (Universally Unique Lexicographically Sortable Identifiers)** o
 ## 2026-04-30: CRM and Sales Pipeline Module
 
 ### Task Summary
-Implemented the core `Lead` and `Quote` models along with their respective migrations, enums (`LeadStatus`, `QuoteStatus`), and policies to ensure multi-tenant data isolation. Also introduced a domain action for quote creation.
+Implemented the core `Lead` and `Quote` models along with their respective migrations, enums (`LeadStatus`, `QuoteStatus`), and policies to ensure multi-bedrijf data isolation. Also introduced a domain action for quote creation.
 
 ### Design Patterns
 **Domain Actions for Quote Creation (`CreateQuoteAction`):**
@@ -71,14 +71,14 @@ The system is built to be "Peppol-Ready," which is the standard for electronic i
 
 ---
 
-## 2026-04-30: Tenant Dashboard & Logistics Engine Refactoring
+## 2026-04-30: Bedrijf Dashboard & Logistics Engine Refactoring
 
 ### Task Summary
-Successfully merged the structural methodology from the reference project into our main Logistics SaaS. The panel has been transformed into a dedicated **Tenant Dashboard**, focusing on Sales and Billing while retaining a tenant-scoped Content Module for Inbound Marketing.
+Successfully merged the structural methodology from the reference project into our main Logistics SaaS. The panel has been transformed into a dedicated **Bedrijf Dashboard**, focusing on Sales and Billing while retaining a bedrijf-scoped Content Module for Inbound Marketing.
 
 ### Porting & Refactoring Strategy
 1.  **Structural Scaffolding**: Adopted the "Clean Schema/Table" pattern for all Filament resources (Invoices, Quotes, Leads, Products). This ensures that form and table definitions are decoupled from the Resource class, improving maintainability.
-2.  **Tenant-Scoped CMS**: Ported the `Posts`, `Categories`, and `Media` logic, but immediately upgraded them with the `HasTenant` trait and ULID standard. This allows each logistics company to maintain their own private knowledge base or public announcements.
+2.  **Bedrijf-Scoped CMS**: Ported the `Posts`, `Categories`, and `Media` logic, but immediately upgraded them with the `HasBedrijf` trait and ULID standard. This allows each logistics company to maintain their own private knowledge base or public announcements.
 3.  **Domain Actions Implementation**: Decoupled business logic into standalone Action classes:
     *   `CreateQuoteAction`: Logic for generating quotes from leads.
     *   `GenerateInvoicePdfAction`: Placeholder for compliant PDF generation.
@@ -86,11 +86,11 @@ Successfully merged the structural methodology from the reference project into o
 
 ### Architecture Decisions
 *   **Polymorphic Media for Logistics**: The `Media` model now serves as the backbone for both marketing (post images) and operations (lead attachments, invoice PDFs).
-*   **Enforced Data Isolation**: Every operation is scoped via `TenantScope`. Even if a user attempts to access a record ID belonging to another company, the Global Scope will return a 404, providing a "Senior" level of security.
+*   **Enforced Data Isolation**: Every operation is scoped via `BedrijfScope`. Even if a user attempts to access a record ID belonging to another company, the Global Scope will return a 404, providing a "Senior" level of security.
 
 ---
 
-## 2026-04-30: Standardizing Multi-Tenant Authorization Layer
+## 2026-04-30: Standardizing Multi-Bedrijf Authorization Layer
 
 ### Task Summary
 Finalized the security infrastructure by implementing a robust Authorization Layer using Laravel Policies. This layer works in tandem with our Eloquent Global Scopes to provide a dual-layered defense against data leakage.
@@ -100,14 +100,14 @@ Implemented full-set Policies (`viewAny`, `view`, `create`, `update`, `delete`, 
 *   **Logistics**: `Lead`, `Quote`, `Invoice`, `Product`.
 *   **CMS**: `Post`, `Category`.
 
-Every policy method strictly validates `user->tenant_id === model->tenant_id`, ensuring that even if a global scope is bypassed, the authorization layer will block unauthorized access.
+Every policy method strictly validates `user->bedrijf_id === model->bedrijf_id`, ensuring that even if a global scope is bypassed, the authorization layer will block unauthorized access.
 
 ### Filament Integration
-*   Explicitly defined `getEloquentQuery()` in all Filament Resources. While our `HasTenant` trait handles the primary scoping, this explicit declaration ensures that the "Senior" pattern of query isolation is followed and documented.
+*   Explicitly defined `getEloquentQuery()` in all Filament Resources. While our `HasBedrijf` trait handles the primary scoping, this explicit declaration ensures that the "Senior" pattern of query isolation is followed and documented.
 
 ### Technical Rationale
 **Double-Layered Security (Gold Standard):**
-1.  **Eloquent Global Scope**: Acts as a "soft" filter that automatically hides data from other tenants in 99% of queries.
+1.  **Eloquent Global Scope**: Acts as a "soft" filter that automatically hides data from other bedrijfs in 99% of queries.
 2.  **Authorization Policies**: Act as a "hard" lock. They are triggered at the application level before any modification or sensitive view occurs.
 
 ---
@@ -115,14 +115,14 @@ Every policy method strictly validates `user->tenant_id === model->tenant_id`, e
 ## 2026-04-30: Agency Dogfooding & Public Lead Capture
 
 ### Task Summary
-Successfully integrated the "Logi-Web PRO" agency as the platform's first tenant, effectively "dogfooding" our own software to manage our agency's sales pipeline. Ported the frontend design into a reactive Livewire 4 + Flux UI landing page.
+Successfully integrated the "Logi-Web PRO" agency as the platform's first bedrijf, effectively "dogfooding" our own software to manage our agency's sales pipeline. Ported the frontend design into a reactive Livewire 4 + Flux UI landing page.
 
 ### Implementation Details
 1.  **Agency Seeding**: Created `AgencySeeder` to initialize "Logi-Web PRO" and a primary administrator. This ensures that the agency has its own isolated space in the dashboard to receive and manage leads from the public website.
 2.  **Lead Capture Pipeline**:
     *   **Livewire SFC**: Implemented `PackageInquiryForm` as a Single File Component, providing a seamless, reactive experience for potential clients.
     *   **Data Enrichment**: Added a `metadata` JSON column to the `leads` table to capture package-specific choices without cluttering the primary schema.
-    *   **Action-Based Storage**: The inquiry form uses `CreateLeadAction` to bridge the public-facing website and the secured multi-tenant backend.
+    *   **Action-Based Storage**: The inquiry form uses `CreateLeadAction` to bridge the public-facing website and the secured multi-bedrijf backend.
 
 ### Data Flow
 Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboard (scoped to Logi-Web PRO).
@@ -138,7 +138,7 @@ Public Pricing Table → Livewire SFC → `CreateLeadAction` → Secured Dashboa
 Populated the database with primary Agency data and demo records to test Multi-tenancy and Logistics logic using dedicated seeders.
 
 ### Seeding Strategy
-1. **Tenant & Admin Seeding**: Created `TenantSeeder` for "Logi-Web PRO" and `UserSeeder` for the primary Admin account linked via `tenant_id`.
+1. **Bedrijf & Admin Seeding**: Created `BedrijfSeeder` for "Logi-Web PRO" and `UserSeeder` for the primary Admin account linked via `bedrijf_id`.
 2. **Product Catalog**: Seeded 3 main packages (Start, Pro, Enterprise) as `ProductType::LICENSE` into the `products` table using `ProductSeeder`.
 3. **Demo Data**: Generated demo Leads and Quotes assigned to Logi-Web PRO using `LeadQuoteSeeder`. Crucially, this utilizes the `CreateQuoteAction` and `LeadFactory` to ensure quotes follow exact domain logic.
 
@@ -158,8 +158,8 @@ Implemented the public-facing Lead Capture form using Livewire 4 Single File Com
    - Public Pricing Table (Guest Visitor) 
    - → Submits `PackageInquiryForm` (validated via `#[Validate]`) 
    - → Triggers `CreateLeadAction`
-   - → Assigns the Lead to "Logi-Web PRO" tenant & stores package in metadata
-   - → Appears securely inside the Multi-tenant Dashboard.
+   - → Assigns the Lead to "Logi-Web PRO" bedrijf & stores package in metadata
+   - → Appears securely inside the Multi-bedrijf Dashboard.
 3. **Security**: Accessible publicly but protected by robust Livewire property validation rules (e.g. `required|min:3`, `email`).
 
 ### Presentation Tip
@@ -171,13 +171,13 @@ Implemented the public-facing Lead Capture form using Livewire 4 Single File Com
 ## 2026-06-01: Issue #23 - Lead to Quote Filament Action Integration
 
 ### Task Summary
-Implemented the business logic inside the Tenant Dashboard that allows a dispatcher to convert a `Lead` into a `Quote` seamlessly using Filament Custom Actions.
+Implemented the business logic inside the Bedrijf Dashboard that allows a dispatcher to convert a `Lead` into a `Quote` seamlessly using Filament Custom Actions.
 
 ### Implementation Details
 1. **Filament Custom Actions**: Added a `Create Quote` action to both the `LeadsTable` (Table Action) and `EditLead` page (Page Action). The button is conditionally visible only if the Lead status is `New` or `Audited`.
 2. **Domain Action Execution**: The Filament action resolves and triggers `CreateQuoteAction` dynamically. It calculates a base amount depending on the selected package (stored in Lead's metadata).
 3. **UX & Notifications**: After a successful generation, the Lead is marked as `Converted`, a success toast notification is dispatched, and the user is immediately redirected to the new Quote's edit page.
-4. **Multi-Tenant Security**: Enforced an explicit `tenant_id` check within the action closure. Even if the UI is manipulated, a dispatcher from Tenant A cannot trigger a quote generation for a Lead belonging to Tenant B.
+4. **Multi-Bedrijf Security**: Enforced an explicit `bedrijf_id` check within the action closure. Even if the UI is manipulated, a dispatcher from Bedrijf A cannot trigger a quote generation for a Lead belonging to Bedrijf B.
 
 ### Defense Tip
 "By triggering encapsulated Domain Actions directly from Filament Custom Actions, we maintain clean separation of concerns. The UI layer only captures the intent, while the business rule of transitioning a Lead to a Quote remains completely isolated and highly testable."
@@ -191,9 +191,9 @@ Implemented the business logic inside the Tenant Dashboard that allows a dispatc
 Implemented the dispatch mechanism for sending Quotes via email and logging the interaction in a centralized polymorphic communications table.
 
 ### Implementation Details
-1. **Email Implementation**: Created `QuoteInquiryMail` and its corresponding Blade template (`mail.quote-inquiry`) utilizing the clean "Business Blue" styling. It dynamically pulls tenant data and quote totals.
+1. **Email Implementation**: Created `QuoteInquiryMail` and its corresponding Blade template (`mail.quote-inquiry`) utilizing the clean "Business Blue" styling. It dynamically pulls bedrijf data and quote totals.
 2. **Polymorphic Logging**: Introduced `LogCommunicationAction` which records every email sent into the `communications` table. It links dynamically to the `Quote` via polymorphic relations (`related_type`, `related_id`).
-3. **Filament Integration**: Added the "Send Quote via Email" action to the `QuoteResource` (both Table and Page). The action ensures tenant authorization, sends the email, triggers the log action, and updates the quote status to `QuoteStatus::SENT`.
+3. **Filament Integration**: Added the "Send Quote via Email" action to the `QuoteResource` (both Table and Page). The action ensures bedrijf authorization, sends the email, triggers the log action, and updates the quote status to `QuoteStatus::SENT`.
 
 ### Defense Tip
 "By using a polymorphic communication layer, we track every touchpoint with the customer across different modules (Quotes, Invoices) in one unified history table, providing the dispatcher with a full 360-degree view of client interactions."
@@ -208,9 +208,9 @@ Implemented the automated billing core capable of converting an accepted `Quote`
 
 ### Implementation Details
 1. **Conversion Logic**: Created `CreateInvoiceFromQuoteAction` which takes a `Quote` and wraps the creation of the `Invoice` and `InvoiceItem` inside a secure database transaction.
-   - It automatically generates a unique `invoice_number` (`INV-YYYY-XXXX`) scoped securely to the `tenant_id`.
+   - It automatically generates a unique `invoice_number` (`INV-YYYY-XXXX`) scoped securely to the `bedrijf_id`.
    - Calculates the `subtotal`, 21% `tax_rate`, and `total_amount` with absolute mathematical precision (`decimal:12,2`).
-2. **PDF Generation**: Implemented `GenerateInvoicePdfAction`. Currently utilizing a clean Blade-to-HTML implementation that acts as a structured foundation for PDF rendering. It saves the resulting file into local storage (`storage/app/tenants/{tenant_id}/invoices/`) and updates the `ubl_xml_path` metadata reference.
+2. **PDF Generation**: Implemented `GenerateInvoicePdfAction`. Currently utilizing a clean Blade-to-HTML implementation that acts as a structured foundation for PDF rendering. It saves the resulting file into local storage (`storage/app/bedrijfs/{bedrijf_id}/invoices/`) and updates the `ubl_xml_path` metadata reference.
 3. **Filament Integration**: Added the "Convert to Invoice" action to the `QuoteResource`. It is conditionally visible (only for `SENT` or `ACCEPTED` quotes) and handles the full pipeline: status update -> invoice creation -> PDF generation -> UI redirect.
 
 ### Defense Tip
@@ -235,7 +235,7 @@ Implemented the full end-to-end payment gateway scaffolding, allowing customers 
 3. **Webhook & Automation Engine (Issue #28)**:
    - Configured `StripeWebhookController` at `/webhook/stripe` (exempted from CSRF in `bootstrap/app.php`).
    - The controller listens for `checkout.session.completed` events.
-   - Using `Invoice::withoutGlobalScopes()`, the system bypasses tenant-auth requirements (since webhooks are unauthenticated server-to-server events) to find the correct invoice.
+   - Using `Invoice::withoutGlobalScopes()`, the system bypasses bedrijf-auth requirements (since webhooks are unauthenticated server-to-server events) to find the correct invoice.
    - The Invoice is automatically transitioned to `Paid` with a timestamp.
    - Triggered `LogCommunicationAction` to securely record "Invoice Mark As Paid via Stripe" as a System Event.
 
@@ -248,19 +248,19 @@ Implemented the full end-to-end payment gateway scaffolding, allowing customers 
 ## 2026-06-01: Issue #31 - SaaS Monetization & Webhook-First Onboarding
 
 ### Task Summary
-Transformed the demo platform into a true SaaS application by locking tenant creation and dashboard access behind a real-world Stripe Subscription engine.
+Transformed the demo platform into a true SaaS application by locking bedrijf creation and dashboard access behind a real-world Stripe Subscription engine.
 
 ### Implementation Details
-1. **Database Adjustments**: Added `stripe_subscription_id` and `stripe_subscription_status` directly to the `tenants` table.
+1. **Database Adjustments**: Added `stripe_subscription_id` and `stripe_subscription_status` directly to the `bedrijfs` table.
 2. **Subscription Checkout Service**: Enhanced `StripeService` to generate Subscription-mode checkout sessions, automatically mapping internal plans (`start`, `pro`) to their corresponding Stripe Price IDs.
-3. **Public SaaS Onboarding Form**: Created the `RegisterTenant` Livewire SFC available at `/register`. Replaced Filament's default registration to enforce the payment gateway upfront.
+3. **Public SaaS Onboarding Form**: Created the `RegisterBedrijf` Livewire SFC available at `/register`. Replaced Filament's default registration to enforce the payment gateway upfront.
 4. **Webhook-First Provisioning Architecture**: 
    - Modifed `StripeWebhookController` to intercept `checkout.session.completed` for subscriptions.
-   - Handled `customer.subscription.updated` / `deleted` to synchronize tenant statuses.
-5. **Dashboard Paywall**: Developed `CheckSubscriptionStatus` middleware and hooked it into the Filament `AdminPanelProvider`'s `authMiddleware` array. If a user logs in but their tenant's subscription is lapsed, they are immediately redirected to `/billing-required`.
+   - Handled `customer.subscription.updated` / `deleted` to synchronize bedrijf statuses.
+5. **Dashboard Paywall**: Developed `CheckSubscriptionStatus` middleware and hooked it into the Filament `AdminPanelProvider`'s `authMiddleware` array. If a user logs in but their bedrijf's subscription is lapsed, they are immediately redirected to `/billing-required`.
 
 ### Defense Tip
-"By passing a temporary, cryptographically secure UUID token to Stripe metadata instead of raw user payloads, we eliminate data leakage risks. The application employs a Webhook-First provisioning lifecycle, ensuring that multi-tenant infrastructure is only engineered after financial clearing is cryptographically verified."
+"By passing a temporary, cryptographically secure UUID token to Stripe metadata instead of raw user payloads, we eliminate data leakage risks. The application employs a Webhook-First provisioning lifecycle, ensuring that multi-bedrijf infrastructure is only engineered after financial clearing is cryptographically verified."
 
 
 ---
@@ -273,7 +273,7 @@ Completed the billing engine compliance for 2026 European standards by implement
 ### Implementation Details
 1. **UBL Blade Template**: Created `resources/views/invoices/ubl.blade.php` adhering strictly to Peppol BIS Billing 3.0 schema and standard UBL namespaces (`cbc`, `cac`). It maps the invoice details, tax calculations, and party identities.
 2. **Dual-Document Pipeline**: Extended `GenerateInvoicePdfAction` to process the new XML view alongside the HTML/PDF pipeline.
-3. **Tenant-Isolated Storage**: The resulting XML string is injected into the secure filesystem (`storage/app/tenants/{tenant_id}/invoices/{invoice_number}.xml`).
+3. **Bedrijf-Isolated Storage**: The resulting XML string is injected into the secure filesystem (`storage/app/bedrijfs/{bedrijf_id}/invoices/{invoice_number}.xml`).
 4. **Metadata Linking**: The `ubl_xml_path` column on the `Invoice` model is automatically updated to trace to the new compliant file.
 
 ### Defense Tip
@@ -282,19 +282,19 @@ Completed the billing engine compliance for 2026 European standards by implement
 
 ---
 
-## 2026-06-01: Issue #29 - Multi-Tenant & Subscription Feature Tests via Pest
+## 2026-06-01: Issue #29 - Multi-Bedrijf & Subscription Feature Tests via Pest
 
 ### Task Summary
-Implemented an automated testing suite utilizing Pest framework to prove the security of our multi-tenant and SaaS subscription layers. By simulating cross-tenant attacks and subscription evasion, we validate the robustness of the system's global scopes, middleware, and webhook provisioning.
+Implemented an automated testing suite utilizing Pest framework to prove the security of our multi-bedrijf and SaaS subscription layers. By simulating cross-bedrijf attacks and subscription evasion, we validate the robustness of the system's global scopes, middleware, and webhook provisioning.
 
 ### Implementation Details
-1. **Test Environment**: Reconfigured the `User` model to correctly link to the `Tenant` relationship, facilitating accurate middleware resolution.
-2. **Strict Multi-Tenant Isolation**: Implemented `tests/Feature/Dashboard/InvoiceSecurityTest.php` to prove that when a User belonging to Tenant A attempts to read/edit an invoice belonging to Tenant B via Filament endpoints, the system responds with a firm `404` rejection. This validates the `HasTenant` global scope.
-3. **Subscription Paywall Enforcement**: Implemented `tests/Feature/Dashboard/SubscriptionPaywallTest.php` verifying that any access to the dashboard is reliably intercepted by `CheckSubscriptionStatus` middleware and rerouted to `/billing/inactive` if the tenant's Stripe subscription is lapsed.
-4. **Webhook-First Provisioning Integrity**: Formulated `tests/Feature/Public/StripeWebhookTest.php` to simulate an inbound `checkout.session.completed` event from Stripe. It mathematically proves that a secure cache payload is converted into a physical `Tenant` and Admin `User` alongside full cache teardown upon completion.
+1. **Test Environment**: Reconfigured the `User` model to correctly link to the `Bedrijf` relationship, facilitating accurate middleware resolution.
+2. **Strict Multi-Bedrijf Isolation**: Implemented `tests/Feature/Dashboard/InvoiceSecurityTest.php` to prove that when a User belonging to Bedrijf A attempts to read/edit an invoice belonging to Bedrijf B via Filament endpoints, the system responds with a firm `404` rejection. This validates the `HasBedrijf` global scope.
+3. **Subscription Paywall Enforcement**: Implemented `tests/Feature/Dashboard/SubscriptionPaywallTest.php` verifying that any access to the dashboard is reliably intercepted by `CheckSubscriptionStatus` middleware and rerouted to `/billing/inactive` if the bedrijf's Stripe subscription is lapsed.
+4. **Webhook-First Provisioning Integrity**: Formulated `tests/Feature/Public/StripeWebhookTest.php` to simulate an inbound `checkout.session.completed` event from Stripe. It mathematically proves that a secure cache payload is converted into a physical `Bedrijf` and Admin `User` alongside full cache teardown upon completion.
 
 ### Defense Tip
-"By implementing automated Pest feature tests that mimic cross-tenant attacks and subscription bypasses, we mathematically prove that our multi-tenant data isolation layer is fully defensive and production-ready, achieving 100% security coverage on critical billing endpoints."
+"By implementing automated Pest feature tests that mimic cross-bedrijf attacks and subscription bypasses, we mathematically prove that our multi-bedrijf data isolation layer is fully defensive and production-ready, achieving 100% security coverage on critical billing endpoints."
 
 
 ---
@@ -307,11 +307,11 @@ Finalized the compliance with 2026 e-invoicing laws by replacing the UBL XML pla
 ### Implementation Details
 1. **Dedicated Action Extracted**: Extracted the previously implemented UBL generation method from GenerateInvoicePdfAction into a standalone, dedicated GenerateUblXmlAction.
 2. **Dependency Injection**: Refactored GenerateInvoicePdfAction to cleanly resolve GenerateUblXmlAction via its constructor.
-3. **UBL 2.1 Schema Compliance**: Verified the ubl.blade.php view natively complies with Peppol BIS Billing 3.0 standards, accurately parsing tenant identities, customer mappings, and 12,2 decimal precision values.
-4. **Secure Local Storage**: Ensured the finalized XML payload is structurally trimmed and strictly injected into tenant-isolated storage directories alongside the human-readable PDF.
+3. **UBL 2.1 Schema Compliance**: Verified the ubl.blade.php view natively complies with Peppol BIS Billing 3.0 standards, accurately parsing bedrijf identities, customer mappings, and 12,2 decimal precision values.
+4. **Secure Local Storage**: Ensured the finalized XML payload is structurally trimmed and strictly injected into bedrijf-isolated storage directories alongside the human-readable PDF.
 
 ### Defense Tip
-"By generating twin accounting files (PDF for humans, UBL 2.1 XML for machines) simultaneously inside a secure tenant-scoped storage environment, our application bypasses the need for third-party compliance middleware, guaranteeing native compliance with European Peppol data clearing networks."
+"By generating twin accounting files (PDF for humans, UBL 2.1 XML for machines) simultaneously inside a secure bedrijf-scoped storage environment, our application bypasses the need for third-party compliance middleware, guaranteeing native compliance with European Peppol data clearing networks."
 
 ---
 
@@ -324,10 +324,10 @@ Completely eliminated the WAMP server MySQL dependency by switching the primary 
 1. **SQLite Initialization**: Created the empty unifying database file at database/database.sqlite.
 2. **Environment Shift**: Reworked .env to rely exclusively on DB_CONNECTION=sqlite, commenting out all obsolete DB_HOST, DB_PORT, DB_DATABASE, and credentials.
 3. **Migration Verification**: Re-ran the complete migration and seeding suite. Native SQLite handled all foreign key constraints and JSON metadata casting precisely as mapped by Eloquent.
-4. **Validation**: Fully re-tested the architecture with Pest; all 45 feature tests remain passing at 100% success rate, ensuring local compliance with our multi-tenant logic on the new file-based driver.
+4. **Validation**: Fully re-tested the architecture with Pest; all 45 feature tests remain passing at 100% success rate, ensuring local compliance with our multi-bedrijf logic on the new file-based driver.
 
 ### Defense Tip
-"By transitioning our storage infrastructure to a decoupled SQLite file driver, we implement an autonomous, zero-configuration architecture. This guarantees absolute runtime portability across different hosting environments while maintaining strict local compliance with our multi-tenant schema rules."
+"By transitioning our storage infrastructure to a decoupled SQLite file driver, we implement an autonomous, zero-configuration architecture. This guarantees absolute runtime portability across different hosting environments while maintaining strict local compliance with our multi-bedrijf schema rules."
 
 ---
 
@@ -367,21 +367,21 @@ Executed a deep architectural clean-up by entirely removing the "Categories" mod
 
 ### Design Patterns
 - **Dead Code Elimination (DCE)**: Actively removed unused structural elements (Models, Policies, Migrations, Filament Resources). Keeping only active, utilized domains ensures a smaller attack surface, faster compilation/routing times, and less cognitive load on future maintainers.
-- **Dependency Cleansing**: Stripped BelongsToMany and HasMany category references from the Post and Tenant models respectively, maintaining strict Eloquent relationship integrity.
+- **Dependency Cleansing**: Stripped BelongsToMany and HasMany category references from the Post and Bedrijf models respectively, maintaining strict Eloquent relationship integrity.
 
 ---
 
-## 2026-06-08: Issue - Super-Admin Impersonation (Tenant Switching)
+## 2026-06-08: Issue - Super-Admin Impersonation (Bedrijf Switching)
 
 ### Task Summary
-Implemented a Super-Admin architecture allowing the main platform owner to seamlessly impersonate any Tenant User. This facilitates rapid debugging and customer support by bypassing strict Global Scopes directly from the Filament dashboard.
+Implemented a Super-Admin architecture allowing the main platform owner to seamlessly impersonate any Bedrijf User. This facilitates rapid debugging and customer support by bypassing strict Global Scopes directly from the Filament dashboard.
 
 ### Design Patterns
-- **Super-Admin Bypass**: Extended the `User` model with an `is_super_admin` flag. Created a dedicated `GlobalUserResource` that explicitly invokes `withoutGlobalScopes()` to break the Multi-Tenant isolation barrier exclusively for authorized platform owners.
+- **Super-Admin Bypass**: Extended the `User` model with an `is_super_admin` flag. Created a dedicated `GlobalUserResource` that explicitly invokes `withoutGlobalScopes()` to break the Multi-Bedrijf isolation barrier exclusively for authorized platform owners.
 - **Session Swapping**: Integrated the `stechstudio/filament-impersonate` package. This enables a secure state transition where the Super-Admin temporarily assumes the identity and permissions of a client, complete with a persistent UI banner to revert the session.
 
 ### Presentation Tip
-"To provide instant customer support without requesting credentials, we engineered a Super-Admin Impersonation module. It securely fractures the Eloquent Global Scope isolation just for the platform owner, allowing them to hot-swap their session into any tenant's dashboard with a single click."
+"To provide instant customer support without requesting credentials, we engineered a Super-Admin Impersonation module. It securely fractures the Eloquent Global Scope isolation just for the platform owner, allowing them to hot-swap their session into any bedrijf's dashboard with a single click."
 
 ---
 
@@ -392,7 +392,7 @@ Calibrated the front-end pricing and back-end seeders to strictly reflect the ap
 
 ### Design Patterns
 - **Manual Intake via Modals**: Converted the `LeadResource` creation flow into a Slide-Over modal in Filament, providing a fast, non-intrusive data entry mechanism for dispatchers.
-- **Tenant Auto-Linking**: Structured the Super-Admin creation of a new `Tenant` to automatically register an associated B2B `Lead` within the primary agency's (Logi-Web PRO) pipeline. This enables immediate generation of a setup invoice (e.g., €2.450) natively within the system.
+- **Bedrijf Auto-Linking**: Structured the Super-Admin creation of a new `Bedrijf` to automatically register an associated B2B `Lead` within the primary agency's (Logi-Web PRO) pipeline. This enables immediate generation of a setup invoice (e.g., €2.450) natively within the system.
 
 ### Presentation Tip
 "By bridging Super-Admin operations with the native B2B CRM, we automated our own billing pipeline. Onboarding a new client instantly drops a ready-to-bill Lead into our agency's dashboard, strictly adhering to the VLAIO subsidy cost matrix."
@@ -405,8 +405,8 @@ Calibrated the front-end pricing and back-end seeders to strictly reflect the ap
 Implemented a dynamic subscription-based Feature Flagging engine. The visibility and accessibility of dashboard modules (e.g., Invoicing) are now strictly governed by the specific subscription packages purchased by the logistics provider.
 
 ### Design Patterns
-- **JSON Attribute Arrays**: Introduced an `active_packages` JSON column to the `Tenant` model, avoiding complex many-to-many pivot tables for simple boolean-like flags. 
-- **Resource Interception**: Overrode the `canViewAny()` authorization policy in Filament Resources (e.g., `InvoiceResource`). The system actively intercepts navigation building and route access, returning `403 Access Denied` if a required module identifier (like `3` for Invoices) is missing from the tenant's payload.
+- **JSON Attribute Arrays**: Introduced an `active_packages` JSON column to the `Bedrijf` model, avoiding complex many-to-many pivot tables for simple boolean-like flags. 
+- **Resource Interception**: Overrode the `canViewAny()` authorization policy in Filament Resources (e.g., `InvoiceResource`). The system actively intercepts navigation building and route access, returning `403 Access Denied` if a required module identifier (like `3` for Invoices) is missing from the bedrijf's payload.
 - **Super-Admin Mutability**: Deployed a `CheckboxList` in the Super-Admin dashboard, giving platform owners instantaneous capability to toggle features for clients on the fly.
 
 ### Presentation Tip
@@ -424,13 +424,13 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `app/Policies/QuoteItemPolicy.php` (NEW)
 
 - **Technical Logic:**
-  Introduced the `quote_items` table as the relational child of `quotes`, mirroring the existing `invoice_items` architecture. The migration defines ULID primary key, `quote_id` FK with cascade-on-delete, and four financial columns (`description`, `quantity`, `unit_price`, `tax_rate`, `total`) all as `decimal` — never `float` — in strict compliance with `rules.md`. The `QuoteItemPolicy` enforces cross-tenant isolation by traversing the `quote` relationship: `$user->tenant_id === $quoteItem->quote->tenant_id`. An additional business rule locks updates and deletes for items belonging to quotes that are already `ACCEPTED` or `DECLINED`.
+  Introduced the `quote_items` table as the relational child of `quotes`, mirroring the existing `invoice_items` architecture. The migration defines ULID primary key, `quote_id` FK with cascade-on-delete, and four financial columns (`description`, `quantity`, `unit_price`, `tax_rate`, `total`) all as `decimal` — never `float` — in strict compliance with `rules.md`. The `QuoteItemPolicy` enforces cross-bedrijf isolation by traversing the `quote` relationship: `$user->bedrijf_id === $quoteItem->quote->bedrijf_id`. An additional business rule locks updates and deletes for items belonging to quotes that are already `ACCEPTED` or `DECLINED`.
 
 - **Senior Concept:**
   **Relational Integrity via Cascading FKs + Child-Level Authorization.** By defining `->cascadeOnDelete()` on the FK, we guarantee referential integrity at the database engine level — no orphaned line items can exist after a quote is deleted. The Policy then adds a second, application-level validation layer that checks not just ownership but also the business state of the parent (`QuoteStatus`). This is the "Defense in Depth" pattern applied to domain objects.
 
 - **Exam Defense Tip:**
-  "The `QuoteItemPolicy` enforces a two-dimensional authorization check: it validates tenant ownership AND the business state of the parent Quote. This prevents any dispatcher from editing a line item on an already-accepted offer, ensuring absolute financial integrity of committed deals."
+  "The `QuoteItemPolicy` enforces a two-dimensional authorization check: it validates bedrijf ownership AND the business state of the parent Quote. This prevents any dispatcher from editing a line item on an already-accepted offer, ensuring absolute financial integrity of committed deals."
 
 - **Keywords to Learn:** `cascadeOnDelete`, `BackedEnum` (QuoteStatus), `Defense in Depth`
 
@@ -482,13 +482,13 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `database/migrations/2026_06_09_122211_optimize_quotes_indexes.php` (NEW)
 
 - **Technical Logic:**
-  Replaced the simple two-column `['tenant_id', 'status']` indexes on `leads`, `quotes`, and `invoices` with three-column composite indexes: `['tenant_id', 'deleted_at', 'status']`. The third column `deleted_at` is added because all models use `SoftDeletes`, meaning every Eloquent query automatically appends `AND deleted_at IS NULL` to the WHERE clause. Without `deleted_at` in the index, the database engine applies the soft-delete filter as a post-scan step. With it in the index, the engine can use the full B-Tree path for the most common query pattern.
+  Replaced the simple two-column `['bedrijf_id', 'status']` indexes on `leads`, `quotes`, and `invoices` with three-column composite indexes: `['bedrijf_id', 'deleted_at', 'status']`. The third column `deleted_at` is added because all models use `SoftDeletes`, meaning every Eloquent query automatically appends `AND deleted_at IS NULL` to the WHERE clause. Without `deleted_at` in the index, the database engine applies the soft-delete filter as a post-scan step. With it in the index, the engine can use the full B-Tree path for the most common query pattern.
 
 - **Senior Concept:**
-  **Composite Index Column Ordering (Selectivity Principle + SoftDelete Awareness).** The order of columns in a composite index matters critically. The `tenant_id` must come first (highest cardinality filter reducing the result set most), followed by `deleted_at` (binary filter — almost always IS NULL), followed by `status`. This ordering allows the MySQL/SQLite query planner to use the index for any left-prefix combination: queries by `tenant_id` alone, by `tenant_id + deleted_at`, or by all three.
+  **Composite Index Column Ordering (Selectivity Principle + SoftDelete Awareness).** The order of columns in a composite index matters critically. The `bedrijf_id` must come first (highest cardinality filter reducing the result set most), followed by `deleted_at` (binary filter — almost always IS NULL), followed by `status`. This ordering allows the MySQL/SQLite query planner to use the index for any left-prefix combination: queries by `bedrijf_id` alone, by `bedrijf_id + deleted_at`, or by all three.
 
 - **Exam Defense Tip:**
-  "A standard `['tenant_id', 'status']` index is insufficient for a SoftDeletes application. Since every Eloquent query appends `AND deleted_at IS NULL`, we extended the index to `['tenant_id', 'deleted_at', 'status']`. This transforms a three-condition WHERE clause from a two-step index-then-filter into a single B-Tree lookup, drastically reducing I/O under logistics-scale load."
+  "A standard `['bedrijf_id', 'status']` index is insufficient for a SoftDeletes application. Since every Eloquent query appends `AND deleted_at IS NULL`, we extended the index to `['bedrijf_id', 'deleted_at', 'status']`. This transforms a three-condition WHERE clause from a two-step index-then-filter into a single B-Tree lookup, drastically reducing I/O under logistics-scale load."
 
 - **Keywords to Learn:** `Composite Index`, `Index Column Selectivity`, `B-Tree (Balanced Tree)`
 
@@ -501,10 +501,10 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 - **Files Modified:** (Analysis only — no code changes in this step)
 
 - **Technical Logic:**
-  Executed a systematic audit across 4 architectural vectors: (1) Queue vs. Sync — discovered `EditQuote.php` dispatching email with `->send()` despite mailable implementing `ShouldQueue`; (2) Policy Security — confirmed all 7 policies exist but found no explicit `Gate::policy()` registration (relying on silent naming convention auto-discovery); (3) Database Indexes — found `quote_items.quote_id` and `invoice_items.invoice_id` missing explicit B-Tree indexes (SQLite does not auto-create them for FK constraints), and `invoices` missing `[tenant_id, due_date]` composite for the nightly cron, and `communications` table completely unindexed; (4) Rate Limiting — found `/pay/{invoice}` public portal with zero rate limiting, exposing it to ULID enumeration attacks.
+  Executed a systematic audit across 4 architectural vectors: (1) Queue vs. Sync — discovered `EditQuote.php` dispatching email with `->send()` despite mailable implementing `ShouldQueue`; (2) Policy Security — confirmed all 7 policies exist but found no explicit `Gate::policy()` registration (relying on silent naming convention auto-discovery); (3) Database Indexes — found `quote_items.quote_id` and `invoice_items.invoice_id` missing explicit B-Tree indexes (SQLite does not auto-create them for FK constraints), and `invoices` missing `[bedrijf_id, due_date]` composite for the nightly cron, and `communications` table completely unindexed; (4) Rate Limiting — found `/pay/{invoice}` public portal with zero rate limiting, exposing it to ULID enumeration attacks.
 
 - **Senior Concept:**
-  **Threat Modeling (STRIDE-Lite) applied to Laravel Architecture.** Approaching your own codebase as an adversary — identifying what a malicious tenant, a bot, or a failing third-party service could exploit — is a hallmark of principal-level engineering. Each vector maps to a class of attack: sync email = availability risk (DoS via SMTP), implicit policies = privilege escalation risk, missing indexes = availability risk (DB CPU exhaustion), unguarded portal = information disclosure risk.
+  **Threat Modeling (STRIDE-Lite) applied to Laravel Architecture.** Approaching your own codebase as an adversary — identifying what a malicious bedrijf, a bot, or a failing third-party service could exploit — is a hallmark of principal-level engineering. Each vector maps to a class of attack: sync email = availability risk (DoS via SMTP), implicit policies = privilege escalation risk, missing indexes = availability risk (DB CPU exhaustion), unguarded portal = information disclosure risk.
 
 - **Exam Defense Tip:**
   "In the Phase 3 audit, we applied a structured threat model to our own codebase. We found 4 vulnerability classes: a sync-in-HTTP email bug, implicit policy registration, missing FK-level indexes on SQLite, and an unprotected public payment portal. Each was resolved with a targeted, native Laravel pattern — no third-party security libraries needed."
@@ -556,7 +556,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `app/Models/InvoiceItem.php` (MODIFIED — added `protected $with = ['invoice']`)
 
 - **Technical Logic:**
-  `QuoteItemPolicy::update()` evaluates `$user->tenant_id === $quoteItem->quote->tenant_id`. When Filament renders a list of 50 `QuoteItem` records and evaluates the policy for each, Eloquent lazy-loads the `quote` relationship per item — resulting in 50 additional SELECT queries (N+1). By declaring `protected $with = ['quote']` on the model, Eloquent always issues a single JOIN or secondary query to load the `quote` relation alongside the initial fetch. Result: 51 queries → 2 queries per list render.
+  `QuoteItemPolicy::update()` evaluates `$user->bedrijf_id === $quoteItem->quote->bedrijf_id`. When Filament renders a list of 50 `QuoteItem` records and evaluates the policy for each, Eloquent lazy-loads the `quote` relationship per item — resulting in 50 additional SELECT queries (N+1). By declaring `protected $with = ['quote']` on the model, Eloquent always issues a single JOIN or secondary query to load the `quote` relation alongside the initial fetch. Result: 51 queries → 2 queries per list render.
 
 - **Senior Concept:**
   **Eager Loading as a Performance Contract at the Model Level.** Placing `$with` on the model rather than in individual query builders ensures the optimization is universal — it applies to every Eloquent query on that model, regardless of the caller (controller, Filament, artisan command, test). This is the "model-level eager loading" pattern, preferred over ad-hoc `->with('quote')` calls that developers may forget to add. The tradeoff is slightly higher memory usage per single-record fetch, which is negligible for child models.
@@ -574,7 +574,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `database/migrations/2026_06_10_000001_optimize_phase3_indexes.php` (NEW)
 
 - **Technical Logic:**
-  Added 4 indexes identified in the audit: (1) `quote_items.quote_id` — explicit B-Tree index because SQLite (unlike MySQL/PostgreSQL) does NOT automatically create an index when you define a FK constraint via `foreignUlid()->constrained()`; without this, every `$quote->items()` call is a full table scan. (2) `invoice_items.invoice_id` — same SQLite FK index gap. (3) `invoices ['tenant_id', 'due_date']` composite — the `SendInvoiceReminders` artisan command filters `WHERE status = 'sent' AND due_date < today()` across all invoices; without `due_date` in the index, the engine does post-filter on the status index results. (4) `communications ['tenant_id', 'related_type', 'related_id']` composite — polymorphic log queries per invoice/quote were completely unindexed.
+  Added 4 indexes identified in the audit: (1) `quote_items.quote_id` — explicit B-Tree index because SQLite (unlike MySQL/PostgreSQL) does NOT automatically create an index when you define a FK constraint via `foreignUlid()->constrained()`; without this, every `$quote->items()` call is a full table scan. (2) `invoice_items.invoice_id` — same SQLite FK index gap. (3) `invoices ['bedrijf_id', 'due_date']` composite — the `SendInvoiceReminders` artisan command filters `WHERE status = 'sent' AND due_date < today()` across all invoices; without `due_date` in the index, the engine does post-filter on the status index results. (4) `communications ['bedrijf_id', 'related_type', 'related_id']` composite — polymorphic log queries per invoice/quote were completely unindexed.
 
 - **Senior Concept:**
   **SQLite FK Index Gap + Composite Index for Polymorphic Morphs.** MySQL auto-creates a B-Tree index alongside any FK constraint — SQLite does not. This is a database-engine-specific behavior that silently hurts performance. The polymorphic `[related_type, related_id]` composite index follows the standard Eloquent `ulidMorphs()` index pattern, ensuring that `WHERE related_type = 'App\Models\Invoice' AND related_id = ?` queries use the index rather than a full scan of the communications log table.
@@ -675,13 +675,13 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `app/Livewire/Public/PackageInquiryForm.php`
 
 - **Technical Logic:**
-  Replaced `public Invoice $invoice` with `#[Locked] public string $invoiceId`. In the `pay()` method, explicitly re-fetched the invoice using `Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId)` and applied manual tenant validation. Added `#[Locked]` to the `$package` string in the inquiry form.
+  Replaced `public Invoice $invoice` with `#[Locked] public string $invoiceId`. In the `pay()` method, explicitly re-fetched the invoice using `Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId)` and applied manual bedrijf validation. Added `#[Locked]` to the `$package` string in the inquiry form.
 
 - **Senior Concept:**
   **Cryptographic State Locking against Model Substitution Attacks.** Livewire serializes public properties into the DOM. An attacker could use DevTools to modify an exposed ULID before a POST request. By applying `#[Locked]`, Livewire signs the property and throws an exception upon tampering. Storing just the ULID instead of the full Model further reduces the serialization attack surface.
 
 - **Exam Defense Tip:**
-  "We secured our public payment portals against Livewire Model Substitution Attacks by applying the `#[Locked]` attribute to critical ULIDs and strictly avoiding full model serialization in the DOM. Server-side, we re-fetch the authoritative database record on every interaction, verifying tenant ownership before initiating a Stripe session."
+  "We secured our public payment portals against Livewire Model Substitution Attacks by applying the `#[Locked]` attribute to critical ULIDs and strictly avoiding full model serialization in the DOM. Server-side, we re-fetch the authoritative database record on every interaction, verifying bedrijf ownership before initiating a Stripe session."
 
 - **Keywords to Learn:** `Livewire #[Locked]`, `Model Substitution Attack`, `State Tampering`
 
@@ -698,13 +698,13 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
   - `.env`
 
 - **Technical Logic:**
-  Installed and configured Laravel Reverb. Created `LeadSubmittedEvent` implementing `ShouldBroadcast`, broadcasting on a tenant-scoped private channel (`private-dispatcher.{tenantId}`). Configured `routes/channels.php` to authorize only members of that tenant with admin/dispatcher roles. Created a Filament widget using Livewire's `#[On('echo-private:...')]` to listen and react instantly.
+  Installed and configured Laravel Reverb. Created `LeadSubmittedEvent` implementing `ShouldBroadcast`, broadcasting on a bedrijf-scoped private channel (`private-dispatcher.{bedrijfId}`). Configured `routes/channels.php` to authorize only members of that bedrijf with admin/dispatcher roles. Created a Filament widget using Livewire's `#[On('echo-private:...')]` to listen and react instantly.
 
 - **Senior Concept:**
-  **True Event-Driven Reactivity vs Polling.** Rather than thrashing the database with `wire:poll` requests every 2 seconds for every online user, Reverb maintains a persistent WebSocket connection. The backend pushes minimal payload events instantly. Private channels combined with explicit authorization closures prevent cross-tenant eavesdropping.
+  **True Event-Driven Reactivity vs Polling.** Rather than thrashing the database with `wire:poll` requests every 2 seconds for every online user, Reverb maintains a persistent WebSocket connection. The backend pushes minimal payload events instantly. Private channels combined with explicit authorization closures prevent cross-bedrijf eavesdropping.
 
 - **Exam Defense Tip:**
-  "To provide logistics dispatchers with zero-latency updates without degrading database performance, we implemented a true event-driven architecture using Laravel Reverb WebSockets. We explicitly secure these real-time streams by authenticating the private channels against the user's Eloquent Global Scope tenant ID."
+  "To provide logistics dispatchers with zero-latency updates without degrading database performance, we implemented a true event-driven architecture using Laravel Reverb WebSockets. We explicitly secure these real-time streams by authenticating the private channels against the user's Eloquent Global Scope bedrijf ID."
 
 - **Keywords to Learn:** `Laravel Reverb`, `WebSockets`, `ShouldBroadcast`
 
@@ -716,11 +716,11 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 - **Exam Defense Tip:** "By extracting the inline HTML into a dedicated Blade template, we ensure proper compilation by the Blade engine, fix the Enum-to-string crash, and enforce a clean separation of concerns in our architecture."
 - **Keywords to Learn:** `MVC`, `Blade`, `Tailwind Compilation`
 
-### [2026-06-11 11:35] - Task: Expose "Products" Feature to Tenants
-- **Files Modified:** `app/Filament/Resources/Tenants/Schemas/TenantForm.php`, `app/Filament/Resources/Products/ProductResource.php`
-- **Technical Logic:** Added a new 'Products Management' option to the Tenant active packages CheckboxList. Updated `ProductResource::canViewAny()` to check if the user is a super admin OR if the tenant's `active_packages` JSON array contains the ID for the Products package.
-- **Senior Concept:** Feature Toggling / Role-Based Access Control (RBAC). We dynamically show or hide entire modules based on the tenant's subscribed capabilities, stored as a casted JSON array on the Tenant model.
-- **Exam Defense Tip:** "To provide granular access control in our Multi-tenant environment, I implemented a feature toggle system. Filament resources use authorization Gates (`canViewAny()`) that check the tenant's subscribed packages, keeping the UI tailored and secure."
+### [2026-06-11 11:35] - Task: Expose "Products" Feature to Bedrijfs
+- **Files Modified:** `app/Filament/Resources/Bedrijfs/Schemas/BedrijfForm.php`, `app/Filament/Resources/Products/ProductResource.php`
+- **Technical Logic:** Added a new 'Products Management' option to the Bedrijf active packages CheckboxList. Updated `ProductResource::canViewAny()` to check if the user is a super admin OR if the bedrijf's `active_packages` JSON array contains the ID for the Products package.
+- **Senior Concept:** Feature Toggling / Role-Based Access Control (RBAC). We dynamically show or hide entire modules based on the bedrijf's subscribed capabilities, stored as a casted JSON array on the Bedrijf model.
+- **Exam Defense Tip:** "To provide granular access control in our Multi-bedrijf environment, I implemented a feature toggle system. Filament resources use authorization Gates (`canViewAny()`) that check the bedrijf's subscribed packages, keeping the UI tailored and secure."
 - **Keywords to Learn:** `Feature Toggling`, `Authorization Gate`, `JSON Cast`
 
 ### [2026-06-11 11:39] - Task: Expose Line Items in QuoteForm
@@ -733,7 +733,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 ### [2026-06-11 11:45] - Task: Logistics Fields & Smart Quotes Engine
 - **Files Modified:** `database/migrations/*_add_logistics_fields_to_quotes_and_invoices_table.php`, `app/Models/Quote.php`, `app/Models/Invoice.php`, `app/Filament/Resources/Quotes/Schemas/QuoteForm.php`, `app/Filament/Resources/Invoices/Schemas/InvoiceForm.php`, `app/Actions/Quotes/CreateQuoteAction.php`, `app/Filament/Resources/Leads/Tables/LeadsTable.php`
 - **Technical Logic:** Conducted reverse engineering of Transport/Logistics invoicing standards. Added `description` to `quotes` and `notes`, `cmr_number`, `license_plate`, `loading_date`, `delivery_date` to `invoices`. Exposed these fields in Filament forms. Rewrote the `CreateQuoteAction` to be a true "Smart Quotes" engine: instead of hardcoded float amounts, the action queries the `Product` table based on the Lead's requested package (using Eloquent `where('name', 'like')`) and automatically generates `QuoteItem` relationship records containing the product's actual database price and description. It also copies the Lead's custom message into the Quote's `description` field.
-- **Senior Concept:** Data-Driven Business Logic & Bounded Context. Hardcoding business rules (like package prices) in the UI controller (`LeadsTable`) violates the Open/Closed Principle. By shifting the logic to an Action class that queries the `Product` aggregate root, we allow the tenant to change prices in their product database without requiring code deployments.
+- **Senior Concept:** Data-Driven Business Logic & Bounded Context. Hardcoding business rules (like package prices) in the UI controller (`LeadsTable`) violates the Open/Closed Principle. By shifting the logic to an Action class that queries the `Product` aggregate root, we allow the bedrijf to change prices in their product database without requiring code deployments.
 - **Exam Defense Tip:** "To make the quoting process truly 'Smart', I eliminated hardcoded prices from the controller. The `CreateQuoteAction` now dynamically queries the `Product` database based on the lead's intent and auto-generates relationship `QuoteItem` models. I also expanded the `Invoice` schema to support Logistics-specific UBL fields like CMR and License Plates."
 - **Keywords to Learn:** `Action Pattern`, `Data-Driven Logic`, `Open/Closed Principle`
 

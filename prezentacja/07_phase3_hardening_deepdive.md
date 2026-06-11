@@ -103,7 +103,7 @@ protected function registerPolicies(): void
 ```php
 public function update(User $user, QuoteItem $quoteItem): bool
 {
-    return $user->tenant_id === $quoteItem->quote->tenant_id; // LAZY LOAD!
+    return $user->bedrijf_id === $quoteItem->quote->bedrijf_id; // LAZY LOAD!
 }
 ```
 
@@ -122,7 +122,7 @@ protected $with = ['quote'];
 protected $with = ['invoice'];
 ```
 
-Teraz Eloquent zawsze ładuje relację nadrzędną razem z modelem potomnym. Policy może wywołać `$quoteItem->quote->tenant_id` bez nowego zapytania SQL — dane już są w pamięci.
+Teraz Eloquent zawsze ładuje relację nadrzędną razem z modelem potomnym. Policy może wywołać `$quoteItem->quote->bedrijf_id` bez nowego zapytania SQL — dane już są w pamięci.
 
 **Wynik:** 51 zapytań → 2 zapytania (1 na QuoteItem, 1 JOIN na Quote).
 
@@ -153,17 +153,17 @@ Schema::table('invoice_items', fn ($t) =>
     $t->index('invoice_id', 'invoice_items_invoice_id_index'));
 
 // 3. Optymalizuje nocny cron SendInvoiceReminders
-// Zapytanie: WHERE tenant_id = ? AND status = 'sent' AND due_date < ?
-// Bez indeksu due_date: baza musi po-filtrować wyniki [tenant_id+status] przez datę
+// Zapytanie: WHERE bedrijf_id = ? AND status = 'sent' AND due_date < ?
+// Bez indeksu due_date: baza musi po-filtrować wyniki [bedrijf_id+status] przez datę
 Schema::table('invoices', fn ($t) =>
-    $t->index(['tenant_id', 'due_date'], 'invoices_tenant_due_date_index'));
+    $t->index(['bedrijf_id', 'due_date'], 'invoices_bedrijf_due_date_index'));
 
 // 4. Optymalizuje widok historii komunikacji per faktura/oferta
-// Zapytanie: WHERE tenant_id = ? AND related_type = 'Invoice' AND related_id = ?
+// Zapytanie: WHERE bedrijf_id = ? AND related_type = 'Invoice' AND related_id = ?
 Schema::table('communications', fn ($t) =>
     $t->index(
-        ['tenant_id', 'related_type', 'related_id'],
-        'communications_tenant_related_index'
+        ['bedrijf_id', 'related_type', 'related_id'],
+        'communications_bedrijf_related_index'
     ));
 ```
 
@@ -246,7 +246,7 @@ Route::get('/pay/{invoice}', InvoicePayPortal::class)
            └───────────┬──────────────┘
                        │
            ┌───────────▼──────────────┐
-           │    TenantScope (Global)   │ ← Automatyczna izolacja SQL
+           │    BedrijfScope (Global)   │ ← Automatyczna izolacja SQL
            │    Gate::policy()         │ ← Explicit Policy Registration
            │    N+1 Eager Loading      │ ← $with = ['quote'/'invoice']
            └───────────┬──────────────┘

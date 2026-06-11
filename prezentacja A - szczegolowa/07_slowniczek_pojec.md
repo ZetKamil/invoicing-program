@@ -6,7 +6,7 @@ To zestawienie to Twoja polisa ubezpieczeniowa na prezentacji. Znajdują się tu
 
 ### 1. Global Scope (Zakres Globalny)
 **Co to jest:** To z góry zdefiniowany filtr w Laravelu, który jest automatycznie i "na sztywno" doczepiany do każdego zapytania w bazie danych.
-**Jak to wytłumaczyć:** Zamiast pamiętać o dopisywaniu w kodzie "pobierz tylko dla tej firmy", definiujemy to raz jako Global Scope. Odtąd system sam w tle dodaje ten warunek do zapytań (np. przy każdym pobraniu faktur automatycznie dopisuje `WHERE tenant_id = X`). Całkowicie chroni to system przed ludzkim błędem.
+**Jak to wytłumaczyć:** Zamiast pamiętać o dopisywaniu w kodzie "pobierz tylko dla tej firmy", definiujemy to raz jako Global Scope. Odtąd system sam w tle dodaje ten warunek do zapytań (np. przy każdym pobraniu faktur automatycznie dopisuje `WHERE bedrijf_id = X`). Całkowicie chroni to system przed ludzkim błędem.
 
 ### 2. Query Builder (Kreator Zapytań)
 **Co to jest:** Narzędzie wbudowane w framework, pozwalające pisać zapytania do bazy w czystym PHP, zamiast surowym językiem SQL.
@@ -17,7 +17,7 @@ To zestawienie to Twoja polisa ubezpieczeniowa na prezentacji. Znajdują się tu
 **Jak to wytłumaczyć:** To dzięki ORM na prezentacji operujemy na ładnych obiektach programistycznych. Program pobierając wiersz faktury z bazy traktuje go jak Obiekt `$invoice`, na którym można używać funkcji i sprawdzać właściwości. Zwalnia to programistów z pisania brudnego kodu SQL.
 
 ### 4. Trait (Cecha)
-**Co to jest:** Moduł z kodem, który można wstrzyknąć do dowolnej innej klasy jak "klocek Lego" (np. `HasTenant`).
+**Co to jest:** Moduł z kodem, który można wstrzyknąć do dowolnej innej klasy jak "klocek Lego" (np. `HasBedrijf`).
 **Jak to wytłumaczyć:** Gwarantuje zachowanie czystości kodu i zasady DRY (Don't Repeat Yourself). Jeśli model faktury i model leada potrzebują weryfikacji firmy, piszę jeden logiczny "Trait" i wpinam go używając słówka `use` w obu miejscach zamiast dublować kod.
 
 ### 5. Relacja Polimorficzna (Polymorphic Relation / MorphTo)

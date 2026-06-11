@@ -89,7 +89,7 @@ class AdminPanelProvider extends PanelProvider
 ```php
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => Blade::render('@livewire("tenant-switcher")')
+                fn (): string => Blade::render('@livewire("bedrijf-switcher")')
             )
 ```
 **Co masz powiedzieć jury:** *"To mój ulubiony element infrastruktury. Ponieważ rdzewne pliki interfejsu pochodzą z zewnętrznego vendora, bezpośrednia modyfikacja zablokowałaby aktualizacje (tzw. vendor lock). W obronie przed tym wykorzystałem Zaczepy Renderowania (Render Hooks) do wstrzyknięcia Livewire'a w locie."*

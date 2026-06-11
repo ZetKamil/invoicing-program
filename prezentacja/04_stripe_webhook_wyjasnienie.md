@@ -88,11 +88,11 @@ class StripeWebhookController extends Controller
                     
                     if ($registrationData) {
                         // Tworzenie bazy firmy
-                        $tenant = \App\Models\Tenant::create([ ... ]);
+                        $bedrijf = \App\Models\Bedrijf::create([ ... ]);
                         // Tworzenie pierwszego użytkownika
                         $user = \App\Models\User::create([ ... ]);
 
-                        Log::info("Provisioned new tenant: {$tenant->name} via SaaS Webhook.");
+                        Log::info("Provisioned new bedrijf: {$bedrijf->name} via SaaS Webhook.");
                         \Illuminate\Support\Facades\Cache::forget("registration_{$registrationId}");
                     }
                 }
@@ -127,11 +127,11 @@ class StripeWebhookController extends Controller
 ```php
         } elseif (in_array($event->type, ['customer.subscription.updated', 'customer.subscription.deleted'])) {
             $subscription = $event->data->object;
-            $tenant = \App\Models\Tenant::where('stripe_subscription_id', $subscription->id)->first();
+            $bedrijf = \App\Models\Bedrijf::where('stripe_subscription_id', $subscription->id)->first();
             
-            if ($tenant) {
-                $tenant->update(['stripe_subscription_status' => $subscription->status]);
-                Log::info("Updated subscription status for tenant: {$tenant->name} to {$subscription->status}.");
+            if ($bedrijf) {
+                $bedrijf->update(['stripe_subscription_status' => $subscription->status]);
+                Log::info("Updated subscription status for bedrijf: {$bedrijf->name} to {$subscription->status}.");
             }
         }
 

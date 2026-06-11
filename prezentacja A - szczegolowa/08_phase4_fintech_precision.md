@@ -41,7 +41,7 @@ The public invoice payment portal (`InvoicePayPortal`) previously bound the full
 
 ### The Solution: Cryptographic Property Locking
 1. **`#[Locked]` Attributes:** Replaced `public Invoice $invoice` with `#[Locked] public string $invoiceId`. Livewire cryptographically signs this locked property. Any attempt to tamper with the ULID in the browser results in a `CannotBindToComponentDataWithoutValidation` exception, instantly terminating the request.
-2. **Server-Side Re-Verification:** In the `pay()` method, the system discards any hydrated state and explicitly re-fetches the authoritative invoice from the database using the locked ID, followed by a strict tenant ownership check.
+2. **Server-Side Re-Verification:** In the `pay()` method, the system discards any hydrated state and explicitly re-fetches the authoritative invoice from the database using the locked ID, followed by a strict bedrijf ownership check.
 3. **State Protection:** Applied the same `#[Locked]` pattern to the public `PackageInquiryForm` to prevent users from manipulating the selected package strings.
 
 ---
@@ -53,7 +53,7 @@ Relying on HTTP polling (`wire:poll`) to notify dispatchers of new inbound leads
 
 ### The Solution: True Event-Driven Reactivity
 1. **Laravel Reverb:** We implemented native WebSockets using Laravel Reverb, replacing third-party dependencies like Pusher.
-2. **Secure Private Channels:** Dispatchers subscribe to a tenant-isolated private channel (`private-dispatcher.{tenantId}`). The `routes/channels.php` authorization callback verifies the user's tenant affiliation and role, preventing cross-tenant data leakage.
+2. **Secure Private Channels:** Dispatchers subscribe to a bedrijf-isolated private channel (`private-dispatcher.{bedrijfId}`). The `routes/channels.php` authorization callback verifies the user's bedrijf affiliation and role, preventing cross-bedrijf data leakage.
 3. **Filament Dashboard Integration:** Developed the `LiveLeadNotificationWidget` using Livewire 4's `#[On('echo-private:...')]` listener. When a new lead is submitted on the public site, `CreateLeadAction` queues a `LeadSubmittedEvent`. The dispatcher receives a real-time pulsing UI banner and toast notification instantly, without a single HTTP request or page refresh.
 
 ---
