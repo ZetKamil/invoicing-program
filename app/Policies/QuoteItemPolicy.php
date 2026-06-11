@@ -20,7 +20,7 @@ class QuoteItemPolicy
      */
     public function view(User $user, QuoteItem $quoteItem): bool
     {
-        return $user->tenant_id === $quoteItem->quote->tenant_id;
+        return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
     }
 
     /**
@@ -39,7 +39,7 @@ class QuoteItemPolicy
         if (in_array($quoteItem->quote->status, [\App\Enums\QuoteStatus::ACCEPTED, \App\Enums\QuoteStatus::DECLINED])) {
             return false;
         }
-        return $user->tenant_id === $quoteItem->quote->tenant_id;
+        return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
     }
 
     /**
@@ -50,7 +50,7 @@ class QuoteItemPolicy
         if (in_array($quoteItem->quote->status, [\App\Enums\QuoteStatus::ACCEPTED, \App\Enums\QuoteStatus::DECLINED])) {
             return false;
         }
-        return $user->tenant_id === $quoteItem->quote->tenant_id;
+        return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
     }
 
     /**
@@ -58,7 +58,7 @@ class QuoteItemPolicy
      */
     public function restore(User $user, QuoteItem $quoteItem): bool
     {
-        return $user->tenant_id === $quoteItem->quote->tenant_id;
+        return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
     }
 
     /**
@@ -66,6 +66,6 @@ class QuoteItemPolicy
      */
     public function forceDelete(User $user, QuoteItem $quoteItem): bool
     {
-        return $user->tenant_id === $quoteItem->quote->tenant_id;
+        return $user->bedrijf_id === $quoteItem->quote->bedrijf_id;
     }
 }

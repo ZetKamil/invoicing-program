@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->ulidMorphs('customer'); // ULID IDs for Lead/User
             $table->string('invoice_number');
             
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['tenant_id', 'invoice_number']);
+            $table->unique(['bedrijf_id', 'invoice_number']);
         });
     }
 

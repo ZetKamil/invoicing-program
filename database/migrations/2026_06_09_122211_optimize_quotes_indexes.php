@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('quotes', function (Blueprint $table) {
-            $table->dropIndex(['tenant_id', 'status']);
-            $table->index(['tenant_id', 'deleted_at', 'status'], 'quotes_tenant_deleted_status_index');
+            $table->dropIndex(['bedrijf_id', 'status']);
+            $table->index(['bedrijf_id', 'deleted_at', 'status'], 'quotes_bedrijf_deleted_status_index');
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('quotes', function (Blueprint $table) {
-            $table->dropIndex('quotes_tenant_deleted_status_index');
-            $table->index(['tenant_id', 'status']);
+            $table->dropIndex('quotes_bedrijf_deleted_status_index');
+            $table->index(['bedrijf_id', 'status']);
         });
     }
 };

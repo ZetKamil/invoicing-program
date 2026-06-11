@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('invoices', function (Blueprint $table) {
             // Drop the existing foreign key constraint
-            $table->dropForeign(['tenant_id']);
+            $table->dropForeign(['bedrijf_id']);
             
             // Re-add it without cascadeOnDelete to respect SoftDeletes
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('restrict');
+            $table->foreign('bedrijf_id')->references('id')->on('bedrijven')->onDelete('restrict');
         });
     }
 
@@ -26,8 +26,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->dropForeign(['tenant_id']);
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
+            $table->dropForeign(['bedrijf_id']);
+            $table->foreign('bedrijf_id')->references('id')->on('bedrijven')->onDelete('cascade');
         });
     }
 };

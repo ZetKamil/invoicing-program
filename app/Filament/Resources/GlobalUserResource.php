@@ -19,7 +19,7 @@ class GlobalUserResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Super Admin';
     
-    protected static ?string $modelLabel = 'Tenant User';
+    protected static ?string $modelLabel = 'Bedrijf User';
     
     protected static ?int $navigationSort = 100;
 
@@ -39,7 +39,7 @@ class GlobalUserResource extends Resource
             ->columns([
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
-                TextColumn::make('tenant.name')->label('Tenant')->searchable(),
+                TextColumn::make('bedrijf.name')->label('Bedrijf')->searchable(),
                 TextColumn::make('role')->badge(),
             ])
             ->filters([])

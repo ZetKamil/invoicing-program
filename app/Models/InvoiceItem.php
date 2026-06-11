@@ -16,7 +16,7 @@ class InvoiceItem extends Model
 
     /**
      * The relations to eager load on every query.
-     * Required by InvoiceItemPolicy which checks $invoiceItem->invoice->tenant_id
+     * Required by InvoiceItemPolicy which checks $invoiceItem->invoice->bedrijf_id
      * to avoid N+1 database queries during Filament list views.
      *
      * @var array<string>

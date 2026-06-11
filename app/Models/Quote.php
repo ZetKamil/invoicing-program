@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\QuoteStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'lead_id', 'quote_number', 'trailer_type', 'loading_address', 'delivery_address', 'description', 'metadata', 'total_amount', 'valid_until', 'status', 'last_reminded_at', 'cargo_weight_kg', 'pallet_count', 'loading_date', 'delivery_date', 'incoterms'])]
+#[Fillable(['bedrijf_id', 'lead_id', 'quote_number', 'trailer_type', 'loading_address', 'delivery_address', 'description', 'metadata', 'total_amount', 'valid_until', 'status', 'last_reminded_at', 'cargo_weight_kg', 'pallet_count', 'loading_date', 'delivery_date', 'incoterms'])]
 class Quote extends Model
 {
     /** @use HasFactory<\Database\Factories\QuoteFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.

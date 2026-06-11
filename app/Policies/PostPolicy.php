@@ -21,7 +21,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return $user->tenant_id === $post->tenant_id;
+        return $user->bedrijf_id === $post->bedrijf_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return $user->tenant_id === $post->tenant_id;
+        return $user->bedrijf_id === $post->bedrijf_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->tenant_id === $post->tenant_id;
+        return $user->bedrijf_id === $post->bedrijf_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return $user->tenant_id === $post->tenant_id;
+        return $user->bedrijf_id === $post->bedrijf_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
-        return $user->tenant_id === $post->tenant_id;
+        return $user->bedrijf_id === $post->bedrijf_id;
     }
 }

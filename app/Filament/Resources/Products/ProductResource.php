@@ -32,7 +32,7 @@ class ProductResource extends Resource
             return true;
         }
 
-        return in_array('7', $user->tenant?->active_packages ?? []);
+        return in_array('7', $user->bedrijf?->active_packages ?? []);
     }
 
     public static function form(Schema $schema): Schema

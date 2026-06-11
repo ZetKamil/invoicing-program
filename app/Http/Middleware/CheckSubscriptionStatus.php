@@ -17,9 +17,9 @@ class CheckSubscriptionStatus
     {
         $user = auth()->user();
 
-        // If the user is authenticated and belongs to a tenant
-        if ($user && $user->tenant) {
-            $status = $user->tenant->stripe_subscription_status;
+        // If the user is authenticated and belongs to a bedrijf
+        if ($user && $user->bedrijf) {
+            $status = $user->bedrijf->stripe_subscription_status;
 
             // Allow access if status is active or trialing
             if (!in_array($status, ['active', 'trialing'])) {

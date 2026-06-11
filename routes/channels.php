@@ -8,29 +8,29 @@ use Illuminate\Support\Facades\Broadcast;
 |--------------------------------------------------------------------------
 |
 | Channel authorization callbacks are the gatekeepers for private WebSocket
-| channels. When a browser subscribes to `private-dispatcher.{tenantId}`,
+| channels. When a browser subscribes to `private-dispatcher.{bedrijfId}`,
 | Laravel calls this callback with the authenticated user.
 |
 | The callback must return true/false. If false, the subscription is rejected
-| and the client receives a 403 — preventing unauthorized users from listening
-| to another tenant's real-time notifications.
+| and the client receives a 403 â€” preventing unauthorized users from listening
+| to another bedrijf's real-time notifications.
 |
 */
 
 /**
- * Private channel: dispatcher.{tenantId}
+ * Private channel: dispatcher.{bedrijfId}
  *
  * Authorization rules:
  *  - User must be authenticated (enforced by the 'private-' channel prefix)
- *  - User must belong to the same tenant as the channel
+ *  - User must belong to the same bedrijf as the channel
  *  - User must have a dispatcher or admin role
  *
  * This prevents a malicious authenticated user from subscribing to a
- * competitor tenant's notification channel by guessing their tenant ULID.
+ * competitor bedrijf's notification channel by guessing their bedrijf ULID.
  */
-Broadcast::channel('dispatcher.{tenantId}', function ($user, string $tenantId) {
-    // Rule 1: The user must belong to the requested tenant.
-    if ($user->tenant_id !== $tenantId) {
+Broadcast::channel('dispatcher.{bedrijfId}', function ($user, string $bedrijfId) {
+    // Rule 1: The user must belong to the requested bedrijf.
+    if ($user->bedrijf_id !== $bedrijfId) {
         return false;
     }
 

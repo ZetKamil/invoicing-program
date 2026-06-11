@@ -20,7 +20,7 @@
 <body>
     <div class="header">
         <div>
-            <h2>{{ $invoice->tenant->name ?? 'Logistics Agency' }}</h2>
+            <h2>{{ $invoice->bedrijf->name ?? 'Logistics Agency' }}</h2>
             <p>123 Business Road<br>City, Country<br>VAT: BE0123456789</p>
         </div>
         <div class="invoice-details">

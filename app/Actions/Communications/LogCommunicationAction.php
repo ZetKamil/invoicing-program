@@ -10,10 +10,10 @@ class LogCommunicationAction
     /**
      * Record a communication log in the database.
      */
-    public function execute(string $tenantId, string $subject, $relatedModel, CommType $type, ?string $body = null): Communication
+    public function execute(string $bedrijfId, string $subject, $relatedModel, CommType $type, ?string $body = null): Communication
     {
         return Communication::create([
-            'tenant_id' => $tenantId,
+            'bedrijf_id' => $bedrijfId,
             'subject' => $subject,
             'body' => $body ?? '',
             'related_type' => get_class($relatedModel),

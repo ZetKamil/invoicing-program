@@ -21,7 +21,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return $user->tenant_id === $product->tenant_id;
+        return $user->bedrijf_id === $product->bedrijf_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return $user->tenant_id === $product->tenant_id;
+        return $user->bedrijf_id === $product->bedrijf_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $user->tenant_id === $product->tenant_id;
+        return $user->bedrijf_id === $product->bedrijf_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class ProductPolicy
      */
     public function restore(User $user, Product $product): bool
     {
-        return $user->tenant_id === $product->tenant_id;
+        return $user->bedrijf_id === $product->bedrijf_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class ProductPolicy
      */
     public function forceDelete(User $user, Product $product): bool
     {
-        return $user->tenant_id === $product->tenant_id;
+        return $user->bedrijf_id === $product->bedrijf_id;
     }
 }

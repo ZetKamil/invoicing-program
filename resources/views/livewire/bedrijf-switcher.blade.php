@@ -1,5 +1,5 @@
 {{-- =====================================================================
-     Tenant Switcher – injected via PanelsRenderHook::USER_MENU_BEFORE.
+     Bedrijf Switcher â€“ injected via PanelsRenderHook::USER_MENU_BEFORE.
      Uses native Filament v5 Blade components only (x-filament::dropdown.*).
      No raw Alpine.js or custom Tailwind blocks that break the topbar grid.
      ===================================================================== --}}
@@ -8,12 +8,12 @@
         {{-- Active impersonation badge + leave button --}}
         <div style="display: flex; align-items: center; margin-right: 1rem;">
             <x-filament::badge color="warning" icon="heroicon-m-user-circle">
-                {{ auth()->user()->tenant?->name }}
+                {{ auth()->user()->bedrijf?->name }}
             </x-filament::badge>
         </div>
     @endif
 
-    @if($isSuperAdmin && !$isImpersonating && $tenants->isNotEmpty())
+    @if($isSuperAdmin && !$isImpersonating && $bedrijven->isNotEmpty())
         {{-- Native Filament dropdown: aligns perfectly in the topbar --}}
         <div class="flex items-center mr-2">
             <x-filament::dropdown placement="bottom-end" :teleport="true">
@@ -28,12 +28,12 @@
                 </x-slot>
 
                 <x-filament::dropdown.list>
-                    @foreach($tenants as $tenant)
+                    @foreach($bedrijven as $bedrijf)
                         <x-filament::dropdown.list.item
-                            wire:click="impersonateTenant('{{ $tenant->id }}')"
+                            wire:click="impersonateBedrijf('{{ $bedrijf->id }}')"
                             icon="heroicon-o-arrow-right-on-rectangle"
                         >
-                            {{ $tenant->name }}
+                            {{ $bedrijf->name }}
                         </x-filament::dropdown.list.item>
                     @endforeach
                 </x-filament::dropdown.list>

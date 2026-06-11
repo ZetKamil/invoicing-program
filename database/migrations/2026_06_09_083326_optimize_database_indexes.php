@@ -14,14 +14,14 @@ return new class extends Migration
         // 1. Optimize leads indexes
         Schema::table('leads', function (Blueprint $table) {
             // Drop old index
-            $table->dropIndex(['tenant_id', 'status']);
+            $table->dropIndex(['bedrijf_id', 'status']);
             // Add new index including deleted_at for SoftDeletes queries
-            $table->index(['tenant_id', 'deleted_at', 'status'], 'leads_tenant_deleted_status_index');
+            $table->index(['bedrijf_id', 'deleted_at', 'status'], 'leads_bedrijf_deleted_status_index');
         });
 
         // 2. Optimize invoices indexes (if they had a status index, upgrade it. The original only had ->index() on status)
         Schema::table('invoices', function (Blueprint $table) {
-            $table->index(['tenant_id', 'deleted_at', 'status'], 'invoices_tenant_deleted_status_index');
+            $table->index(['bedrijf_id', 'deleted_at', 'status'], 'invoices_bedrijf_deleted_status_index');
         });
 
         // 3. Optimize users table for roles
@@ -40,12 +40,12 @@ return new class extends Migration
         });
 
         Schema::table('invoices', function (Blueprint $table) {
-            $table->dropIndex('invoices_tenant_deleted_status_index');
+            $table->dropIndex('invoices_bedrijf_deleted_status_index');
         });
 
         Schema::table('leads', function (Blueprint $table) {
-            $table->dropIndex('leads_tenant_deleted_status_index');
-            $table->index(['tenant_id', 'status']);
+            $table->dropIndex('leads_bedrijf_deleted_status_index');
+            $table->index(['bedrijf_id', 'status']);
         });
     }
 };

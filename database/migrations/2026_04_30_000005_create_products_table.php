@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['tenant_id', 'type']);
+            $table->index(['bedrijf_id', 'type']);
         });
     }
 

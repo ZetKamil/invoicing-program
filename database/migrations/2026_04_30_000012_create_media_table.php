@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->string('disk')->default('public');
             $table->string('file_name');
             $table->string('file_path');

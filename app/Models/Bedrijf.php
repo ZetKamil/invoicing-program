@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'slug', 'vat_number', 'peppol_id', 'stripe_id', 'stripe_subscription_id', 'stripe_subscription_status', 'settings', 'active_packages'])]
-class Tenant extends Model
+class Bedrijf extends Model
 {
-    /** @use HasFactory<\Database\Factories\TenantFactory> */
+    /** @use HasFactory<\Database\Factories\BedrijfFactory> */
     use HasFactory, HasUlids;
+
+    protected $table = 'bedrijven';
 
     /**
      * Get the attributes that should be cast.
@@ -28,7 +30,7 @@ class Tenant extends Model
     }
 
     /**
-     * Get the users associated with the tenant.
+     * Get the users associated with the bedrijf.
      */
     public function users(): HasMany
     {

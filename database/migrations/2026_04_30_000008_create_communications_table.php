@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('communications', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->string('subject');
             $table->text('body');
             $table->string('type');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('opened_at')->nullable();
             $table->timestamps();
 
-            $table->index(['tenant_id', 'type']);
+            $table->index(['bedrijf_id', 'type']);
         });
     }
 

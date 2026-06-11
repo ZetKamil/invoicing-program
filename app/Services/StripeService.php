@@ -19,13 +19,13 @@ class StripeService
      */
     public function createCheckoutSessionForInvoice(Invoice $invoice)
     {
-        // FINANCIAL PRECISION: BCMath cents conversion — never use round($amount * 100).
+        // FINANCIAL PRECISION: BCMath cents conversion â€” never use round($amount * 100).
         // round() uses PHP float multiplication internally. On certain decimal values, IEEE 754
         // drift causes round(x * 100) to produce the wrong integer (off by 1 cent).
         // bcmul('12345.67', '100', 0) = '1234567' (exact), then cast to int.
         $amountInCents = (int) bcmul((string) $invoice->total_amount, '100', 0);
         
-        $tenantName = $invoice->tenant->name ?? 'Logistics Provider';
+        $bedrijfName = $invoice->bedrijf->name ?? 'Logistics Provider';
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -33,7 +33,7 @@ class StripeService
                 'price_data' => [
                     'currency' => 'eur',
                     'product_data' => [
-                        'name' => 'Invoice ' . $invoice->invoice_number . ' from ' . $tenantName,
+                        'name' => 'Invoice ' . $invoice->invoice_number . ' from ' . $bedrijfName,
                         'description' => 'Payment for services rendered.',
                     ],
                     'unit_amount' => $amountInCents,
@@ -45,7 +45,7 @@ class StripeService
             'cancel_url' => route('invoice.pay', ['invoice' => $invoice->id]) . '?canceled=true',
             'metadata' => [
                 'invoice_id' => $invoice->id,
-                'tenant_id' => $invoice->tenant_id,
+                'bedrijf_id' => $invoice->bedrijf_id,
             ],
             'customer_email' => $invoice->customer->email ?? null,
         ]);
@@ -54,7 +54,7 @@ class StripeService
     }
 
     /**
-     * Create a Stripe Checkout Session for a new Tenant Subscription.
+     * Create a Stripe Checkout Session for a new Bedrijf Subscription.
      */
     public function createCheckoutSessionForSubscription(string $registrationId, string $plan)
     {

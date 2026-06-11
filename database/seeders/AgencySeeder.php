@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +15,7 @@ class AgencySeeder extends Seeder
      */
     public function run(): void
     {
-        $tenant = Tenant::create([
+        $bedrijf = Bedrijf::create([
             'name' => 'Logi-Web PRO',
             'slug' => 'logi-web-pro',
             'settings' => [
@@ -25,14 +25,14 @@ class AgencySeeder extends Seeder
         ]);
 
         User::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'name' => 'Admin Logi-Web',
             'email' => 'admin@logiweb.pro',
             'password' => Hash::make('password'),
             'role' => UserRole::ADMIN,
         ]);
                 User::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'name' => 'Admin Logi-Web',
             'email' => 'kamil@test.com',
             'password' => Hash::make('password'),

@@ -6,7 +6,7 @@ use App\Actions\Communications\LogCommunicationAction;
 use App\Enums\CommType;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,7 +47,7 @@ class ProcessStripeWebhookJob implements ShouldQueue
                     
                     if ($registrationData) {
                         DB::transaction(function () use ($registrationData, $session, $registrationId) {
-                            $tenant = Tenant::create([
+                            $bedrijf = Bedrijf::create([
                                 'name' => $registrationData['company_name'],
                                 'slug' => Str::slug($registrationData['company_name']) . '-' . strtolower(Str::random(4)),
                                 'stripe_id' => $session->customer,
@@ -56,14 +56,14 @@ class ProcessStripeWebhookJob implements ShouldQueue
                             ]);
 
                             User::create([
-                                'tenant_id' => $tenant->id,
+                                'bedrijf_id' => $bedrijf->id,
                                 'name' => 'Admin',
                                 'email' => $registrationData['email'],
                                 'password' => $registrationData['password'],
                                 'role' => \App\Enums\UserRole::ADMIN,
                             ]);
 
-                            Log::info("Provisioned new tenant: {$tenant->name} via SaaS Webhook.");
+                            Log::info("Provisioned new bedrijf: {$bedrijf->name} via SaaS Webhook.");
                             Cache::forget("registration_{$registrationId}");
                         });
                     }
@@ -82,7 +82,7 @@ class ProcessStripeWebhookJob implements ShouldQueue
                         ]);
 
                         $logCommunicationAction->execute(
-                            $invoice->tenant_id,
+                            $invoice->bedrijf_id,
                             'Invoice Mark As Paid via Stripe',
                             $invoice,
                             CommType::SYSTEM,
@@ -95,13 +95,13 @@ class ProcessStripeWebhookJob implements ShouldQueue
             }
         } elseif (in_array($event->type, ['customer.subscription.updated', 'customer.subscription.deleted'])) {
             $subscription = $event->data->object;
-            $tenant = Tenant::where('stripe_subscription_id', $subscription->id)->first();
+            $bedrijf = Bedrijf::where('stripe_subscription_id', $subscription->id)->first();
             
-            if ($tenant) {
-                $tenant->update([
+            if ($bedrijf) {
+                $bedrijf->update([
                     'stripe_subscription_status' => $subscription->status,
                 ]);
-                Log::info("Updated subscription status for tenant: {$tenant->name} to {$subscription->status}.");
+                Log::info("Updated subscription status for bedrijf: {$bedrijf->name} to {$subscription->status}.");
             }
         }
     }

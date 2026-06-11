@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('quotes', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->foreignUlid('lead_id')->constrained()->cascadeOnDelete();
             $table->string('quote_number')->unique();
             $table->decimal('total_amount', 12, 2);
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->softDeletes();
             
             // Indexes for performance
-            $table->index(['tenant_id', 'status']);
+            $table->index(['bedrijf_id', 'status']);
             $table->index('valid_until');
         });
     }

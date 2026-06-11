@@ -33,8 +33,8 @@ class SendInvoiceReminders extends Command
         $this->info('Starting invoice reminder check...');
 
         // Find invoices that are SENT and past their due date
-        // Since we are running in a global console command, we must bypass the tenant scope
-        // or just rely on the fact that cron runs as system, but HasTenant might block it.
+        // Since we are running in a global console command, we must bypass the bedrijf scope
+        // or just rely on the fact that cron runs as system, but HasBedrijf might block it.
         // Let's use `withoutGlobalScopes()` since this is a system job.
         $overdueInvoices = Invoice::withoutGlobalScopes()
             ->where('status', InvoiceStatus::SENT)

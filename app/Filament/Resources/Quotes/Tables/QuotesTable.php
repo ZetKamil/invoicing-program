@@ -48,7 +48,7 @@ class QuotesTable
                     ->requiresConfirmation()
                     ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
                     ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
-                        if ($record->tenant_id !== auth()->user()->tenant_id) {
+                        if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
                             abort(403, 'Ongeautoriseerde actie.');
                         }
 
@@ -74,7 +74,7 @@ class QuotesTable
                     ->color('primary')
                     ->requiresConfirmation()
                     ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
-                        if ($record->tenant_id !== auth()->user()->tenant_id) {
+                        if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
                             abort(403, 'Ongeautoriseerde actie.');
                         }
     
@@ -85,8 +85,8 @@ class QuotesTable
     
                         \Illuminate\Support\Facades\Mail::to($record->lead->email)->send(new \App\Mail\QuoteInquiryMail($record));
     
-                        $subject = 'Your Quote from ' . $record->tenant->name;
-                        $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL);
+                        $subject = 'Your Quote from ' . $record->bedrijf->name;
+                        $logCommunicationAction->execute($record->bedrijf_id, $subject, $record, \App\Enums\CommType::EMAIL);
     
                         $record->update(['status' => \App\Enums\QuoteStatus::SENT]);
     

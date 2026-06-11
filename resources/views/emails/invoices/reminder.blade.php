@@ -7,7 +7,7 @@
     <h2>Payment Reminder</h2>
     <p>Dear {{ $invoice->customer->first_name ?? 'Customer' }},</p>
     
-    <p>This is a friendly reminder that invoice <strong>{{ $invoice->invoice_number }}</strong> for the amount of <strong>€{{ number_format($invoice->total_amount, 2) }}</strong> was due on <strong>{{ $invoice->due_date->format('F j, Y') }}</strong> and is now overdue.</p>
+    <p>This is a friendly reminder that invoice <strong>{{ $invoice->invoice_number }}</strong> for the amount of <strong>â‚¬{{ number_format($invoice->total_amount, 2) }}</strong> was due on <strong>{{ $invoice->due_date->format('F j, Y') }}</strong> and is now overdue.</p>
     
     <p>If you have already made this payment, please disregard this email. Otherwise, please arrange for payment as soon as possible.</p>
     
@@ -20,6 +20,6 @@
     <p>Thank you for your business!</p>
     
     <p>Best regards,<br>
-    {{ $invoice->tenant->name }}</p>
+    {{ $invoice->bedrijf->name }}</p>
 </body>
 </html>

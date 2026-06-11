@@ -28,11 +28,11 @@ class QuoteResource extends Resource
     public static function canViewAny(): bool
     {
         $user = auth()->user();
-        if (! $user || ! $user->tenant) {
+        if (! $user || ! $user->bedrijf) {
             return false;
         }
 
-        $packages = $user->tenant->active_packages ?? [];
+        $packages = $user->bedrijf->active_packages ?? [];
         return in_array('2', $packages) || in_array('3', $packages);
     }
 

@@ -2,23 +2,23 @@
 
 namespace App\Livewire;
 
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Livewire\Component;
 use STS\FilamentImpersonate\Facades\Impersonation;
 
-class TenantSwitcher extends Component
+class BedrijfSwitcher extends Component
 {
     /**
-     * Impersonate the primary admin of the given tenant.
+     * Impersonate the primary admin of the given bedrijf.
      * Called directly by wire:click from the Filament dropdown list item.
      */
-    public function impersonateTenant(string $tenantId): void
+    public function impersonateBedrijf(string $bedrijfId): void
     {
         $currentUser = Filament::auth()->user();
 
-        // Only super-admins may switch tenants
+        // Only super-admins may switch bedrijven
         if (! $currentUser || ! $currentUser->is_super_admin) {
             return;
         }
@@ -28,13 +28,13 @@ class TenantSwitcher extends Component
             return;
         }
 
-        if (blank($tenantId)) {
+        if (blank($bedrijfId)) {
             return;
         }
 
-        // Resolve the first admin/dispatcher user for the target tenant
+        // Resolve the first admin/dispatcher user for the target bedrijf
         $targetUser = User::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
+            ->where('bedrijf_id', $bedrijfId)
             ->whereIn('role', ['admin', 'dispatcher'])
             ->orderBy('created_at')
             ->first();
@@ -100,11 +100,11 @@ class TenantSwitcher extends Component
         $isImpersonating = Impersonation::isImpersonating();
         $isSuperAdmin    = auth()->user()?->is_super_admin ?? false;
 
-        // Only load tenant list when needed – avoid unnecessary DB queries for regular users
-        $tenants = ($isSuperAdmin && ! $isImpersonating)
-            ? Tenant::orderBy('name')->get(['id', 'name'])
+        // Only load bedrijf list when needed â€“ avoid unnecessary DB queries for regular users
+        $bedrijven = ($isSuperAdmin && ! $isImpersonating)
+            ? Bedrijf::orderBy('name')->get(['id', 'name'])
             : collect();
 
-        return view('livewire.tenant-switcher', compact('tenants', 'isImpersonating', 'isSuperAdmin'));
+        return view('livewire.bedrijf-switcher', compact('bedrijven', 'isImpersonating', 'isSuperAdmin'));
     }
 }

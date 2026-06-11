@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Tenants\Pages;
+namespace App\Filament\Resources\Bedrijven\Pages;
 
-use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Resources\Bedrijven\BedrijfResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateTenant extends CreateRecord
+class CreateBedrijf extends CreateRecord
 {
-    protected static string $resource = TenantResource::class;
+    protected static string $resource = BedrijfResource::class;
 
     protected ?string $adminEmail = null;
     protected ?string $adminPassword = null;
@@ -24,20 +24,20 @@ class CreateTenant extends CreateRecord
 
     protected function afterCreate(): void
     {
-        // 1. Create primary Admin User for the new Tenant
+        // 1. Create primary Admin User for the new Bedrijf
         \App\Models\User::create([
-            'tenant_id' => $this->record->id,
+            'bedrijf_id' => $this->record->id,
             'name' => 'Admin ' . $this->record->name,
             'email' => $this->adminEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($this->adminPassword),
             'role' => \App\Enums\UserRole::ADMIN,
         ]);
 
-        // 2. Insert this new tenant as a Lead inside Logi-Web PRO (Tenant #1)
-        $superAdminTenant = \App\Models\Tenant::where('slug', 'logi-web-pro')->first();
-        if ($superAdminTenant) {
+        // 2. Insert this new bedrijf as a Lead inside Logi-Web PRO (Bedrijf #1)
+        $superAdminBedrijf = \App\Models\Bedrijf::where('slug', 'logi-web-pro')->first();
+        if ($superAdminBedrijf) {
             \App\Models\Lead::create([
-                'tenant_id' => $superAdminTenant->id,
+                'bedrijf_id' => $superAdminBedrijf->id,
                 'company_name' => $this->record->name,
                 'contact_person' => 'Admin ' . $this->record->name,
                 'email' => $this->adminEmail,

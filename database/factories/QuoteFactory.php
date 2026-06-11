@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Enums\QuoteStatus;
 use App\Models\Lead;
 use App\Models\Quote;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -24,7 +24,7 @@ class QuoteFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => Tenant::factory(),
+            'bedrijf_id' => Bedrijf::factory(),
             'lead_id' => Lead::factory(),
             'quote_number' => 'Q-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4)),
             'total_amount' => $this->faker->randomFloat(2, 500, 5000),

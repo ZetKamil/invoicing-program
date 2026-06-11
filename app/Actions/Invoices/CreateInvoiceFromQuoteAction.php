@@ -22,20 +22,20 @@ class CreateInvoiceFromQuoteAction
             $taxRate  = '21.00';
             $subtotal = (string) $quote->total_amount;
 
-            // Tax = subtotal × 21%  → bcmul with scale 2 rounds to cent precision
+            // Tax = subtotal Ă— 21%  â†’ bcmul with scale 2 rounds to cent precision
             $taxTotal    = bcmul($subtotal, bcdiv($taxRate, '100', 10), 2);
-            // Total = subtotal + tax → bcadd with scale 2
+            // Total = subtotal + tax â†’ bcadd with scale 2
             $totalAmount = bcadd($subtotal, $taxTotal, 2);
 
             $currentYear = date('Y');
-            $count = Invoice::where('tenant_id', $quote->tenant_id)
+            $count = Invoice::where('bedrijf_id', $quote->bedrijf_id)
                 ->whereYear('created_at', $currentYear)
                 ->count();
             
             $invoiceNumber = 'INV-' . $currentYear . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
 
             $invoice = Invoice::create([
-                'tenant_id'             => $quote->tenant_id,
+                'bedrijf_id'             => $quote->bedrijf_id,
                 'customer_type'         => get_class($quote->lead),
                 'customer_id'           => $quote->lead_id,
                 'quote_id'              => $quote->id,
@@ -71,7 +71,7 @@ class CreateInvoiceFromQuoteAction
                 }
             } else {
                 $product = \App\Models\Product::firstOrCreate(
-                    ['tenant_id' => $quote->tenant_id, 'name' => 'Custom Quote Service'],
+                    ['bedrijf_id' => $quote->bedrijf_id, 'name' => 'Custom Quote Service'],
                     ['description' => 'Generic service for quotes', 'price' => 0, 'type' => \App\Enums\ProductType::SERVICE]
                 );
 

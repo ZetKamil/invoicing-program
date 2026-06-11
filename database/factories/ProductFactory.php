@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\ProductType;
 use App\Models\Product;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,7 +22,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => Tenant::factory(),
+            'bedrijf_id' => Bedrijf::factory(),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(),
             'price' => $this->faker->randomFloat(2, 50, 2000),

@@ -20,7 +20,7 @@ class InvoiceItemPolicy
      */
     public function view(User $user, InvoiceItem $invoiceItem): bool
     {
-        return $user->tenant_id === $invoiceItem->invoice->tenant_id;
+        return $user->bedrijf_id === $invoiceItem->invoice->bedrijf_id;
     }
 
     /**
@@ -39,7 +39,7 @@ class InvoiceItemPolicy
         if (in_array($invoiceItem->invoice->status, [\App\Enums\InvoiceStatus::SENT, \App\Enums\InvoiceStatus::PAID, \App\Enums\InvoiceStatus::OVERDUE])) {
             return false;
         }
-        return $user->tenant_id === $invoiceItem->invoice->tenant_id;
+        return $user->bedrijf_id === $invoiceItem->invoice->bedrijf_id;
     }
 
     /**
@@ -50,7 +50,7 @@ class InvoiceItemPolicy
         if (in_array($invoiceItem->invoice->status, [\App\Enums\InvoiceStatus::SENT, \App\Enums\InvoiceStatus::PAID, \App\Enums\InvoiceStatus::OVERDUE])) {
             return false;
         }
-        return $user->tenant_id === $invoiceItem->invoice->tenant_id;
+        return $user->bedrijf_id === $invoiceItem->invoice->bedrijf_id;
     }
 
     /**
@@ -58,7 +58,7 @@ class InvoiceItemPolicy
      */
     public function restore(User $user, InvoiceItem $invoiceItem): bool
     {
-        return $user->tenant_id === $invoiceItem->invoice->tenant_id;
+        return $user->bedrijf_id === $invoiceItem->invoice->bedrijf_id;
     }
 
     /**
@@ -66,6 +66,6 @@ class InvoiceItemPolicy
      */
     public function forceDelete(User $user, InvoiceItem $invoiceItem): bool
     {
-        return $user->tenant_id === $invoiceItem->invoice->tenant_id;
+        return $user->bedrijf_id === $invoiceItem->invoice->bedrijf_id;
     }
 }

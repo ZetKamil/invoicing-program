@@ -3,18 +3,18 @@
 namespace App\Models;
 
 use App\Enums\CommType;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-#[Fillable(['tenant_id', 'subject', 'body', 'type', 'related_type', 'related_id', 'sent_at', 'opened_at'])]
+#[Fillable(['bedrijf_id', 'subject', 'body', 'type', 'related_type', 'related_id', 'sent_at', 'opened_at'])]
 class Communication extends Model
 {
     /** @use HasFactory<\Database\Factories\CommunicationFactory> */
-    use HasFactory, HasUlids, HasTenant;
+    use HasFactory, HasUlids, HasBedrijf;
 
     /**
      * Get the attributes that should be cast.

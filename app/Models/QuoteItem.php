@@ -15,7 +15,7 @@ class QuoteItem extends Model
 
     /**
      * The relations to eager load on every query.
-     * Required by QuoteItemPolicy which checks $quoteItem->quote->tenant_id
+     * Required by QuoteItemPolicy which checks $quoteItem->quote->bedrijf_id
      * to avoid N+1 database queries during Filament list views.
      *
      * @var array<string>

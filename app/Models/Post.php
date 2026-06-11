@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PostStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,11 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Builder;
 
-#[Fillable(['tenant_id', 'user_id', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at'])]
+#[Fillable(['bedrijf_id', 'user_id', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at'])]
 class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes, Prunable;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
 
     /**
      * Get the prunable model query.

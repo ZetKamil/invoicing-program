@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>{{ $quote->tenant->name }}</h2>
+            <h2>{{ $quote->bedrijf->name }}</h2>
         </div>
         
         <p>Dear {{ $quote->lead->contact_person }},</p>
@@ -21,7 +21,7 @@
         <p>Thank you for your interest in our services. Please find below the summary of your requested quote (<strong>{{ $quote->quote_number }}</strong>).</p>
         
         <div class="total">
-            Total Amount: €{{ number_format($quote->total_amount, 2) }}
+            Total Amount: â‚¬{{ number_format($quote->total_amount, 2) }}
         </div>
         
         <p>This quote is valid until {{ $quote->valid_until->format('d M Y') }}.</p>
@@ -33,7 +33,7 @@
         </p>
         
         <div class="footer">
-            &copy; {{ date('Y') }} {{ $quote->tenant->name }}. All rights reserved.<br>
+            &copy; {{ date('Y') }} {{ $quote->bedrijf->name }}. All rights reserved.<br>
             This is an automated message, please do not reply directly.
         </div>
     </div>

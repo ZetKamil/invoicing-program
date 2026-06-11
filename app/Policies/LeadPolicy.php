@@ -21,7 +21,7 @@ class LeadPolicy
      */
     public function view(User $user, Lead $lead): bool
     {
-        return $user->tenant_id === $lead->tenant_id;
+        return $user->bedrijf_id === $lead->bedrijf_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class LeadPolicy
      */
     public function update(User $user, Lead $lead): bool
     {
-        return $user->tenant_id === $lead->tenant_id;
+        return $user->bedrijf_id === $lead->bedrijf_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class LeadPolicy
      */
     public function delete(User $user, Lead $lead): bool
     {
-        return $user->tenant_id === $lead->tenant_id;
+        return $user->bedrijf_id === $lead->bedrijf_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class LeadPolicy
      */
     public function restore(User $user, Lead $lead): bool
     {
-        return $user->tenant_id === $lead->tenant_id;
+        return $user->bedrijf_id === $lead->bedrijf_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class LeadPolicy
      */
     public function forceDelete(User $user, Lead $lead): bool
     {
-        return $user->tenant_id === $lead->tenant_id;
+        return $user->bedrijf_id === $lead->bedrijf_id;
     }
 }

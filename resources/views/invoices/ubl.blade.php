@@ -19,7 +19,7 @@
     <cac:AccountingSupplierParty>
         <cac:Party>
             <cac:PartyName>
-                <cbc:Name>{{ $invoice->tenant->name }}</cbc:Name>
+                <cbc:Name>{{ $invoice->bedrijf->name }}</cbc:Name>
             </cac:PartyName>
             <cac:PostalAddress>
                 <cbc:Country>
@@ -27,13 +27,13 @@
                 </cbc:Country>
             </cac:PostalAddress>
             <cac:PartyTaxScheme>
-                <cbc:CompanyID>{{ $invoice->tenant->vat_number ?? 'BE0000000000' }}</cbc:CompanyID>
+                <cbc:CompanyID>{{ $invoice->bedrijf->vat_number ?? 'BE0000000000' }}</cbc:CompanyID>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
             </cac:PartyTaxScheme>
             <cac:PartyLegalEntity>
-                <cbc:RegistrationName>{{ $invoice->tenant->name }}</cbc:RegistrationName>
+                <cbc:RegistrationName>{{ $invoice->bedrijf->name }}</cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
     </cac:AccountingSupplierParty>

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
-class TenantScope implements Scope
+class BedrijfScope implements Scope
 {
     /**
      * Apply the scope to a given Eloquent query builder.
@@ -15,7 +15,7 @@ class TenantScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         if (Auth::hasUser()) {
-            $builder->where($model->getTable() . '.tenant_id', Auth::user()->tenant_id);
+            $builder->where($model->getTable() . '.bedrijf_id', Auth::user()->bedrijf_id);
         }
     }
 }

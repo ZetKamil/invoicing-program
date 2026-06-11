@@ -10,7 +10,7 @@ class ImpersonationController extends Controller
 {
     /**
      * Handle exiting impersonation.
-     * Bypasses the TenantScope to find the Super Admin,
+     * Bypasses the BedrijfScope to find the Super Admin,
      * and manually swaps the session ID to bypass AuthenticateSession logout.
      */
     public function leave(Request $request)
@@ -18,7 +18,7 @@ class ImpersonationController extends Controller
         if (session()->has('impersonated_by')) {
             $superAdminId = session('impersonated_by');
             
-            // Bypass TenantScope to find the Super Admin in the DB
+            // Bypass BedrijfScope to find the Super Admin in the DB
             $superAdmin = User::withoutGlobalScopes()->find($superAdminId);
             
             if ($superAdmin) {

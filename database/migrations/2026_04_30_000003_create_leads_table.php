@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
             $table->string('company_name');
             $table->string('contact_person');
             $table->string('email')->nullable();
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             
-            // Index for performance when querying leads by tenant
-            $table->index(['tenant_id', 'status']);
+            // Index for performance when querying leads by bedrijf
+            $table->index(['bedrijf_id', 'status']);
         });
     }
 

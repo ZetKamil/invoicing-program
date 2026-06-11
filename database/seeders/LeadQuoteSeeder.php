@@ -4,18 +4,18 @@ namespace Database\Seeders;
 
 use App\Actions\Quotes\CreateQuoteAction;
 use App\Models\Lead;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use Illuminate\Database\Seeder;
 
 class LeadQuoteSeeder extends Seeder
 {
     public function run(): void
     {
-        $tenant = Tenant::where('slug', 'logi-web-pro')->first();
+        $bedrijf = Bedrijf::where('slug', 'logi-web-pro')->first();
 
-        if ($tenant) {
+        if ($bedrijf) {
             $leads = Lead::factory()->count(5)->create([
-                'tenant_id' => $tenant->id,
+                'bedrijf_id' => $bedrijf->id,
             ]);
 
             $createQuoteAction = new CreateQuoteAction();

@@ -15,7 +15,7 @@ class CreateQuoteAction
     public function handle(Lead $lead, int $validDays = 14): Quote
     {
         $quote = new Quote();
-        $quote->tenant_id = $lead->tenant_id;
+        $quote->bedrijf_id = $lead->bedrijf_id;
         $quote->lead_id = $lead->id;
         $quote->quote_number = $this->generateQuoteNumber();
         $quote->valid_until = now()->addDays($validDays);
@@ -43,8 +43,8 @@ class CreateQuoteAction
         // SMART QUOTES LOGIC: Map the requested package to actual products
         $package = strtolower($lead->metadata['package'] ?? 'unknown');
         
-        // Search for a product that loosely matches the package name for this tenant
-        $product = \App\Models\Product::where('tenant_id', $lead->tenant_id)
+        // Search for a product that loosely matches the package name for this bedrijf
+        $product = \App\Models\Product::where('bedrijf_id', $lead->bedrijf_id)
             ->where('name', 'like', "%{$package}%")
             ->first();
 
@@ -65,7 +65,7 @@ class CreateQuoteAction
             };
             
             $quote->items()->create([
-                'description' => 'Pakiet: ' . ucfirst($package) . ' (Uzupełnij opis szczegółowy)',
+                'description' => 'Pakiet: ' . ucfirst($package) . ' (UzupeĹ‚nij opis szczegĂłĹ‚owy)',
                 'quantity' => 1,
                 'unit_price' => $fallbackAmount,
                 'tax_rate' => 21.00,

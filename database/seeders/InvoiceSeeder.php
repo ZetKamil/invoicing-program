@@ -7,18 +7,18 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lead;
 use App\Models\Product;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use Illuminate\Database\Seeder;
 
 class InvoiceSeeder extends Seeder
 {
     public function run(): void
     {
-        $tenant = Tenant::where('slug', 'logi-web-pro')->first();
+        $bedrijf = Bedrijf::where('slug', 'logi-web-pro')->first();
 
-        if ($tenant) {
-            $leads = Lead::where('tenant_id', $tenant->id)->take(3)->get();
-            $products = Product::where('tenant_id', $tenant->id)->get();
+        if ($bedrijf) {
+            $leads = Lead::where('bedrijf_id', $bedrijf->id)->take(3)->get();
+            $products = Product::where('bedrijf_id', $bedrijf->id)->get();
 
             if ($leads->isEmpty() || $products->isEmpty()) {
                 return;
@@ -29,7 +29,7 @@ class InvoiceSeeder extends Seeder
                 $status = collect([InvoiceStatus::DRAFT, InvoiceStatus::SENT, InvoiceStatus::PAID])->random();
                 
                 $invoice = Invoice::create([
-                    'tenant_id' => $tenant->id,
+                    'bedrijf_id' => $bedrijf->id,
                     'customer_type' => Lead::class,
                     'customer_id' => $lead->id,
                     'invoice_number' => 'INV-2026-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
@@ -44,7 +44,7 @@ class InvoiceSeeder extends Seeder
                     'loading_date' => now()->addDays(rand(1, 14))->format('Y-m-d'),
                     'delivery_date' => now()->addDays(rand(15, 30))->format('Y-m-d'),
                     'loading_address' => collect(['Wetstraat 16, 1000 Brussel, BE', 'Meir 1, 2000 Antwerpen, BE', 'Veldstraat 2, 9000 Gent, BE'])->random(),
-                    'delivery_address' => collect(['Damrak 1, 1012 LG Amsterdam, NL', 'Coolsingel 1, 3012 AA Rotterdam, NL', 'Champs-Élysées 1, 75008 Parijs, FR'])->random(),
+                    'delivery_address' => collect(['Damrak 1, 1012 LG Amsterdam, NL', 'Coolsingel 1, 3012 AA Rotterdam, NL', 'Champs-Ă‰lysĂ©es 1, 75008 Parijs, FR'])->random(),
                     'cmr_number'     => 'CMR-' . rand(100000, 999999),
                     'truck_license_plate'  => '1-' . chr(rand(65,90)) . chr(rand(65,90)) . chr(rand(65,90)) . '-' . rand(100, 999),
                     'trailer_license_plate' => 'Q-' . chr(rand(65,90)) . chr(rand(65,90)) . chr(rand(65,90)) . '-' . rand(100, 999),

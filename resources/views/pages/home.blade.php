@@ -9,7 +9,7 @@
     <div class="hero-content">
       <div class="hero-badge" id="hb">
         <span class="badge-dot"></span>
-        Logi-Web PRO — West-Vlaanderen
+        Logi-Web PRO â€” West-Vlaanderen
       </div>
       <h1 class="hero-h1" id="hh">
         Uw transport&shy;bedrijf.<br>
@@ -21,7 +21,7 @@
       </p>
       <div class="hero-btns" id="hbtns">
         <button class="btn-primary" onclick="document.getElementById('audit').scrollIntoView({behavior:'smooth'})">
-          🔍 Gratis AI-audit aanvragen
+          đź”Ť Gratis AI-audit aanvragen
         </button>
         <button class="btn-outline" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
           Bekijk pakketten
@@ -50,20 +50,20 @@
   <div class="container">
     <p class="section-tag">Het probleem</p>
     <h2 class="section-title">Drie pijnpunten die elke<br>Vlaamse transporteur kent</h2>
-    <p class="section-sub">We zijn geen gewoon webbureau. We kennen het verschil tussen ADR, koeltransport en containerlogistiek — en dat zie je in onze software.</p>
+    <p class="section-sub">We zijn geen gewoon webbureau. We kennen het verschil tussen ADR, koeltransport en containerlogistiek â€” en dat zie je in onze software.</p>
     <div class="problems-grid">
       <div class="prob-card">
-        <div class="prob-icon">📞</div>
+        <div class="prob-icon">đź“ž</div>
         <div class="prob-title">Eindeloos bellen voor incomplete offertes</div>
         <p class="prob-text">Klanten bellen zonder afmetingen, gewicht of postcodes. Uw dispatcher verliest dagelijks uren aan nutteloze heen-en-weerberichten en incomplete mails.</p>
       </div>
       <div class="prob-card">
-        <div class="prob-icon">📄</div>
+        <div class="prob-icon">đź“„</div>
         <div class="prob-title">E-facturering verplicht vanaf 2026</div>
         <p class="prob-text">De wetgeving klopt aan de deur. Grote ERP-systemen zoals SAP zijn onbetaalbaar voor KMO's. Wij bieden een schaalbaar alternatief dat meegroeit met uw bedrijf.</p>
       </div>
       <div class="prob-card">
-        <div class="prob-icon">🌐</div>
+        <div class="prob-icon">đźŚ</div>
         <div class="prob-title">Verouderde website, nul B2B-leads</div>
         <p class="prob-text">90% van de lokale transporteurs heeft een digitale visitekaart die geen enkel kwalitatief contact oplevert. Dat is gemiste omzet, elke dag opnieuw.</p>
       </div>
@@ -76,21 +76,21 @@
   <div class="container">
     <p class="section-tag">Onze pakketten</p>
     <h2 class="section-title">Transparante prijzen.<br>Geen verrassingen.</h2>
-    <p class="section-sub">Elk pakket bevat hosting, frontend én een Mini-CRM dashboard. Eenmalig + kleine maandelijkse abonnementskost.</p>
+    <p class="section-sub">Elk pakket bevat hosting, frontend Ă©n een Mini-CRM dashboard. Eenmalig + kleine maandelijkse abonnementskost.</p>
     <div class="packages-grid">
       <!-- START -->
       <div class="pkg-card">
         <div class="pkg-tier">Start</div>
-        <div class="pkg-price"><sup>€</sup>850</div>
-        <div class="pkg-recur">eenmalig + €49/maand</div>
+        <div class="pkg-price"><sup>â‚¬</sup>850</div>
+        <div class="pkg-recur">eenmalig + â‚¬49/maand</div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features">
-          <li><span class="feat-check">✓</span> Professionele one-pager</li>
-          <li><span class="feat-check">✓</span> Basis offerteformulier</li>
-          <li><span class="feat-check">✓</span> SEO-optimalisatie</li>
-          <li><span class="feat-check">✓</span> Google My Business setup</li>
-          <li><span class="feat-check">✓</span> Hosting inbegrepen</li>
-          <li><span class="feat-check">✓</span> SSL-certificaat</li>
+          <li><span class="feat-check">âś“</span> Professionele one-pager</li>
+          <li><span class="feat-check">âś“</span> Basis offerteformulier</li>
+          <li><span class="feat-check">âś“</span> SEO-optimalisatie</li>
+          <li><span class="feat-check">âś“</span> Google My Business setup</li>
+          <li><span class="feat-check">âś“</span> Hosting inbegrepen</li>
+          <li><span class="feat-check">âś“</span> SSL-certificaat</li>
         </ul>
         <button class="pkg-btn" onclick="selectPackage('Start')">Kies Start</button>
       </div>
@@ -98,17 +98,17 @@
       <div class="pkg-card popular">
         <div class="popular-label">Meest gekozen</div>
         <div class="pkg-tier">Pro Transport</div>
-        <div class="pkg-price"><sup>€</sup>1.150</div>
-        <div class="pkg-recur">eenmalig + €79/maand</div>
+        <div class="pkg-price"><sup>â‚¬</sup>1.150</div>
+        <div class="pkg-recur">eenmalig + â‚¬79/maand</div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features">
-          <li><span class="feat-check">✓</span> 5 pagina's op maat</li>
-          <li><span class="feat-check">✓</span> Smart Quote System</li>
-          <li><span class="feat-check">✓</span> Mini-CRM dashboard</li>
-          <li><span class="feat-check">✓</span> Google My Business + reviews</li>
-          <li><span class="feat-check">✓</span> Live in 7 werkdagen</li>
-          <li><span class="feat-check">✓</span> Kwartaalrapportage</li>
-          <li><span class="feat-check">✓</span> E-mail notificaties</li>
+          <li><span class="feat-check">âś“</span> 5 pagina's op maat</li>
+          <li><span class="feat-check">âś“</span> Smart Quote System</li>
+          <li><span class="feat-check">âś“</span> Mini-CRM dashboard</li>
+          <li><span class="feat-check">âś“</span> Google My Business + reviews</li>
+          <li><span class="feat-check">âś“</span> Live in 7 werkdagen</li>
+          <li><span class="feat-check">âś“</span> Kwartaalrapportage</li>
+          <li><span class="feat-check">âś“</span> E-mail notificaties</li>
         </ul>
         <button class="pkg-btn" onclick="selectPackage('Pro Transport')">Kies Pro Transport</button>
       </div>
@@ -119,13 +119,13 @@
         <div class="pkg-recur">afhankelijk van uw project</div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features">
-          <li><span class="feat-check">✓</span> Volledige procesautomatisering</li>
-          <li><span class="feat-check">✓</span> OCR voor opdrachtenlezing</li>
-          <li><span class="feat-check">✓</span> E-facturatiemodule (2026-klaar)</li>
-          <li><span class="feat-check">✓</span> Chauffeursbeheer</li>
-          <li><span class="feat-check">✓</span> Meewerken aan roadmap</li>
-          <li><span class="feat-check">✓</span> Prioriteits-support</li>
-          <li><span class="feat-check">✓</span> TMS-uitbreiding mogelijk</li>
+          <li><span class="feat-check">âś“</span> Volledige procesautomatisering</li>
+          <li><span class="feat-check">âś“</span> OCR voor opdrachtenlezing</li>
+          <li><span class="feat-check">âś“</span> E-facturatiemodule (2026-klaar)</li>
+          <li><span class="feat-check">âś“</span> Chauffeursbeheer</li>
+          <li><span class="feat-check">âś“</span> Meewerken aan roadmap</li>
+          <li><span class="feat-check">âś“</span> Prioriteits-support</li>
+          <li><span class="feat-check">âś“</span> TMS-uitbreiding mogelijk</li>
         </ul>
         <button class="pkg-btn" onclick="selectPackage('Enterprise')">Vraag offerte aan</button>
       </div>
@@ -137,7 +137,7 @@
 <section id="hoewerkhet">
   <div class="container">
     <p class="section-tag">Hoe het werkt</p>
-    <h2 class="section-title">Van audit tot live —<br>in 7 werkdagen.</h2>
+    <h2 class="section-title">Van audit tot live â€”<br>in 7 werkdagen.</h2>
     <div class="steps-grid">
       <div class="step">
         <div class="step-num">1</div>
@@ -170,35 +170,35 @@
     <h2 class="section-title">Resultaten die spreken.</h2>
     <div class="testi-grid">
       <div class="testi-card">
-        <div class="stars">★★★★★</div>
+        <div class="stars">â…â…â…â…â…</div>
         <p class="testi-quote">Onze dispatcher ontvangt nu alleen nog volledige offerteaanvragen. Het scheelt ons minstens 2 uur per dag aan telefoontjes. Eindelijk rust op de planning.</p>
         <div class="testi-author">
           <div class="author-av">WD</div>
           <div>
             <div class="author-name">Wouter Desmet</div>
-            <div class="author-role">Zaakvoerder — Desmet Transport, Roeselare</div>
+            <div class="author-role">Zaakvoerder â€” Desmet Transport, Roeselare</div>
           </div>
         </div>
       </div>
       <div class="testi-card">
-        <div class="stars">★★★★★</div>
-        <p class="testi-quote">In 7 dagen een professionele site én een systeem waarmee mijn team leads opvolgt. Ik had niet verwacht dat dit zo snel en vlot kon verlopen. Sterk werk.</p>
+        <div class="stars">â…â…â…â…â…</div>
+        <p class="testi-quote">In 7 dagen een professionele site Ă©n een systeem waarmee mijn team leads opvolgt. Ik had niet verwacht dat dit zo snel en vlot kon verlopen. Sterk werk.</p>
         <div class="testi-author">
           <div class="author-av">SM</div>
           <div>
             <div class="author-name">Sarah Maes</div>
-            <div class="author-role">Operations Manager — Maes Logistics, Kortrijk</div>
+            <div class="author-role">Operations Manager â€” Maes Logistics, Kortrijk</div>
           </div>
         </div>
       </div>
       <div class="testi-card">
-        <div class="stars">★★★★★</div>
+        <div class="stars">â…â…â…â…â…</div>
         <p class="testi-quote">We verloren klanten aan concurrenten met een betere online aanwezigheid. Nu scoren we als eerste in Google voor koeltransport in de regio. Meer kan ik niet vragen.</p>
         <div class="testi-author">
           <div class="author-av">JV</div>
           <div>
             <div class="author-name">Jan Vandevelde</div>
-            <div class="author-role">Directeur — Vandevelde Koeltransport, Izegem</div>
+            <div class="author-role">Directeur â€” Vandevelde Koeltransport, Izegem</div>
           </div>
         </div>
       </div>
@@ -215,7 +215,7 @@
         <div class="sb-label">Gemiddelde doorlooptijd</div>
       </div>
       <div class="sb-item">
-        <div class="sb-num">€400<span>+/u</span></div>
+        <div class="sb-num">â‚¬400<span>+/u</span></div>
         <div class="sb-label">Effectief uurloon</div>
       </div>
       <div class="sb-item">
@@ -238,28 +238,28 @@
     <div class="audit-wrap">
       <div class="audit-features">
         <div class="af-item">
-          <div class="af-icon">⚡</div>
+          <div class="af-icon">âšˇ</div>
           <div>
             <div class="af-title">Snelheidsanalyse</div>
             <p class="af-text">We meten laadtijden och Core Web Vitals. Een trage site verliest 40% van bezoekers al in de eerste 3 seconden.</p>
           </div>
         </div>
         <div class="af-item">
-          <div class="af-icon">🎯</div>
+          <div class="af-icon">đźŽŻ</div>
           <div>
             <div class="af-title">Conversie-beoordeling</div>
             <p class="af-text">Zijn uw formulieren zo opgebouwd dat ze kwalitatieve leads binnenhalen? Wij checken elk contactpunt.</p>
           </div>
         </div>
         <div class="af-item">
-          <div class="af-icon">🔍</div>
+          <div class="af-icon">đź”Ť</div>
           <div>
             <div class="af-title">Lokale SEO-scan</div>
             <p class="af-text">Scoort u voor "transportbedrijf Roeselare" of "koeltransport West-Vlaanderen"? Wij analyseren uw zichtbaarheid.</p>
           </div>
         </div>
         <div class="af-item">
-          <div class="af-icon">📊</div>
+          <div class="af-icon">đź“Š</div>
           <div>
             <div class="af-title">Concurrentieanalyse</div>
             <p class="af-text">Wie staat er boven u in Google, en waarom? U ontvangt concrete aanbevelingen om hen in te halen.</p>
@@ -268,12 +268,12 @@
       </div>
       <div class="audit-form-box">
         <h3>Start uw gratis audit</h3>
-        <p>Vul uw gegevens in en ontvang binnen 24 uur een gepersonaliseerd rapport — volledig gratis, zonder verplichtingen.</p>
+        <p>Vul uw gegevens in en ontvang binnen 24 uur een gepersonaliseerd rapport â€” volledig gratis, zonder verplichtingen.</p>
         <div class="aform" id="audit-form-container">
           <input type="text" placeholder="Bedrijfsnaam" />
           <input type="url" placeholder="URL huidige website (bv. www.uwbedrijf.be)" />
           <input type="email" placeholder="Uw e-mailadres" />
-          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitAudit(event)">🔍 Analyseer mijn website</button>
+          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitAudit(event)">đź”Ť Analyseer mijn website</button>
         </div>
       </div>
     </div>
@@ -285,32 +285,32 @@
   <div class="container">
     <p class="section-tag">Smart Quote System</p>
     <h2 class="section-title">Nooit meer incomplete<br>offerteaanvragen.</h2>
-    <p class="section-sub">Ons digitaal formulier dwingt klanten alle gegevens in te vullen vóór ze kunnen versturen. Uw dispatcher werkt direct met volledige dossiers.</p>
+    <p class="section-sub">Ons digitaal formulier dwingt klanten alle gegevens in te vullen vĂłĂłr ze kunnen versturen. Uw dispatcher werkt direct met volledige dossiers.</p>
     <div class="quote-wrap">
       <div class="quote-info">
         <div class="qi-item">
-          <div class="qi-icon">🚛</div>
+          <div class="qi-icon">đźš›</div>
           <div>
             <div class="qi-title">Transporttype selectie</div>
-            <p class="qi-text">ADR, koeltransport, groupage, container — de klant kiest, het systeem past het formulier aan.</p>
+            <p class="qi-text">ADR, koeltransport, groupage, container â€” de klant kiest, het systeem past het formulier aan.</p>
           </div>
         </div>
         <div class="qi-item">
-          <div class="qi-icon">📦</div>
+          <div class="qi-icon">đź“¦</div>
           <div>
             <div class="qi-title">Verplichte vracht-info</div>
             <p class="qi-text">Afmetingen, gewicht, laad- en losadres worden verplicht ingevoerd. Geen vage aanvragen meer.</p>
           </div>
         </div>
         <div class="qi-item">
-          <div class="qi-icon">📬</div>
+          <div class="qi-icon">đź“¬</div>
           <div>
             <div class="qi-title">Automatisch naar CRM</div>
-            <p class="qi-text">Elke aanvraag belandt gestructureerd in uw Mini-CRM dashboard. Opvolging in één oogopslag.</p>
+            <p class="qi-text">Elke aanvraag belandt gestructureerd in uw Mini-CRM dashboard. Opvolging in Ă©Ă©n oogopslag.</p>
           </div>
         </div>
         <div class="qi-item">
-          <div class="qi-icon">🔔</div>
+          <div class="qi-icon">đź””</div>
           <div>
             <div class="qi-title">Directe e-mailnotificatie</div>
             <p class="qi-text">Uw team ontvangt onmiddellijk een melding met alle gegevens. Reageer sneller dan de concurrent.</p>
@@ -319,7 +319,7 @@
       </div>
       <div class="quote-form-box">
         <h3>Demo: Offerteaanvraag</h3>
-        <p>Zo ziet uw klant het formulier — elk veld verplicht, geen chaos meer.</p>
+        <p>Zo ziet uw klant het formulier â€” elk veld verplicht, geen chaos meer.</p>
         <div class="qform" id="quote-form-container">
           <div class="qform-row">
             <div class="fgroup">
@@ -354,8 +354,8 @@
               <input type="number" placeholder="bv. 5000" />
             </div>
             <div class="fgroup">
-              <label>Afmetingen (L×B×H cm)</label>
-              <input type="text" placeholder="bv. 240 × 120 × 180" />
+              <label>Afmetingen (LĂ—BĂ—H cm)</label>
+              <input type="text" placeholder="bv. 240 Ă— 120 Ă— 180" />
             </div>
           </div>
           <div class="qform-row">
@@ -372,7 +372,7 @@
             <label>Extra opmerkingen</label>
             <textarea rows="3" placeholder="Laadplatform aanwezig? Specifieke vereisten?"></textarea>
           </div>
-          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitQuote(event)">📤 Offerte aanvragen</button>
+          <button class="btn-primary" style="justify-content:center;width:100%" onclick="submitQuote(event)">đź“¤ Offerte aanvragen</button>
         </div>
       </div>
     </div>
@@ -388,23 +388,23 @@
       <div class="about-card">
         <div class="ac-tag">Founder & Lead Developer</div>
         <div class="ac-name">TransDigit Master</div>
-        <div class="ac-role">Specialist digitale transformatie — TSL-sector</div>
-        <p class="ac-bio">We werken uitsluitend voor transport-, spedities en logistieke bedrijven in Flandria. Geen kappers, geen restaurants — enkel KMO's die vracht verplaatsen. Die focus vertaalt zich in software die de sector écht begrijpt.</p>
+        <div class="ac-role">Specialist digitale transformatie â€” TSL-sector</div>
+        <p class="ac-bio">We werken uitsluitend voor transport-, spedities en logistieke bedrijven in Flandria. Geen kappers, geen restaurants â€” enkel KMO's die vracht verplaatsen. Die focus vertaalt zich in software die de sector Ă©cht begrijpt.</p>
         <div class="tech-tags">
           <span class="t-tag">Vue.js</span>
           <span class="t-tag">Laravel</span>
           <span class="t-tag">Livewire</span>
           <span class="t-tag">Tailwind CSS</span>
-          <span class="t-tag">Multi-tenant SaaS</span>
+          <span class="t-tag">Multi-bedrijf SaaS</span>
           <span class="t-tag">AI-integratie</span>
         </div>
       </div>
       <div class="about-body">
-        <p>TransDigit Master is opgericht met één doel: de administratieve chaos in Vlaamse transportbedrijven elimineren. We combineren diepgaande sectorkennis met moderne webontwikkeling.</p>
-        <p>Ons model is uniek: we stappen binnen als webbouwer, maar leveren een Mini-CRM dat uitgroeit tot een volwaardig ERP-systeem voor uw bedrijf — gefinancierd vanuit uw eigen groei, zonder grote investeringen vooraf.</p>
+        <p>TransDigit Master is opgericht met Ă©Ă©n doel: de administratieve chaos in Vlaamse transportbedrijven elimineren. We combineren diepgaande sectorkennis met moderne webontwikkeling.</p>
+        <p>Ons model is uniek: we stappen binnen als webbouwer, maar leveren een Mini-CRM dat uitgroeit tot een volwaardig ERP-systeem voor uw bedrijf â€” gefinancierd vanuit uw eigen groei, zonder grote investeringen vooraf.</p>
         <ul class="value-list">
           <li><span class="vdot"></span> 100% in-house ontwikkeling, geen uitbesteding</li>
-          <li><span class="vdot"></span> Gesloten ecosysteem: hosting, frontend én backend bij ons</li>
+          <li><span class="vdot"></span> Gesloten ecosysteem: hosting, frontend Ă©n backend bij ons</li>
           <li><span class="vdot"></span> Live in 7 dagen of uw geld terug</li>
           <li><span class="vdot"></span> Schaalbaar van one-pager tot volwaardig TMS</li>
           <li><span class="vdot"></span> Actief in West-Vlaanderen: Roeselare, Kortrijk, Izegem</li>
@@ -428,7 +428,7 @@
           <div class="blog-cat">Regelgeving</div>
           <div class="blog-title">E-facturering verplicht in 2026: wat moet uw transportbedrijf nu al doen?</div>
           <p class="blog-excerpt">De federale overheid voert verplichte e-facturering in voor B2B. Wij leggen uit wat het betekent voor KMO-transporteurs och hoe u zich voorbereidt.</p>
-          <span class="blog-read">Lees verder →</span>
+          <span class="blog-read">Lees verder â†’</span>
         </div>
       </div>
       <div class="blog-card">
@@ -438,8 +438,8 @@
         <div class="blog-body">
           <div class="blog-cat">Digitalisering</div>
           <div class="blog-title">Hoe een Smart Quote-formulier uw dispatcher 2 uur per dag bespaart</div>
-          <p class="blog-excerpt">Door klanten te verplichten alle gegevens in te vullen vóór het versturen, stoppen de incomplete aanvragen definitief. Zo werkt het in de praktijk.</p>
-          <span class="blog-read">Lees verder →</span>
+          <p class="blog-excerpt">Door klanten te verplichten alle gegevens in te vullen vĂłĂłr het versturen, stoppen de incomplete aanvragen definitief. Zo werkt het in de praktijk.</p>
+          <span class="blog-read">Lees verder â†’</span>
         </div>
       </div>
       <div class="blog-card">
@@ -450,7 +450,7 @@
           <div class="blog-cat">SEO & Vindbaarheid</div>
           <div class="blog-title">Lokale SEO voor transporteurs: zo staat u boven uw concurrenten in Roeselare</div>
           <p class="blog-excerpt">Lokale zoektermen in de logistiek zijn goud waard. Ontdek welke concrete stappen u vandaag al kunt zetten voor betere Google-resultaten.</p>
-          <span class="blog-read">Lees verder →</span>
+          <span class="blog-read">Lees verder â†’</span>
         </div>
       </div>
     </div>
@@ -462,32 +462,32 @@
   <div class="container">
     <p class="section-tag">Contact</p>
     <h2 class="section-title">Klaar voor het gesprek?</h2>
-    <p class="section-sub">Geen verkoopspraatjes. Een eerlijk gesprek over uw situatie — och of wij de juiste partner zijn voor uw bedrijf.</p>
+    <p class="section-sub">Geen verkoopspraatjes. Een eerlijk gesprek over uw situatie â€” och of wij de juiste partner zijn voor uw bedrijf.</p>
     <div class="contact-grid">
       <div class="contact-items">
         <div class="ci">
-          <div class="ci-icon">📍</div>
+          <div class="ci-icon">đź“Ť</div>
           <div>
             <div class="ci-label">Regio</div>
-            <div class="ci-val">West-Vlaanderen<br><span style="font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400">Roeselare · Kortrijk · Izegem</span></div>
+            <div class="ci-val">West-Vlaanderen<br><span style="font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400">Roeselare Â· Kortrijk Â· Izegem</span></div>
           </div>
         </div>
         <div class="ci">
-          <div class="ci-icon">📧</div>
+          <div class="ci-icon">đź“§</div>
           <div>
             <div class="ci-label">E-mail</div>
             <div class="ci-val">info@transdigitmaster.be</div>
           </div>
         </div>
         <div class="ci">
-          <div class="ci-icon">💼</div>
+          <div class="ci-icon">đź’Ľ</div>
           <div>
             <div class="ci-label">LinkedIn</div>
             <div class="ci-val">TransDigit Master</div>
           </div>
         </div>
         <div class="ci">
-          <div class="ci-icon">⏱️</div>
+          <div class="ci-icon">âŹ±ď¸Ź</div>
           <div>
             <div class="ci-label">Responstijd</div>
             <div class="ci-val">Binnen 24 uur op werkdagen</div>
@@ -558,13 +558,13 @@ window.addEventListener('scroll', () => {
 // Form logic
 function submitAudit(e) {
   const btn = e.target;
-  btn.innerHTML = "⏳ Analyseren...";
+  btn.innerHTML = "âŹł Analyseren...";
   btn.style.opacity = "0.7";
   btn.style.pointerEvents = "none";
   setTimeout(() => {
     document.getElementById('audit-form-container').innerHTML = `
       <div style="text-align:center; padding: 24px; background: rgba(212,255,0,0.05); border: 1px solid var(--orange); border-radius: 12px;">
-        <h4 style="color: #fff; font-size: 18px; margin-bottom: 8px;">Audit aangevraagd! ✅</h4>
+        <h4 style="color: #fff; font-size: 18px; margin-bottom: 8px;">Audit aangevraagd! âś…</h4>
         <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">De AI heeft uw website succesvol gescand. U ontvangt het rapport binnen 24 uur in uw mailbox.</p>
       </div>
     `;
@@ -573,13 +573,13 @@ function submitAudit(e) {
 
 function submitQuote(e) {
   const btn = e.target;
-  btn.innerHTML = "⏳ Verzenden...";
+  btn.innerHTML = "âŹł Verzenden...";
   btn.style.opacity = "0.7";
   btn.style.pointerEvents = "none";
   setTimeout(() => {
     document.getElementById('quote-form-container').innerHTML = `
       <div style="text-align:center; padding: 34px; background: rgba(212,255,0,0.05); border: 1px solid var(--orange); border-radius: 12px; height: 100%; display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-size: 40px; margin-bottom: 15px;">📦</div>
+        <div style="font-size: 40px; margin-bottom: 15px;">đź“¦</div>
         <h4 style="color: #fff; font-size: 20px; margin-bottom: 8px;">Dossier succesvol verzonden!</h4>
         <p style="color: var(--muted); font-size: 15px; line-height: 1.6;">Dit is hoe uw klant het ervaart. De aanvraag zit nu veilig in uw Mini-CRM. Uw dispatcher kan direct aan de slag met een volledig dossier.</p>
       </div>
@@ -593,7 +593,7 @@ function selectPackage(pkgName) {
     // Try to find the livewire textarea
     const textarea = document.querySelector('textarea[wire\\\\:model="message"], textarea');
     if (textarea) {
-      textarea.value = "Beste, ik ben geïnteresseerd in het " + pkgName + " pakket. Graag plannen we een vrijblijvend intakegesprek in.";
+      textarea.value = "Beste, ik ben geĂŻnteresseerd in het " + pkgName + " pakket. Graag plannen we een vrijblijvend intakegesprek in.";
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
       textarea.focus();
     }

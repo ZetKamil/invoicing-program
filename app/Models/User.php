@@ -15,14 +15,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 
-#[Fillable(['tenant_id', 'name', 'email', 'password', 'role', 'is_super_admin'])]
+#[Fillable(['bedrijf_id', 'name', 'email', 'password', 'role', 'is_super_admin'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, Notifiable, TwoFactorAuthenticatable, HasTenant;
+    use HasFactory, HasUlids, Notifiable, TwoFactorAuthenticatable, HasBedrijf;
 
     /**
      * Get the attributes that should be cast.

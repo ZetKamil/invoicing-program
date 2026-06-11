@@ -21,7 +21,7 @@ class QuoteInquiryMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Quote from ' . $this->quote->tenant->name,
+            subject: 'Your Quote from ' . $this->quote->bedrijf->name,
         );
     }
 

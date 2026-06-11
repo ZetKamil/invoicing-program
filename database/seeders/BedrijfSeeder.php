@@ -2,14 +2,14 @@
 
 namespace Database\Seeders;
 
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use Illuminate\Database\Seeder;
 
-class TenantSeeder extends Seeder
+class BedrijfSeeder extends Seeder
 {
     public function run(): void
     {
-        Tenant::create([
+        Bedrijf::create([
             'name' => 'Logi-Web PRO',
             'slug' => 'logi-web-pro',
             'stripe_subscription_status' => 'active',

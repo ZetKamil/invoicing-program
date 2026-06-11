@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LeadStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,11 +13,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Builder;
 
-#[Fillable(['tenant_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status', 'metadata'])]
+#[Fillable(['bedrijf_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status', 'metadata'])]
 class Lead extends Model
 {
     /** @use HasFactory<\Database\Factories\LeadFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes, Prunable;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
 
     /**
      * Get the prunable model query.

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
-use App\Traits\HasTenant;
+use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
-    'tenant_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
+    'bedrijf_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
     'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
     'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
     'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Invoice extends Model
 {
     /** @use HasFactory<\Database\Factories\InvoiceFactory> */
-    use HasFactory, HasUlids, HasTenant, SoftDeletes;
+    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
 
     /**
      * The relations to eager load on every query.
@@ -97,8 +97,8 @@ class Invoice extends Model
         $this->subtotal = bcadd($sub, '0', 2);
         $this->tax_total = bcadd($tax, '0', 2);
         
-        // Zgodnie z zasadami księgowości: kwota całkowita = suma netto + suma podatku.
-        // Gwarantuje to brak rozjazdu o 1 grosz na łącznym dokumencie.
+        // Zgodnie z zasadami ksiÄ™gowoĹ›ci: kwota caĹ‚kowita = suma netto + suma podatku.
+        // Gwarantuje to brak rozjazdu o 1 grosz na Ĺ‚Ä…cznym dokumencie.
         $this->total_amount = bcadd($this->subtotal, $this->tax_total, 2);
         
         $this->saveQuietly();

@@ -31,15 +31,15 @@ class GenerateInvoicePdfAction
     public function execute(Invoice $invoice): Invoice
     {
         // Load all relationships needed for rendering both documents.
-        $invoice->load(['tenant', 'customer', 'items']);
+        $invoice->load(['bedrijf', 'customer', 'items']);
 
         // --- PDF Generation (always succeeds or throws non-UBL exception) ---
         $html     = View::make('invoices.pdf', compact('invoice'))->render();
         $filename = $invoice->invoice_number . '_' . time() . '.html';
-        $pdfPath  = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
+        $pdfPath  = "bedrijven/{$invoice->bedrijf_id}/invoices/{$filename}";
         Storage::put($pdfPath, $html);
 
-        // --- UBL 2.1 XML Generation (independent — failures are recoverable) ---
+        // --- UBL 2.1 XML Generation (independent â€” failures are recoverable) ---
         // Wrapped in a dedicated try/catch so PDF success is never contingent on XML success.
         // A logistics company must always be able to send their invoice PDF to customers,
         // even if the Peppol XML compliance artifact temporarily fails.
@@ -48,7 +48,7 @@ class GenerateInvoicePdfAction
             $xmlPath = $this->generateUblXmlAction->execute($invoice);
         } catch (UblGenerationException $e) {
             // Log the failure with structured context for operator debugging.
-            // Do NOT re-throw — PDF generation has already succeeded at this point.
+            // Do NOT re-throw â€” PDF generation has already succeeded at this point.
             Log::warning('UBL XML generation failed during invoice finalization. PDF was saved successfully.', [
                 'invoice_id'     => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
@@ -57,7 +57,7 @@ class GenerateInvoicePdfAction
         }
 
         // Persist document path references.
-        // ubl_xml_path remains null if XML generation failed — surfaces in admin UI.
+        // ubl_xml_path remains null if XML generation failed â€” surfaces in admin UI.
         $invoice->update([
             'ubl_xml_path' => $xmlPath,
         ]);

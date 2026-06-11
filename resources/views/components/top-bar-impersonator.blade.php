@@ -33,7 +33,7 @@ new class extends Component {
     {
         return [
             'users' => auth()->user()?->is_super_admin 
-                        ? User::with('tenant')->get() 
+                        ? User::with('bedrijf')->get() 
                         : [],
         ];
     }
@@ -47,7 +47,7 @@ new class extends Component {
         <option value="">Wybierz klienta (Impersonate)...</option>
         @foreach($users as $u)
             @if($u->id !== auth()->id())
-                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->tenant?->name ?? 'Brak' }})</option>
+                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->bedrijf?->name ?? 'Brak' }})</option>
             @endif
         @endforeach
     </select>

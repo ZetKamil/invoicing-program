@@ -20,7 +20,7 @@ class EditQuote extends EditRecord
                 ->requiresConfirmation()
                 ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
                 ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
-                    if ($record->tenant_id !== auth()->user()->tenant_id) {
+                    if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
                         abort(403, 'Ongeautoriseerde actie.');
                     }
 
@@ -46,7 +46,7 @@ class EditQuote extends EditRecord
                 ->color('primary')
                 ->requiresConfirmation()
                 ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
-                    if ($record->tenant_id !== auth()->user()->tenant_id) {
+                    if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
                         abort(403, 'Ongeautoriseerde actie.');
                     }
 
@@ -56,14 +56,14 @@ class EditQuote extends EditRecord
                         return;
                     }
 
-                    // Queue the email — QuoteInquiryMail implements ShouldQueue, so we must
+                    // Queue the email â€” QuoteInquiryMail implements ShouldQueue, so we must
                     // use ->queue() (not ->send()) to avoid blocking the HTTP worker thread.
                     \Illuminate\Support\Facades\Mail::to($record->lead->email)->queue(new \App\Mail\QuoteInquiryMail($record));
 
                     // Log communication
-                    $subject = 'Your Quote from ' . $record->tenant->name;
+                    $subject = 'Your Quote from ' . $record->bedrijf->name;
                     $body = 'Automated system email sent to ' . $record->lead->email . ' containing the quote.';
-                    $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
+                    $logCommunicationAction->execute($record->bedrijf_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
 
                     // Update status
                     $record->update(['status' => \App\Enums\QuoteStatus::SENT]);

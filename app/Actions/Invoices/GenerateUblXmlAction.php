@@ -18,11 +18,11 @@ class GenerateUblXmlAction
      *    and benefits from Blade's auto-escaping for XSS prevention in XML values).
      *  - Validates the rendered output with PHP's DOMDocument parser before storage.
      *    If the document is not well-formed XML, a UblGenerationException is thrown BEFORE
-     *    writing anything to disk — preventing a corrupt XML file from being stored.
+     *    writing anything to disk â€” preventing a corrupt XML file from being stored.
      *  - Throws UblGenerationException (not generic Exception) so callers can catch
      *    Peppol-specific failures independently from other errors.
      *
-     * @param  Invoice $invoice  Must have 'tenant', 'customer', and 'items' loaded.
+     * @param  Invoice $invoice  Must have 'bedrijf', 'customer', and 'items' loaded.
      * @return string            The storage path of the saved XML file.
      * @throws UblGenerationException
      */
@@ -31,7 +31,7 @@ class GenerateUblXmlAction
         // Ensure all required relationships are loaded before Blade rendering.
         // Missing relationships produce null values that render as 'UNKNOWN' in the XML,
         // which Peppol Access Points may reject as invalid party identifiers.
-        $invoice->loadMissing(['tenant', 'customer', 'items']);
+        $invoice->loadMissing(['bedrijf', 'customer', 'items']);
 
         // Step 1: Render the UBL Blade template into an XML string.
         $xml = View::make('invoices.ubl', compact('invoice'))->render();
@@ -48,7 +48,7 @@ class GenerateUblXmlAction
             libxml_clear_errors();
             $firstError = ! empty($errors) ? $errors[0]->message : 'Unknown XML parse error';
 
-            Log::error('UBL XML generation failed — malformed XML output', [
+            Log::error('UBL XML generation failed â€” malformed XML output', [
                 'invoice_id'     => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
                 'xml_error'      => $firstError,
@@ -59,9 +59,9 @@ class GenerateUblXmlAction
 
         libxml_clear_errors();
 
-        // Step 3: Write to tenant-isolated storage.
+        // Step 3: Write to bedrijf-isolated storage.
         $filename = $invoice->invoice_number . '.xml';
-        $path     = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
+        $path     = "bedrijven/{$invoice->bedrijf_id}/invoices/{$filename}";
 
         try {
             Storage::put($path, trim($xml));
