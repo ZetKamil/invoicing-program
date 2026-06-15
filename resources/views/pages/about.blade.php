@@ -12,7 +12,7 @@
         <div class="ac-tag">Founder & Lead Developer</div>
         <div class="ac-name">TransDigit Master</div>
         <div class="ac-role">Specialist digitale transformatie â€” TSL-sector</div>
-        <p class="ac-bio">We werken uitsluitend voor transport-, spedities en logistieke bedrijven in Flandria. Geen kappers, geen restaurants â€” enkel KMO's die vracht verplaatsen. Die focus vertaalt zich in software die de sector Ă©cht begrijpt.</p>
+        <p class="ac-bio">We werken uitsluitend voor transport-, spedities en logistieke bedrijven in Flandria. Geen kappers, geen restaurants â€” enkel KMO's die vracht verplaatsen. Die focus vertaalt zich in software die de sector écht begrijpt.</p>
         <div class="tech-tags">
           <span class="t-tag">Vue.js</span>
           <span class="t-tag">Laravel</span>
@@ -23,11 +23,11 @@
         </div>
       </div>
       <div class="about-body">
-        <p>TransDigit Master is opgericht met Ă©Ă©n doel: de administratieve chaos in Vlaamse transportbedrijven elimineren. We combineren diepgaande sectorkennis met moderne webontwikkeling.</p>
+        <p>TransDigit Master is opgericht met één doel: de administratieve chaos in Vlaamse transportbedrijven elimineren. We combineren diepgaande sectorkennis met moderne webontwikkeling.</p>
         <p>Ons model is uniek: we stappen binnen als webbouwer, maar leveren een Mini-CRM dat uitgroeit tot een volwaardig ERP-systeem voor uw bedrijf â€” gefinancierd vanuit uw eigen groei, zonder grote investeringen vooraf.</p>
         <ul class="value-list">
           <li><span class="vdot"></span> 100% in-house ontwikkeling, geen uitbesteding</li>
-          <li><span class="vdot"></span> Gesloten ecosysteem: hosting, frontend Ă©n backend bij ons</li>
+          <li><span class="vdot"></span> Gesloten ecosysteem: hosting, frontend én backend bij ons</li>
           <li><span class="vdot"></span> Live in 7 dagen of uw geld terug</li>
           <li><span class="vdot"></span> Schaalbaar van one-pager tot volwaardig TMS</li>
           <li><span class="vdot"></span> Actief in West-Vlaanderen: Roeselare, Kortrijk, Izegem</li>

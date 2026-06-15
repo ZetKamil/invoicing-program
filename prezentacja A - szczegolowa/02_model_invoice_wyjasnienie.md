@@ -26,8 +26,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ```
 **Co masz powiedzieć jury:** *"Korzystam tu z najnowocześniejszych paczek frameworka, od obsługi miękkiego usuwania `SoftDeletes`, po wsparcie standardów ULID i polimorfizmu poprzez `MorphTo`."*
 
-> **Edukacja dla Ciebie:**
-> *   `use ...` – Importujemy do pliku gotowe wtyczki. To tak jak byśmy włożyli nowe narzędzia do walizki, zanim zaczniemy budować fakturę (np. wtyczkę `SoftDeletes`, która zapobiega trwałemu usunięciu danych z bazy).
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `use ...` – Importujemy do pliku gotowe wtyczki i zewnętrzne narzędzia, z których będziemy korzystać poniżej w klasie.
+>
+> **Na chłopski rozum:** Zanim wniesiesz nową fakturę do warsztatu i zaczniesz nad nią pracować, idziesz do magazynu po skrzynkę z odpowiednimi narzędziami (importujesz `use`). Wyciągasz młotek (SoftDeletes) czy śrubokręt (MorphTo) z frameworka, kładziesz na stole i od tej pory możesz z nich korzystać pod ich krótką nazwą.
 
 ```php
 #[Fillable([
@@ -40,10 +42,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ```
 **Co masz powiedzieć jury:** *"Odszedłem od klasycznego przypisywania pól do chronionej tablicy `$fillable` na rzecz nowoczesnych Atrybutów (Attributes) z najnowszych wersji PHP. Definiuję tu zbiór autoryzowanych kolumn, blokując potencjalnym atakom typu Mass-Assignment szansę na nadpisanie kluczowych pól systemowych."*
 
-> **Edukacja dla Ciebie:**
-> *   `#[]` – Tzw. "Atrybut" w PHP 8. To "magiczna naklejka", którą przyklejamy nad klasą. Zawiera ona metadane. Zamiast pisać normalny kod w środku klasy, dajemy systemowi informację z góry.
-> *   `Fillable` – Mówi: "Tylko te wymienione pola mogą być nadpisane w bazie danych bezpośrednio z formularza internetowego". Wszystko inne zostanie zignorowane.
-> *   `[ 'bedrijf_id', ... ]` – Nawiasy kwadratowe `[]` w PHP oznaczają "Tablicę" (Array), czyli po prostu listę elementów. Podajemy w niej listę dozwolonych nazw kolumn ujętych w cudzysłowach `''`.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `#[]` – Tzw. "Atrybut" w PHP 8. Zawiera on metadane przekazywane do silnika PHP bez tworzenia fizycznych zmiennych w klasie.
+> *   `Fillable` – Wskazuje autoryzowane pola. Mówi: "Tylko te wymienione kolumny mogą być zapisywane do bazy danych z tablic masowych (np. bezpośrednio z wysłanego formularza)".
+> *   `[ ... ]` – Nawiasy kwadratowe to w PHP "Tablica" (Array), czyli lista elementów ujętych w cudzysłowy.
+>
+> **Na chłopski rozum:** Wyobraź sobie Atrybut `#[]` jako magiczną "Naklejkę" (żółtą karteczkę Post-it), którą przyklejamy na zewnątrz teczki z Fakturą. Zanim system w ogóle otworzy teczkę, widzi naklejkę z instrukcją `Fillable`, która mówi jak zachować się na "bramce w klubie" - to jest ostra lista gości (lista autoryzowanych kolumn). Jeśli ktoś złośliwy spróbuje z zewnątrz przepchnąć kolumnę `is_admin`, system spojrzy na naklejkę, nie znajdzie jej na liście gości i odrzuci te dane bez mrugnięcia okiem. Zabezpiecza to przed atakiem Mass-Assignment.
 
 ```php
 class Invoice extends Model
@@ -53,11 +57,15 @@ class Invoice extends Model
 ```
 **Co masz powiedzieć jury:** *"Model wykorzystuje cztery filary infrastruktury. Szczególnie zwracam uwagę na trait `HasUlids`. Całkowicie porzuciłem standardowe, auto-inkrementowane ID na rzecz ULID-ów (Universally Unique Lexicographically Sortable Identifiers)."*
 
-> **Edukacja dla Ciebie:**
-> *   `class Invoice` – Powołujemy do życia nowy obiekt: "Fakturę".
-> *   `extends Model` – Słówko `extends` to dziedziczenie (Dziedziczy z "Model"). Mówisz przez to: "Moja Faktura to nie jest zwykła klasa. Ona odziedzicza wszystkie moce bazy danych po potężnej, wbudowanej klasie Model z frameworka Laravel".
-> *   `/** ... */` – To po prostu komentarz w kodzie (tzw. DocBlock). Jest ignorowany przez serwer, ale pomaga programistom czytać kod.
-> *   `use ...` (wewnątrz klamer klasy) – Służy do "wpinania" Traitów (wtyczek), o których mówiliśmy w poprzednim pliku. Dzięki jednemu słowu `SoftDeletes`, model uczy się tzw. miękkiego usuwania (zamiast wykasować wiersz z bazy, stawia przy nim datę skasowania - działa jak kosz Windows).
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `class Invoice` – Definicja nowego obiektu (encj) "Faktury".
+> *   `extends Model` – Dziedziczenie. Obiekt `Invoice` dziedziczy po potężnej wbudowanej klasie `Model` dostarczonej przez Laravela, przejmując jej wszystkie mechanizmy orm (zapis/odczyt z bazy).
+> *   `/** ... */` – DocBlock, czyli komentarz dla programisty (ignorowany przez kod).
+> *   `use ...` (wewnątrz klasy) – Załączenie (wstrzyknięcie) traitów, modyfikujących zachowanie klasy.
+>
+> **Na chłopski rozum:**
+> Słowo `extends` to jak "genetyka". Mówisz: "Stwórz dziecko o nazwie Faktura, ale niech odziedziczy ono absolutnie wszystkie nadludzkie moce po ojcu zwanym Model (który potrafi sam pisać do bazy danych)".
+> A `use HasFactory...` wewnątrz to wpinanie wtyczek USB do tego dziecka. Np. wtyczka `SoftDeletes` daje supermoc: "Kosza Windowsa". Gdy usuniesz fakturę, w bazie pojawi się tylko pieczątka "Skasowane dzisiaj", ale wpis nadal fizycznie zostaje w bazie do celów księgowych!
 
 ```php
     protected function casts(): array
@@ -71,11 +79,16 @@ class Invoice extends Model
 ```
 **Co masz powiedzieć jury:** *"Każda kwota, zanim trafi z bazy do mojego kodu, jest rygorystycznie przerabiana na dwumiejscowe wartości dziesiętne (`decimal:2`), aby uniknąć błędów zmiennoprzecinkowych. Dodatkowo kolumnę `status` w locie rzutuję na dedykowanego wyliczeniowca `Enum` (InvoiceStatus::class)."*
 
-> **Edukacja dla Ciebie:**
-> *   `protected` – Widoczność funkcji. W przeciwieństwie do `public`, oznacza to, że tej funkcji nie może zawołać byle kontroler z zewnątrz. Jest ona "chroniona" i przeznaczona tylko do użytku wewnętrznego tej klasy (oraz jej dzieci).
-> *   `array` – Deklaracja zwracanego typu. Mówisz tu: "Ta funkcja musi na końcu wyrzucić z siebie Tablicę (listę)".
-> *   `=>` – Operator przypisania klucza do wartości w tablicy. Czytaj to jako: "Kolumna 'subtotal' MA SIĘ ZAMIENIĆ NA 'decimal:2'".
-> *   `::class` – Specjalny zapis w PHP, który zamiast ściągać sam obiekt, pobiera jego bezwzględną, pełną ścieżkę jako tekst (aby program wiedział, jak się do niego odwołać).
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `protected` – Widoczność funkcji tylko dla "siebie i swoich dzieci". Kod z innych modułów nie może tego samodzielnie wywołać.
+> *   `array` – Zadeklarowany typ zwracany: funkcja musi oddać tablicę/listę.
+> *   `=>` – Operator przypisania w tablicy (klucz przypisany do wartości).
+> *   `::class` – Bezwzględna ścieżka do obiektu wyciągana w formie tekstu.
+> *   `Enum` (Wyliczeniowiec) – Specjalny obiekt w PHP (np. `InvoiceStatus`), który zawiera sztywną, zamkniętą listę dozwolonych opcji (np. tylko: DRAFT, SENT, PAID).
+>
+> **Na chłopski rozum:**
+> `protected` to "zamknięty pokój dla personelu". Ta funkcja to translator (tłumacz przysięgły). Kiedy bierzesz brzydką kwotę z bazy danych, translator natychmiast upewnia się (`=> 'decimal:2'`), że w PHP ta kwota ma równo dwa miejsca po przecinku.
+> Z kolei rzutowanie statusu na **Enum** to zastąpienie pustego pola tekstowego na **sztywną listę rozwijaną**. Gdybyś trzymał status jako zwykły tekst, jakiś programista mógłby zrobić literówkę i zapisać do bazy status `"paidd"` zamiast `"paid"`, co zepsułoby cały system. Enum to wydrukowane menu w restauracji. System mówi bazie: *"Od teraz status to nie jest byle jaki tekst. To musi być jedna z precyzyjnie określonych opcji dostępnych w zamkniętej karcie menu InvoiceStatus::class. Innej nie przyjmę!"*.
 
 ```php
     public function customer(): MorphTo
@@ -90,9 +103,12 @@ class Invoice extends Model
 ```
 **Co masz powiedzieć jury:** *"Ze względu na wymagania zwinności, wdrożyłem relację polimorficzną `morphTo` dla klienta, unikając pustych kolumn. Dodatkowo, aby zachować tzw. Data Immutability, zapiąłem fakturę twardo z oryginalną wyceną przez `quote()`. Dzięki temu faktura zawsze stanowi legalny snapshot z momentu wykonania zlecenia."*
 
-> **Edukacja dla Ciebie:**
-> *   `: MorphTo` – Mówisz programistom: "Ta funkcja zwraca powiązanie z inną tabelą w bazie danych (polimorficzne)". Znowu silne typowanie chroni przed głupimi błędami.
-> *   `$this->morphTo()` – Uruchamiasz wewnętrzną maszynerię bazy danych, która sama sprawdza kolumny `customer_type` i `customer_id` i wie, w której tabeli (Users czy Leads) szukać klienta dla tej faktury.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `: MorphTo` – Silne typowanie zwracanego wyniku. Informuje kompilator, że wraca obiekt specyficznej relacji polimorficznej.
+> *   `$this->morphTo()` – Uruchamia dynamiczne wiązanie polimorficzne na bazie kolumn z sufiksem `_type` i `_id`.
+>
+> **Na chłopski rozum:**
+> Relacja polimorficzna `MorphTo` to po prostu "Uniwersalny Pilot RTV". Nie ma on przypisanego jednego na stałe telewizora. Model sam patrzy w bazę na pole `customer_type` i wie z niego: "Aha! Przesuwam przełącznik na pilocie! Tym razem obsługuję Lead'a, a nie Klienta!". Dzięki temu Faktura może wystawiona na cokolwiek – i na firmę, i na osobę prywatną, bez dodawania kolejnych niepotrzebnych kolumn w bazie.
 
 ```php
     public function items(): HasMany
@@ -103,10 +119,48 @@ class Invoice extends Model
 ```
 **Co masz powiedzieć jury:** *"Zwieńczeniem modelu jest definicja klasycznej encji jeden-do-wielu dla wierszy na dokumencie fakturowym."*
 
-> **Edukacja dla Ciebie:**
-> *   `HasMany` – Relacja "Ma wiele".
-> *   `$this->hasMany(InvoiceItem::class)` – Mówi bazie danych: "Pójdź do tabeli WierszyFaktur (InvoiceItems) i znajdź mi wszystkie linijki, które na sobie mają przypięty mój własny identyfikator faktury".
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `HasMany` – Typ relacji bazy danych jeden-do-wielu (One to Many).
+> *   `$this->hasMany(...)` – Znajduje połączone rekordy w obcej tabeli posiłkując się id_faktury.
+>
+> **Na chłopski rozum:** `HasMany` ("Ma wiele") to klasyczny "Segregator na rachunki". Mówisz Fakturze: "Weź swój własny numer ID, pójdź do szafy pełnej wszystkich pozycji na świecie (InvoiceItems) i wyciągnij całą teczkę linijek, które mają napisany Twój numerek".
 
+```php
+    public function recalculateTotals(): void
+    {
+        $sub = '0.00';
+        $tax = '0.00';
+        $total = '0.00';
+
+        foreach ($this->items as $item) {
+            $qty = (string) $item->quantity;
+            $price = (string) $item->unit_price;
+            $taxRate = (string) $item->tax_rate;
+
+            $lineSubtotal = bcmul($qty, $price, 10);
+            $taxMultiplier = bcdiv($taxRate, '100', 10);
+            $lineTax = bcmul($lineSubtotal, $taxMultiplier, 10);
+
+            $sub = bcadd($sub, $lineSubtotal, 10);
+            $tax = bcadd($tax, $lineTax, 10);
+        }
+
+        $this->subtotal = bcadd($sub, '0', 2);
+        $this->tax_total = bcadd($tax, '0', 2);
+        $this->total_amount = bcadd($this->subtotal, $this->tax_total, 2);
+    }
+}
+```
+
+**Co masz powiedzieć jury:** *"Aby zagwarantować bezwzględną precyzję finansową i uniknąć odchyleń zmiennoprzecinkowych (floating-point drift), wdrożyłem funkcję recalculateTotals używającą kalkulacji BCMath na typach string. Gwarantuje to spójność z bramkami takimi jak Stripe czy Peppol."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `foreach ($this->items as $item)` – Pętla. Bierze wszystkie "wiele linijek" (z funkcji `hasMany`) i po kolei wykonuje na nich obliczenia.
+> *   `(string)` – Rzutowanie zmiennej na tekst (napis). Traktuje liczby (np. 14.50) tak, jakby były literami, żeby procesor nie zepsuł ułamków przy przeliczaniu.
+> *   `bcmul(...)`, `bcdiv(...)`, `bcadd(...)` – Z ang. *Math Multiply*, *Divide*, *Add*. Funkcje z wbudowanego kalkulatora absolutnej precyzji PHP (BCMath). Wykonują mnożenie, dzielenie i dodawanie na tekście z precyzją, którą wpiszemy na końcu (np. `10` miejsc po przecinku w trakcie obliczeń, obcięte do `2` miejsc przy podsumowaniu).
+>
+> **Na chłopski rozum:** To jest ten słynny "Kalkulator FinTech", o którym mówiłeś przy okazji Fazy 4 (plik nr 08). Zwykły procesor, jak każesz mu pomnożyć `14.90 * 3 * 1.21`, robi się głupi i wypluwa np. `54.08699999`. 
+> Dlatego wyłapujesz każdą usługę (każdą linijkę z `$this->items`), po chamsku zamieniasz ją na czysty tekst (`string`) i wrzucasz do kalkulatora `BCMath`. Kalkulator ten wykonuje działania matematyczne dokładnie tak, jak uczyłeś się w szkole podstawowej (podpisując sobie cyferki i licząc po jednym znaku na kartce). Na końcu obcinasz wynik do 2 miejsc po przecinku (np. `bcadd(..., 2)`). System podatkowy i Stripe dostają kwoty zgadzające się do jednego ułamka centa! 
 ---
 
 ## Pytania, na które musisz być gotów:

@@ -21,8 +21,10 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Wprowadzam koncepcję Inversion of Control (IoC), prosząc o dostarczenie do funkcji mojego wewnętrznego systemu audytowego `LogCommunicationAction`, by zachowywać ślady aktywności z zewnątrz do komunikatorów moich klientów."*
 
-> **Edukacja dla Ciebie:**
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
 > *   `extends Controller` – Mówisz programowi: "Moja klasa StripeWebhook przejmuje bazowe moce każdego z kontrolerów, czyli obiektów, których zadaniem jest łapanie ruchu od klienta (np. kliknięć z przeglądarki) i decydowanie co z tym zrobić".
+>
+> **Na chłopski rozum:** Zastosowanie `extends Controller` to wejście w rolę "Recepcjonisty". Twoja klasa od teraz stoi na froncie, przyjmuje gości (komunikaty z zewnątrz) i decyduje, do którego pokoju (funkcji) ich skierować.
 
 ```php
     public function handleWebhook(Request $request, LogCommunicationAction $logCommunicationAction)
@@ -30,9 +32,11 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"To główna funkcja wykonawcza przechwytująca dane od Stripe'a w postaci surowego ładunku (Payload)."*
 
-> **Edukacja dla Ciebie:**
-> *   `Request $request` – Złota reguła Laravela (tzw. Dependency Injection). Zamiast bawić się w pobieranie surowych pakietów z sieci, Laravel daje Ci całe to zapytanie ubrane w ładny obiekt nazywany `$request` (czyli "Żądanie").
-> *   Podawanie klasy `LogCommunicationAction` wewnątrz nawiasów tej samej funkcji zmusza Laravela, by natychmiast wrzucił do pamięci gotowe narzędzie do zapisywania logów komunikacyjnych (abyś nie musiał tworzyć go ręcznie). O tym mówiłeś w zdaniu dla jury wyżej jako "IoC".
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `Request $request` – Złota reguła Laravela (tzw. Dependency Injection / Wstrzykiwanie Zależności). Zamiast bawić się w pobieranie surowych pakietów z sieci, Laravel daje Ci całe to zapytanie ubrane w ładny obiekt nazywany `$request` (czyli "Żądanie").
+> *   Podawanie klasy `LogCommunicationAction` wewnątrz nawiasów zmusza Laravela, by natychmiast wrzucił do pamięci gotowe narzędzie do zapisywania logów komunikacyjnych.
+>
+> **Na chłopski rozum:** Dependency Injection to "Osobisty Asystent". Zamiast biegać samemu na zewnątrz z siatką i łapać surowe pakiety danych latające w internecie, Twój asystent (Laravel) już złapał pakiet od Stripe, ładnie go poukładał w zgrabną paczkę o nazwie `$request` i wręczył Ci wprost do rąk.
 
 ```php
         $payload = $request->getContent();
@@ -41,10 +45,12 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Rozpoczynam proces inspekcji kryptograficznej uderzenia Webhooku. Biorąc czysty, surowy strumień danych z zapytania sieciowego, łączę go z ukrytym podpisem dostarczanym od firmy Stripe."*
 
-> **Edukacja dla Ciebie:**
-> *   `getContent()` – Wyciąga tak zwane "Mięso" z zapytania (zawartość JSON, gdzie są zapisane dane przelewu). Zapisujemy je pod zmienną `$payload`.
-> *   `header('Stripe-Signature')` – Patrzy w "Nagłówki" żądania (ukryte informacje sieciowe, o których zwykły użytkownik nie ma pojęcia) i wyciąga z nich twardy klucz kryptograficzny od Stripe, czyli `$sigHeader`.
-> *   `config(...)` – Funkcja ładująca z Twojego ściśle strzeżonego pliku konfiguracyjnego na dysku serwera sekretne, prywatne hasło Twojej firmy. 
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `getContent()` – Wyciąga "Mięso" z zapytania (zawartość JSON, gdzie są zapisane dane przelewu). Zapisujemy je pod zmienną `$payload`.
+> *   `header('Stripe-Signature')` – Patrzy w "Nagłówki" żądania (ukryte informacje sieciowe) i wyciąga z nich twardy klucz kryptograficzny od Stripe, czyli `$sigHeader`.
+> *   `config(...)` – Funkcja ładująca z Twojego ściśle strzeżonego pliku konfiguracyjnego na dysku serwera sekretne, prywatne hasło Twojej firmy.
+>
+> **Na chłopski rozum:** Paczka od kuriera Stripe. `getContent()` to zajrzenie do pudełka (jakie są dane przelewu). `header()` to spojrzenie na "Woskową Pieczęć" na kopercie z zewnątrz. A `config()` to otwarcie Twojego prywatnego sejfu z hasłami, by upewnić się, że to faktycznie kurier, a nie przebieraniec.
 
 ```php
         try {
@@ -56,10 +62,12 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Biblioteka Stripe z precyzją skalpela wykonuje kryptograficzną rekonstrukcję Zdarzenia (Event). Jeśli haker spróbowałby zamienić chociaż jedną literę w przesyłanych danych, suma kontrolna w podpisie ulegnie rozpadowi po stronie wejściowej."*
 
-> **Edukacja dla Ciebie:**
-> *   `try { ... }` – Moduł ochronny ("Spróbuj to zrobić..."). Mówi systemowi: Spróbuj odpalić niebezpieczny/narażony na awarię kod, a jeśli wybuchnie, nie wyłączaj mi od razu aplikacji (złapiemy to w tzw. catchu dalej).
-> *   `!==` – "Nie jest identyczny". Sprawdzasz: Jeśli klucz nie jest lokalnym testowym hasłem "dummy"...
-> *   `\Stripe\Webhook::constructEvent` – Biblioteka Stripe pobiera do rąk Twoje trzy klucze wyciągnięte wyżej i "Krzyżuje je". Jeśli matematyka szyfrowania SHA-256 się zgodzi, powstanie pełnoprawny, autoryzowany obiekt wydarzenia o nazwie `$event`. Jeśli jest zły – wysadzi ten kod w powietrze.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `try { ... }` – Moduł ochronny. Mówi systemowi: "Spróbuj odpalić niebezpieczny kod, a jeśli wybuchnie, nie wyłączaj mi od razu aplikacji".
+> *   `!==` – "Nie jest identyczny". Sprawdzasz: Jeśli klucz nie jest lokalnym testowym hasłem...
+> *   `\Stripe\Webhook::constructEvent` – Biblioteka Stripe bierze zawartość, pieczęć i klucz, i je "Krzyżuje" by potwierdzić autentyczność.
+>
+> **Na chłopski rozum:** Słowo `try` to założenie Okularów Ochronnych w laboratorium. Mówisz: "Spróbuję otworzyć tę bombę. Jeśli wybuchnie, nie spal całego budynku". A `constructEvent` to sprzęt CSI Kryminalne Zagadki - rzuca światło ultrafioletowe na paczkę, sprawdzając, czy haker po drodze nie podmienił kwoty ze 100 zł na 1000 zł.
 
 ```php
         } catch (\UnexpectedValueException $e) {
@@ -70,9 +78,11 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Jeśli autoryzacja się posypie, twardo zamykam kanał zwracając restowy błąd 400 (Bad Request). Jest to element twardego modelu Zero Trust Network Architecture."*
 
-> **Edukacja dla Ciebie:**
-> *   `catch (...)` – ("Złap!"). To siatka bezpieczeństwa postawiona zaraz za słówkiem `try`. Jeśli wyżej wyrzucono awarię, program nie sypie się na białym ekranie 500, ale spadochronuje bezpiecznie tutaj, a my decydujemy, co zrobić.
-> *   `return response()->json(..., 400)` – Kulturalnie odbijamy fałszywego gościa uderzającego w API błędem `400 Bad Request`, i odcinamy go, oszczędzając zasoby serwera.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `catch (...)` – ("Złap!"). Siatka bezpieczeństwa postawiona zaraz po wpadce w bloku `try`.
+> *   `return response()->json(..., 400)` – Kulturalnie odbijamy fałszywego gościa błędem `400 Bad Request`.
+>
+> **Na chłopski rozum:** Złapanie błędu (`catch`) to Twój gaśnica. Gdy bomba w laboratorium wybuchnie (czyli haker wysłał zły klucz), siatka ląduje u Ciebie. Zamiast paniki, kulturalnie zamykasz drzwi fałszywemu kurierowi (Błąd 400), a reszta Twojej aplikacji działa w pełni normalnie, bez zawieszania się.
 
 ```php
         if ($event->type === 'checkout.session.completed') {
@@ -80,9 +90,11 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Z chirurgiczną powagą odfiltrowuję z miliona darmowych sygnałów wyłącznie ten kluczowy: zakup został w pełni ukończony i opłacony na bramce."*
 
-> **Edukacja dla Ciebie:**
-> *   `$event->type` – Ponieważ przeszliśmy zbrodniczą walidację wyżej, to już jest nasz pełen ufności obiekt Zdarzenia. Możemy do niego wejść za pomocą strzałki `->` i sprawdzić np. jego TYP (czy to jest opłacona faktura? Czy wycofana karta?).
-> *   `===` – Zawsze używa się tu trzech znaków, a nie dwóch (`==`), żeby zachować tzw. rygorystyczne typowanie danych.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `$event->type` – Sprawdzamy specyficzny TYP oficjalnego dokumentu.
+> *   `===` – Zawsze używa się tu trzech znaków (zamiast `==`), żeby wymusić identyczność formatu danych.
+>
+> **Na chłopski rozum:** Po weryfikacji paczki patrzysz do środka. Dokument może mieć tytuł "Klient zaczął wpisywać kartę" albo "Klient opłacił". Ty wyłapujesz tylko ten jeden, konkretny rodzaj papieru (`checkout.session.completed`). Inne lądują w niszczarce.
 
 ```php
             if ($session->mode === 'subscription') {
@@ -90,8 +102,10 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Zaciągam wplecione głęboko do żądania płatności klucze referencyjne z tzw. Metadanych (Metadata payload)."*
 
-> **Edukacja dla Ciebie:**
-> *   `?? null` – Operator z PHP. Mówi po prostu: "Zanurkuj głęboko do informacji płatności ($session->metadata) i weź to ID rejestracji. A jeśli z jakiegoś powodu Stripe go do nas nie wysłał w ogóle... to nie zgłaszaj błędu pustej zmiennej, tylko po prostu ustaw wartość tej zmiennej awaryjnie na `null` (Pustkę)".
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `?? null` – Null Coalescing Operator. Mówi: "Jeśli ta wartość nie istnieje w ogóle w Stripe, wstaw tu Pustkę (`null`), zamiast zwracać rzucać awarią braku zmiennej".
+>
+> **Na chłopski rozum:** To tzw. "Plan Awaryjny B". Patrzysz na wiersz "ID Rejestracji". Jeśli ktoś zapomniał go w ogóle wydrukować na papierze, nie wyrzucasz komputera przez okno (Crash). Po prostu wzruszasz ramionami, piszesz "Brak Danych" (`null`) i idziesz dalej.
 
 ```php
                 if ($registrationId) {
@@ -106,10 +120,12 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Aplikując zaawansowane skryptowanie bazy pamięciowej Redis, system Provisioningu działa w absolutnej asynchroniczności, bez udziału operatora. Tworzymy klienta od zera."*
 
-> **Edukacja dla Ciebie:**
-> *   `Cache::get(...)` – Sięgasz do tzw. Pamięci Podręcznej komputera. Gdy użytkownik kilka minut temu wypisywał formularz "Kupuję Abonament", system zamroził jego formularz w pamięci pod nazwą ID rejestracji. Teraz, gdy opłata przeszła ze Stripe, z powrotem go odmrażamy.
-> *   `create([ ... ])` – Wywołujemy w systemie akcję "Utwórz Nowego". Tworzymy fizycznie nowego klienta w bazie i nadajemy mu uprawnienia.
-> *   `forget(...)` – Bardzo ważne. Czyścimy pamięć podręczną ze śmieci. Użytkownik opłacony, nie przechowujemy już tego zamrożonego formularza dłużej.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `Cache::get(...)` – Sięgasz do Pamięci Podręcznej serwera po zapisane wcześniej dane formularza.
+> *   `create([ ... ])` – Wywołujemy instrukcję "Utwórz Nowego". Tworzymy fizycznie firmę w bazie.
+> *   `forget(...)` – Usuwamy stare dane z pamięci cache.
+>
+> **Na chłopski rozum:** Gdy użytkownik wypisywał wniosek o konto, zamroziliśmy go w systemowej "ZAMRAŻARCE" (`Cache`). Teraz, gdy dostałeś przelew od Stripe, otwierasz zamrażarkę (`Cache::get`), rozmrażasz formularz, fizycznie budujesz dla niego firmę (`create`), a opakowanie po formularzu wyrzucasz do śmieci, żeby nie robić bałaganu (`forget`).
 
 ```php
             } else {
@@ -127,9 +143,11 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Używam bezpiecznika ignorującego Globalne Zakresy z racji asynchronicznego żądania od zewnętrznego serwera, dokonuję autorskiej zmiany statusu dokumentu (State Mutation) na opłaconą."*
 
-> **Edukacja dla Ciebie:**
-> *   `} else {` – Skręt w drugą stronę. Jeśli Stripe nam wysłał potwierdzenie zapłaty, ale to NIE JEST abonament naszej firmy SaaSowej, to co to jest? To jest po prostu Zwykła Faktura (Kowalski opłacił fakturę transportową).
-> *   `withoutGlobalScopes()` – Zobacz, nie zapomnieliśmy o tym! Stripe puka "z zewnątrz", nikt nie jest formalnie "Zalogowany w systemie jako użytkownik", więc żeby system mógł podpiąć opłatę do faktury, musimy powiedzieć mu "Ściągnij na chwilę barierę ochronną, zaufaj, Stripe dostarczył hajs, oznacz fakturę jako PAID (Zapłacona)".
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `} else {` – Ścieżka awaryjna: jeśli to NIE jest płatność za abonament Twojej aplikacji, to znaczy, że to zapłata za zwykłą fakturę.
+> *   `withoutGlobalScopes()` – Zignorowanie wtyczki "BedrijfScope", by wyszukać fakturę w całej globalnej bazie danych.
+>
+> **Na chłopski rozum:** Serwer Stripe to tylko robot, a nie "zalogowany szef firmy w przeglądarce". Żeby robot miał prawo przeszukać całą bazę i odnaleźć zapłaconą fakturę, musimy mu tymczasowo wyłączyć kamery i strażników bezpieczeństwa (`withoutGlobalScopes()`), wpuścić go na sekundę do magazynu, pozwolić nakleić mu naklejkę "ZAPŁACONE" na teczkę, i wyprowadzić.
 
 ```php
         return response()->json(['status' => 'success'], 200);
@@ -138,8 +156,10 @@ class StripeWebhookController extends Controller
 ```
 **Co masz powiedzieć jury:** *"Zwieńczeniem całego systemu jest czysty kod sukcesu odsyłany automatom od Stripe."*
 
-> **Edukacja dla Ciebie:**
-> *   `return response()->json(...)` – Serwer kulturalnie odpowiada paczką formatu JSON na zewnątrz: "Dzięki Stripe, wykonałem zadanie. Zwracam Ci status `200 Success`".
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `return response()->json(...)` – Odesłanie odpowiedzi do Stripe'a z kodem HTTP 200 (Wszystko OK).
+>
+> **Na chłopski rozum:** Kurier (Stripe) wręczył Ci paczkę i pyta "Zrozumiałeś?". Ty po zrobieniu tej całej analizy, dajesz mu przysłowiowego "Kciuka w górę" (Kod `200 Success`), żeby kurier zapisał sobie, że zadanie wykonano z sukcesem.
 
 ---
 

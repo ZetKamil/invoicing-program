@@ -65,7 +65,7 @@ class CreateQuoteAction
             };
             
             $quote->items()->create([
-                'description' => 'Pakiet: ' . ucfirst($package) . ' (UzupeĹ‚nij opis szczegĂłĹ‚owy)',
+                'description' => 'Pakiet: ' . ucfirst($package) . ' (Uzupełnij opis szczegółowy)',
                 'quantity' => 1,
                 'unit_price' => $fallbackAmount,
                 'tax_rate' => 21.00,

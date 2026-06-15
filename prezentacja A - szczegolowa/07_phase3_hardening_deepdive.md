@@ -39,15 +39,14 @@ Pełna ścieżka wykonania PRZED:
 Mail::to($record->lead->email)->queue(new QuoteInquiryMail($record));
 ```
 
-Pełna ścieżka wykonania PO:
-1. Pracownik klika "Wyślij Ofertę"
-2. Filament wysyła żądanie `POST /dashboard/quotes/{id}`
-3. PHP Worker wstawia rekord do tabeli `jobs` w bazie danych (~1ms)
-4. Odpowiedź 200 OK — użytkownik widzi sukces **natychmiast**
-5. Queue Worker (działa niezależnie) pobiera zadanie i wysyła email
-6. Nawet jeśli SMTP jest niedostępny — Queue Worker retryuje z exponential backoff, użytkownik nie widzi nic złego
-
-**Konfiguracja kolejki w .env:** `QUEUE_CONNECTION=database` — już gotowe.
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `ShouldQueue` – Pusty interfejs (certyfikat), który nakleja się na klasę mailową.
+> *   `send()` – Uruchomienie synchroniczne.
+> *   `queue()` – Uruchomienie asynchroniczne (w tle).
+>
+> **Na chłopski rozum:** 
+> Interfejs `ShouldQueue` to po prostu naklejka na liście z napisem: "Proszę wysłać to później w tle". 
+> Kiedy używałeś `send()`, stawałeś przed listonoszem i krzyczałeś: "Wyślij to TERAZ przy mnie, nie obchodzą mnie naklejki!". I musiałeś stać przy nim 5 sekund tracąc czas. Zmiana na `queue()` to po prostu wrzucenie tego listu z naklejką do skrzynki i pójście do domu. System z tyłu (Worker) zajmie się resztą, a Twoja przeglądarka odzyskuje wolność w 1 milisekundę.
 
 ---
 
@@ -92,7 +91,10 @@ protected function registerPolicies(): void
 }
 ```
 
-**Co masz powiedzieć:** *"W systemie autoryzacji obowiązuje zasada fail-secure: jeśli cokolwiek pójdzie nie tak, system powinien zablokować dostęp, a nie go przyznać. Jawna rejestracja przez Gate::policy() to właśnie fail-secure — framework musi znaleźć KONKRETNĄ klasę Policy, inaczej rzuci błędem. Nie ma ciszy. Nie ma ukrytego przyznania dostępu. To enterprise security posture."*
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `Gate::policy()` – Twarda deklaracja wiążąca bazę danych z klasą ochronną.
+>
+> **Na chłopski rozum:** W systemie bezpieczeństwa panuje zasada "Fail-Secure" (Bezpieczeństwo przy awarii). Jak drzwi w banku stracą prąd, to mają się ZAMKNĄĆ na głucho, a nie otworzyć na oścież. Auto-discovery to otwieranie się drzwi przy awarii (zmianie nazwy). Twarda rejestracja `Gate::policy` to zamek elektroniczny — jak system nie znajdzie odpowiedniego strażnika na wydrukowanej liście, to rzuca błędem i nikogo nie wpuszcza.
 
 ---
 
@@ -122,9 +124,10 @@ protected $with = ['quote'];
 protected $with = ['invoice'];
 ```
 
-Teraz Eloquent zawsze ładuje relację nadrzędną razem z modelem potomnym. Policy może wywołać `$quoteItem->quote->bedrijf_id` bez nowego zapytania SQL — dane już są w pamięci.
-
-**Wynik:** 51 zapytań → 2 zapytania (1 na QuoteItem, 1 JOIN na Quote).
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `protected $with` – Zmusza model do zabierania ze sobą relacji przy każdym pobraniu z bazy.
+>
+> **Na chłopski rozum:** Brak `$with` to wezwanie kelnera 50 razy po jedną frytkę, bo zapomniałeś poprosić o cały talerz naraz. Wpisanie `$with = ['quote']` to żądanie całego talerza. Kelner idzie do kuchni (bazy) raz, przynosi Ci 50 frytek i kiedy system autoryzacji sprawdza 50 pozycji, nie musi już ganiać do kuchni 50 razy. Spadek zapytań z 51 do 2.
 
 ---
 
@@ -154,12 +157,10 @@ Schema::table('invoice_items', fn ($t) =>
 
 // 3. Optymalizuje nocny cron SendInvoiceReminders
 // Zapytanie: WHERE bedrijf_id = ? AND status = 'sent' AND due_date < ?
-// Bez indeksu due_date: baza musi po-filtrować wyniki [bedrijf_id+status] przez datę
 Schema::table('invoices', fn ($t) =>
     $t->index(['bedrijf_id', 'due_date'], 'invoices_bedrijf_due_date_index'));
 
 // 4. Optymalizuje widok historii komunikacji per faktura/oferta
-// Zapytanie: WHERE bedrijf_id = ? AND related_type = 'Invoice' AND related_id = ?
 Schema::table('communications', fn ($t) =>
     $t->index(
         ['bedrijf_id', 'related_type', 'related_id'],
@@ -167,7 +168,10 @@ Schema::table('communications', fn ($t) =>
     ));
 ```
 
-**Migracja uruchomiona:** `2026_06_10_000001_optimize_phase3_indexes` — DONE (184ms)
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `$t->index(...)` – Tworzy strukturę danych B-Tree wokół wskazanej kolumny (lub kilku kolumn).
+>
+> **Na chłopski rozum:** Jeśli masz tabelę ze 100,000 faktur, nocny robot wysyłający maile z przypomnieniem o zapłacie musiał fizycznie "przejrzeć" wszystkie 100,000 teczek w magazynie, żeby znaleźć te przeterminowane. Stworzenie indeksu `$t->index` to jak ułożenie teczek datami i wsadzenie kolorowych zakładek z napisem "Przeterminowane są w tej przegródce". Robot idzie prosto do nich w 3 milisekundy.
 
 ---
 
@@ -182,9 +186,8 @@ Route::post('/webhook/stripe', [...])->middleware('throttle:60,1');
 
 Problemy:
 - Stripe nigdy nie wyśle 60 webhooków na minutę z jednego IP — limit jest za wysoki
-- Brak nagłówka `Retry-After` w odpowiedzi — niezgodność z RFC 6585
+- Brak nagłówka `Retry-After` w odpowiedzi
 - Brak niestandardowej odpowiedzi JSON (zwraca HTML)
-- Nie można zmienić limitu bez edycji tras
 - Portal `/pay/{invoice}` nie miał **żadnego** limitu
 
 ### Rozwiązanie — Named Rate Limiters:
@@ -216,46 +219,11 @@ Route::get('/pay/{invoice}', InvoicePayPortal::class)
     ->middleware('throttle:invoice-portal'); // Nowe zabezpieczenie portalu
 ```
 
-**Co masz powiedzieć:** *"Named Rate Limiters to Laravel-idiomatyczny sposób na zdefiniowanie polityki dostępu jako kodu. Każdy named limiter to coś w rodzaju klasy — ma nazwę, logikę, konfigurowalną odpowiedź. Możemy go zmienić w jednym miejscu, możemy go monitorować osobno, możemy dołożyć key-by-user zamiast key-by-IP dla zalogowanych endpointów. Anonimowy throttle:60,1 tego nie oferuje."*
-
----
-
-## Kompletny Obraz Obrony po Fazie 3:
-
-```
-                    Internet
-                       │
-                ┌──────▼──────┐
-                │  Nginx/Apache│
-                └──────┬───────┘
-                       │
-           ┌───────────▼──────────────┐
-           │      Laravel Router       │
-           │  ┌────────────────────┐  │
-           │  │ throttle:stripe-   │  │ ← 30 req/min per IP
-           │  │ webhooks           │  │   (Stripe Webhook)
-           │  └────────────────────┘  │
-           │  ┌────────────────────┐  │
-           │  │ throttle:invoice-  │  │ ← 10 req/min per IP
-           │  │ portal             │  │   (Pay Portal)
-           │  └────────────────────┘  │
-           │  ┌────────────────────┐  │
-           │  │ Filament Auth +    │  │ ← 5 req/min
-           │  │ throttle:login     │  │   (Login)
-           │  └────────────────────┘  │
-           └───────────┬──────────────┘
-                       │
-           ┌───────────▼──────────────┐
-           │    BedrijfScope (Global)   │ ← Automatyczna izolacja SQL
-           │    Gate::policy()         │ ← Explicit Policy Registration
-           │    N+1 Eager Loading      │ ← $with = ['quote'/'invoice']
-           └───────────┬──────────────┘
-                       │
-           ┌───────────▼──────────────┐
-           │    SQLite z Indeksami     │ ← Composite B-Tree indexes
-           │    (Phase 2 + Phase 3)    │   na wszystkich hot-path queries
-           └──────────────────────────┘
-```
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `RateLimiter::for(...)` – Tworzy i nazywa precyzyjną regułę blokującą.
+> *   `Limit::perMinute(...)` – Matematyczny limit ilości odwiedzin.
+>
+> **Na chłopski rozum:** Zwykły `throttle` to tępy bramkarz z darmowym licznikiem kliknięć w ręce. Wpuści każdego, kto zdąży kliknąć 60 razy. Wysłanie niestandardowej odpowiedzi JSON (`response(...)`) i limitowanie do IP to tak, jakby dać temu bramkarzowi tablet, listę gości z nazwiskami i kazać mu drukować grzeczne bileciki z napisem "Przepraszamy, za duży tłok, wróć za 10 minut". 
 
 ---
 

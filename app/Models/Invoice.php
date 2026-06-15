@@ -97,8 +97,8 @@ class Invoice extends Model
         $this->subtotal = bcadd($sub, '0', 2);
         $this->tax_total = bcadd($tax, '0', 2);
         
-        // Zgodnie z zasadami ksiÄ™gowoĹ›ci: kwota caĹ‚kowita = suma netto + suma podatku.
-        // Gwarantuje to brak rozjazdu o 1 grosz na Ĺ‚Ä…cznym dokumencie.
+        // Zgodnie z zasadami księgowości: kwota całkowita = suma netto + suma podatku.
+        // Gwarantuje to brak rozjazdu o 1 grosz na łącznym dokumencie.
         $this->total_amount = bcadd($this->subtotal, $this->tax_total, 2);
         
         $this->saveQuietly();

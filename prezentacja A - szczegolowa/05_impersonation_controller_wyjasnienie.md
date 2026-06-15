@@ -21,8 +21,13 @@ use Illuminate\Http\Request;
 class ImpersonationController extends Controller
 {
 ```
-**Co to jest:** Pusty schemat organizacyjny wewnątrz Laravela podpinający się pod przestrzeń kontrolerów oraz wprowadzający narzędzia operacyjne takie jak zapytania z Front-endu (Request). Fasada Filament jest wprost ściągnięta z jądra platformy TALL stack.
-**Co masz powiedzieć:** *"Korzystam tu ze statycznego Proxy środowiska operacyjnego Laravela - popularnych Fasad (Facades). Dają mi one nieskrępowany autoryzowany dostęp odgórny po szynie komunikacyjnej na żądanie."*
+**Co masz powiedzieć jury:** *"Korzystam tu ze statycznego Proxy środowiska operacyjnego Laravela - popularnych Fasad (Facades). Dają mi one nieskrępowany autoryzowany dostęp odgórny po szynie komunikacyjnej na żądanie."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `Controller` – Klasa bazowa kontrolera, odbierająca żądania HTTP.
+> *   `Facades` – "Fasady". Są to statyczne nakładki na potężne systemy wewnątrz frameworka (np. Fasada `Filament` pozwala szybko zarządzać całym interfejsem admina).
+>
+> **Na chłopski rozum:** Fasada to taki "Pilot do telewizora". Zamiast rozkręcać telewizor, szukać kabli i lutować styki żeby zmienić kanał (skomplikowany kod wewnątrz systemu), masz ładny pilot z guzikiem (Fasada). Naciskasz `Filament::` i dzieje się magia, a telewizor załatwia resztę za Ciebie.
 
 ```php
     public function leave(Request $request)
@@ -30,15 +35,24 @@ class ImpersonationController extends Controller
         if (session()->has('impersonated_by')) {
             $superAdminId = session('impersonated_by');
 ```
-**Co to jest:** Rozpoczęcie funkcji. System przeszukuje wewnętrzne surowe dane z tablicy przechowującej dane użytkownika (session) szukając kryptograficznego klucza `impersonated_by`. Przypisuje ten element na ułamek sekundy do bezpiecznej zmiennej, przygotowując powrót.
-**Co masz powiedzieć:** *"Inicjując wyjście z trybu awaryjnego (Impersonacji), skanuję w locie bazę podręcznej sesji w poszukiwaniu tzw. Kotwicy Identyfikacyjnej (Anchor ID), za pomocą której mam udowodnić kto de facto się ukrywał pod powłoką konta."*
+**Co masz powiedzieć jury:** *"Inicjując wyjście z trybu awaryjnego (Impersonacji), skanuję w locie bazę podręcznej sesji w poszukiwaniu tzw. Kotwicy Identyfikacyjnej (Anchor ID), za pomocą której mam udowodnić kto de facto się ukrywał pod powłoką konta."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `session()->has(...)` – Funkcja sprawdzająca, czy w aktualnej przeglądarce użytkownika istnieje w ciasteczkach (pamięci sesyjnej) konkretny klucz o nazwie `impersonated_by`.
+> *   `session('impersonated_by')` – Wyciągnięcie wartości tego klucza (czyli ukrytego ID prawdziwego Administratora).
+>
+> **Na chłopski rozum:** System przeszukuje kieszenie gościa. Pyta: "Czy masz przy sobie specjalny numerek z szatni (`has`)?". Jeśli tak, bierze ten numerek do ręki (`$superAdminId = ...`), żeby udowodnić, że jesteś właścicielem kurtki administratora, a nie zwykłym klientem.
 
 ```php
             // Bypass BedrijfScope to find the Super Admin in the DB
             $superAdmin = User::withoutGlobalScopes()->find($superAdminId);
 ```
-**Co to jest:** Super Admin ma zablokowany dostęp do odczytu danych w cudzej firmie. Żeby powrócić na swoje konto i dociągnąć o sobie wszystkie zasady uprawnień bez rzucenia blokady przez framework bezpieczeństwa – wstrzykujesz w Buildera bazodanowego funkcję `withoutGlobalScopes()`.
-**Co masz powiedzieć:** *"Ponieważ jądro modelu User podlega całkowitej kontroli filtra zapór multi-dostępowych `BedrijfScope` - bez możliwości obejścia z zewnątrz, serwer zaciąłby się nie znajdując moich bazowych uprawnień administracyjnych w bazie zamkniętej z `AND bedrijf_id = 'cudzefirmyid'`. Używam techniki Global Scopes Bypass ignorując autoryzację do wyciągnięcia bezwzględnie profilu administratora po ID ULIDzie."*
+**Co masz powiedzieć jury:** *"Ponieważ jądro modelu User podlega całkowitej kontroli filtra zapór multi-dostępowych `BedrijfScope` - bez możliwości obejścia z zewnątrz, serwer zaciąłby się nie znajdując moich bazowych uprawnień administracyjnych w bazie zamkniętej. Używam techniki Global Scopes Bypass ignorując autoryzację do wyciągnięcia bezwzględnie profilu administratora po ID ULIDzie."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `withoutGlobalScopes()` – Tymczasowe wyłączenie nałożonych wcześniej filtrów `Scope` (jak nasz plugin `BedrijfScope`) na czas jednego zapytania.
+>
+> **Na chłopski rozum:** To jest "Klucz Francuski" (Master Override). Jesteś Super Adminem, ale wszedłeś w skórę klienta, więc system traktuje Cię jak klienta i zamknął przed Tobą drzwi do innych firm. Żeby wyciągnąć z bazy Twój PRAWDZIWY profil administratora, musisz użyć tego łomu (`withoutGlobalScopes`), by ignorować strażników i przeszukać wszystkie pokoje w całej bazie naraz.
 
 ```php
             if ($superAdmin) {
@@ -46,16 +60,26 @@ class ImpersonationController extends Controller
                 $guardName = Filament::getCurrentOrDefaultPanel()?->getAuthGuard() ?? 'web';
                 $sessionGuard = auth()->guard($guardName);
 ```
-**Co to jest:** W tak potężnym rozwiązaniu, logowanie nie dzieje się z jednej ścieżki (tzw. Guards w Laravelu). Kod z niezwykłą dozą bezpieczeństwa automatycznie dopytuje się frameworka (poprzez Fasadę `Filament`), na jakim systemie ochrony jesteśmy zapięci (czy standardowym 'web' czy np. na oddzielnym do API). Wyciągamy ochroniarza na przód, uzyskując pełen dostęp do strażnicy.
-**Co masz powiedzieć:** *"Bezpieczna detekcja strażnicy chronionej (Authenticaton Guards Detection). Zapytuję serwer o konfigurację kontekstu używając natywnych operatorów PHP 8."*
+**Co masz powiedzieć jury:** *"Bezpieczna detekcja strażnicy chronionej (Authenticaton Guards Detection). Zapytuję serwer o konfigurację kontekstu używając natywnych operatorów PHP 8."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `getAuthGuard()` – Zwraca nazwę aktywnego systemu logowania (tzw. Strażnika / Guard).
+> *   `?->` i `??` – Operatory PHP 8 zabezpieczające przed błędami Null. "Jeśli Panel istnieje, daj mi Guarda, a jak Guarda nie ma, użyj awaryjnie słowa 'web'".
+>
+> **Na chłopski rozum:** Duża aplikacja może mieć różne metody wejścia na imprezę. Dopytujesz organizatora (Filament): "Powiedz mi, jaka agencja ochrony dzisiaj tutaj weryfikuje wejściówki?". Odpowiedź przypisujesz do zmiennej.
 
 ```php
                 // Clear the client's auth data from the session
                 session()->forget($sessionGuard->getName());
                 session()->forget($sessionGuard->getRecallerName());
 ```
-**Co to jest:** Ręczne wyszorowanie ciastek ze starym klientem z operacyjnej pamięci komputera. `getRecallerName` to nazwa niewidocznego ciastka "Zapamiętaj mnie" z logowania w systemie. System brutalnie wyrzuca go z przeglądarki.
-**Co masz powiedzieć:** *"Za pomocą twardych modyfikacji surowych tablic ramowych – wymuszam fizyczne wypięcie kluczy sesyjnych (Wiping the Authenticator Payload) związanych z fałszywą skorupą."*
+**Co masz powiedzieć jury:** *"Za pomocą twardych modyfikacji surowych tablic ramowych – wymuszam fizyczne wypięcie kluczy sesyjnych (Wiping the Authenticator Payload) związanych z fałszywą skorupą."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `forget()` – Zmusza system do natychmiastowego zniszczenia wybranych danych z pamięci ciasteczkowej.
+> *   `getRecallerName()` – To ukryta nazwa ciasteczka generowanego gdy zaznaczysz pole "Zapamiętaj mnie" przy logowaniu.
+>
+> **Na chłopski rozum:** Szorujesz odciski palców. Zdejmujesz przebranie klienta, które przed chwilą nosiłeś. Każesz systemowi bezlitośnie zapomnieć, że w ogóle nosiłeś to przebranie, a przy okazji wyrywasz z komputera wszelkie ciasteczka "Zapamiętaj mnie" powiązane z tym klientem.
 
 ```php
                 // Clear the package's impersonation flags
@@ -66,16 +90,25 @@ class ImpersonationController extends Controller
                     'remember_web',
                 ]);
 ```
-**Co to jest:** Sprzątanie. Usuwanie z serwera po stronie aplikacji wszystkich flag pamięciowych od dostawcy paczek (Vendora). Serwer wyzerowany przed logowaniem "powrotowym".
-**Co masz powiedzieć:** *"Usuwam również tzw. Payload Contextualny od twórców zewnętrznych paczek, czyszcząc ślady pod cykl GC (Garbage Collection), przygotowując pamięć procesora na twardy powrót instancji klas."*
+**Co masz powiedzieć jury:** *"Usuwam również tzw. Payload Contextualny od twórców zewnętrznych paczek, czyszcząc ślady pod cykl GC (Garbage Collection), przygotowując pamięć procesora na twardy powrót instancji klas."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   Usuwamy całą tablicę flag, które zewnętrzna wtyczka zostawiła w naszym systemie podczas Wcielania się.
+>
+> **Na chłopski rozum:** Wycierasz kurze w mieszkaniu przed oddaniem kluczy. Wywalasz wszystkie żółte karteczki (flagi), które informowały komputer: "Uwaga, ten facet to tak naprawdę przebieraniec". Chcesz, żeby komputer zaczął z totalnie czystą kartą.
 
 ```php
                 // Manually inject the Super Admin's ID into the session 
                 // This correctly avoids triggering a password_hash check failure in AuthenticateSession!
                 session()->put($sessionGuard->getName(), $superAdmin->getAuthIdentifier());
 ```
-**Co to jest:** Klucz i wybitnie chytre zagranie w inżynierii bezpieczeństwa. Zamiast logować użytkownika metodą wyższego rzędu `login()`, piszesz RĘCZNIE unikalny z powrotem wpis do bazy wpisując na wprost z powrotem klucz admina do pliku bez sprawdzania przez frameworka hasła, maila, pinu itp.
-**Co masz powiedzieć:** *"Napisanie tego w tradycyjny sposób (`auth()->login($admin)`) stanowi wektor zagrożenia. Kiedy Laravel wczytuje taką komendę na otwartej i przypisanej pamięci do innej osoby w przeglądarce, zderza się to z blokadą sprzętową od uciskania wektorów ataków Session Hijacking (Kradzież ciastka sesji), niszcząc sesję z automatu po błędem kryptograficznym o braku spójności starego hasła z nowym użytkownikiem. Moja implementacja tzw. "Surowego Hakowania Danych" bezszelestnie, proceduralnie pomija proces logowania podmieniając klucz za plecami procesora walidacji uwierzytelnień."*
+**Co masz powiedzieć jury:** *"Napisanie tego w tradycyjny sposób stanowi wektor zagrożenia. Kiedy Laravel zderza tradycyjne logowanie z nałożoną sesją innej osoby, niszczy sesję błędem kryptograficznym o braku spójności starego hasła z nowym użytkownikiem. Moja implementacja tzw. "Surowego Hakowania Danych" bezszelestnie, proceduralnie pomija proces logowania podmieniając klucz za plecami procesora walidacji uwierzytelnień."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `session()->put(...)` – Forsuje wpisanie konkretnych wartości BEZPOŚREDNIO do rdzenia pliku sesji (omijając weryfikacje haseł).
+> *   `getAuthIdentifier()` – To po prostu ID użytkownika (np. numer `1`).
+>
+> **Na chłopski rozum:** To jest Twój ostateczny napad hakerski. Zamiast wejść oficjalnie przez frontowe drzwi (formularz logowania i hasło), co wywołałoby alarm ochroniarzy, Ty włamujesz się w nocy prosto do budki strażniczej i dopisujesz na tablicy sucho flamastrem: "Zalogowany jest teraz szef". Ochroniarze rano patrzą na tablicę i myślą, że wszystko jest ok.
 
 ```php
                 // Also clear the password_hash from the session so the middleware 
@@ -85,9 +118,13 @@ class ImpersonationController extends Controller
                 // Force the auth system to reload the user object from the session on the next request
                 auth()->forgetGuards();
 ```
-**Co to jest:** Genialne zwieńczenie haku z akapitu wyżej. Aby nie rozjuszyć programu sprawdzającego kradzieże danych (czyli `AuthenticateSession Middleware`), który by szukał w ciastkach starego hasha w starej sesji klienta – wyrywamy i niszczymy komendą `forget` odcisk `password_hash` z serwera całkowicie w ułamku sekundy dla tego klienta.
-Następnie komenda `forgetGuards()` dosłownie usuwa załadowaną z pamięci wizualizację starego klienta, zanim przeglądarka zdąży załadować grafikę, upewniając się, że następne zapytanie o model `$user` wymusi czytanie ze świeżo uzupełnionych nowym kluczem danych.
-**Co masz powiedzieć:** *"Żeby utrzymać zaporę bezpieczeństwa Session Hijacking (`AuthenticateSession`) w stabilnym trybie zaufania w Laravel 11, stosuję prewencyjną amnezję i wyczyszczenie ukrytego parametru skrótowego `password_hash_web` z bazy operacyjnej. Brak obcego Hasła zmusza wewnętrzny middleware frameworku na wywołanie świeżego zapytania z bazy dla wstrzykniętego sekundę temu administratora celem wygenerowania sobie nowego odcisku obronnego, ignorując jakąkolwiek próbę wyłączenia instancji. Dodatkowy `forgetGuards()` upewnia się, że na koniec obróbki serwer nie wyciągnie po starych cache'owych kluczach pamięci przestarzałych struktur."*
+**Co masz powiedzieć jury:** *"Żeby utrzymać zaporę bezpieczeństwa Session Hijacking (`AuthenticateSession`) w stabilnym trybie zaufania w Laravel 11, stosuję prewencyjną amnezję i wyczyszczenie ukrytego parametru skrótowego `password_hash` z bazy operacyjnej. Dodatkowy `forgetGuards()` upewnia się, że na koniec obróbki serwer nie wyciągnie z cache'u przestarzałych struktur."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `forget('password_hash...')` – Usuwamy stary odcisk palca hasła klienta.
+> *   `auth()->forgetGuards()` – Resetuje instancję systemu autoryzacji w aktualnie trwającym przeładowaniu strony.
+>
+> **Na chłopski rozum:** System w Laravel 11 jest tak mądry, że pamiętałby w głowie, jakie hasło miał KLIENT z poprzedniej sekundy. Gdyby zobaczył na tablicy dopisane "zalogowany szef" (z kodu wyżej), a w pamięci miałby "hasło klienta", włączyłby alarm, krzycząc: "Złodziej kradnie ciasteczko!". Komendami wyżej aplikujesz systemowi pigułkę na Amnestję. Zmuszasz go, żeby wyrzucił z głowy stare odciski palców i wyzerował kamery.
 
 ```php
             } else {
@@ -101,8 +138,14 @@ Następnie komenda `forgetGuards()` dosłownie usuwa załadowaną z pamięci wiz
     }
 }
 ```
-**Co to jest:** Na sam koniec skrypt wędruje przez zapasowe śluzy "else". Jeśli admin uciął kabel z prądem w chwili wylogowania lub usunął z bazy samego siebie sekundę wcześniej – wyrzucamy twardy błąd do awaryjnego logu w pamięci, a ostatecznie przeglądarka po sprzątnięciu z serwera przerzuca "Zadowolonego Admina" spowrotem na swój `/dashboard` bezpiecznym przejściem Redirecta z usunięciem wbudowanego tagu za pomocą opcji "wyciągnij i wyrzuć" zwaną z angielskiego funkcją `pull()`.
-**Co masz powiedzieć:** *"Jeśli odnajdywanie powrotnego operatora na jakimś abstrakcyjnym etapie zawiedzie ze względu na usunięty z bazy rekord od strony zaplecza w czasie pracy, wpis wyciągnie błąd na stałe do dzienników zrzutu bazy w postaci rygorystycznego w logach polecenia Log::Error – co nie blokuje wylogowania samej powłoki na front-endzie. Następuje ostateczne wyrzucenie flagi sesji przez `pull()`, co finalizuje proces Redirecta w czystej klasie z wyzbyciem się pozostałości w pamięci RAM."*
+**Co masz powiedzieć jury:** *"Jeśli odnajdywanie powrotnego operatora zawiedzie, wpis wyciągnie błąd na stałe do dzienników w postaci rygorystycznego polecenia Log::Error – co nie blokuje wylogowania samej powłoki na front-endzie. Następuje ostateczne wyrzucenie flagi sesji przez `pull()`, co finalizuje proces Redirecta w czystej klasie z wyzbyciem się pozostałości w pamięci RAM."*
+
+> **Edukacja dla Ciebie (Pojęcia w kodzie):**
+> *   `Log::error(...)` – Niewidzialny dla użytkownika zapis do pliku dziennika w awaryjnych sytuacjach na zapleczu.
+> *   `redirect(...)` – Wyślij przeglądarkę do konkretnego adresu URL.
+> *   `pull(...)` – Wyciąga dane z pamięci po raz OSTATNI, od razu je kasując za sobą (metoda Destructive Read).
+>
+> **Na chłopski rozum:** Spadasz ze sceny jak bohater kina akcji. Komenda `redirect` to wrzucenie się na spadochronie z powrotem do bezpiecznego Głównego Kokpitu (Dashboardu) Super Admina. Z kolei `pull` to zniszczenie za sobą odznaki i biletu windziarza tuż po użyciu – raz pociągasz za rączkę spadochronu i od razu wyrzucasz ją do rzeki, żeby nikt inny nie mógł jej użyć. 
 
 ---
 
