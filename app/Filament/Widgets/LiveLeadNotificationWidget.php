@@ -80,7 +80,7 @@ class LiveLeadNotificationWidget extends Widget
 
         // Send a Filament toast notification alongside the widget update
         \Filament\Notifications\Notification::make()
-            ->title('🚛 New Lead Received!')
+            ->title('🔔 New Lead Received!')
             ->body(($data['company_name'] ?? 'Unknown') . ' — ' . ($data['package'] ?? '') . ' package')
             ->success()
             ->duration(8000)

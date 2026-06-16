@@ -43,15 +43,5 @@
                 </div>
             @endforeach
         </div>
-    @else
-        {{-- Idle state — show WebSocket connection indicator --}}
-        <div class="mb-4 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 flex items-center gap-2">
-            <span class="relative flex h-2 w-2">
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
-            </span>
-            <p class="text-xs text-slate-500">
-                Reverb WebSocket connected — waiting for incoming leads in real time
-            </p>
-        </div>
     @endif
 </div>
