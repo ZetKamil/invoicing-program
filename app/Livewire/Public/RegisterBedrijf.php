@@ -67,8 +67,8 @@ class RegisterBedrijf extends Component
                         <flux:input wire:model="password" type="password" label="Password" required />
 
                         <flux:radio.group wire:model="plan" label="Subscription Plan" required>
-                            <flux:radio value="start" label="Start Plan (â‚¬49/mo)" description="Perfect for small logistics teams." />
-                            <flux:radio value="pro" label="Pro Plan (â‚¬149/mo)" description="Advanced features for enterprise." />
+                            <flux:radio value="start" label="Start Plan (€49/mo)" description="Perfect for small logistics teams." />
+                            <flux:radio value="pro" label="Pro Plan (€149/mo)" description="Advanced features for enterprise." />
                         </flux:radio.group>
 
                         <div class="pt-4">

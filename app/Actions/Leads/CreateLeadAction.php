@@ -15,7 +15,7 @@ class CreateLeadAction
      * After saving the Lead, dispatches LeadSubmittedEvent which broadcasts
      * via Laravel Reverb to the private `dispatcher.{bedrijfId}` WebSocket channel.
      * Dispatchers see a real-time notification in the Filament dashboard without
-     * refreshing â€” eliminating the polling latency bottleneck.
+     * refreshing — eliminating the polling latency bottleneck.
      */
     public function execute(array $data): Lead
     {
@@ -38,7 +38,7 @@ class CreateLeadAction
 
         // Broadcast real-time notification to all authenticated dispatchers
         // belonging to this bedrijf via the private Reverb WebSocket channel.
-        // Uses ShouldBroadcast â€” dispatched through the queue for zero HTTP latency.
+        // Uses ShouldBroadcast — dispatched through the queue for zero HTTP latency.
         LeadSubmittedEvent::dispatch($lead);
 
         return $lead;

@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
  * Broadcasting Architecture:
  *  - Implements ShouldBroadcast so Laravel dispatches this event through the
  *    configured broadcast driver (Reverb WebSocket server).
- *  - Broadcasts on a PRIVATE channel `dispatcher.{bedrijfId}` â€” the `private-`
+ *  - Broadcasts on a PRIVATE channel `dispatcher.{bedrijfId}` — the `private-`
  *    prefix is enforced by Laravel Echo on the frontend, and the channel
  *    authorization callback in routes/channels.php verifies the user is an
  *    authenticated member of the target bedrijf before subscribing.
@@ -25,9 +25,9 @@ use Illuminate\Queue\SerializesModels;
  *    sensitive internal IDs or relationships in broadcast payloads.
  *
  * Dispatcher Notification Flow:
- *  Public Form Submit â†’ CreateLeadAction â†’ LeadSubmittedEvent::dispatch()
- *      â†’ Reverb Server â†’ Private Channel â†’ Filament Dashboard Widget
- *      â†’ Dispatcher sees toast notification with lead details IN REAL TIME
+ *  Public Form Submit → CreateLeadAction → LeadSubmittedEvent::dispatch()
+ *      → Reverb Server → Private Channel → Filament Dashboard Widget
+ *      → Dispatcher sees toast notification with lead details IN REAL TIME
  */
 class LeadSubmittedEvent implements ShouldBroadcast
 {
@@ -44,7 +44,7 @@ class LeadSubmittedEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * Uses a PRIVATE channel scoped to the bedrijf â€” prevents cross-bedrijf
+     * Uses a PRIVATE channel scoped to the bedrijf — prevents cross-bedrijf
      * data leakage via WebSocket subscriptions.
      *
      * @return array<Channel>

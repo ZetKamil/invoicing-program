@@ -35,7 +35,7 @@ class ProductSeeder extends Seeder
             Product::create([
                 'bedrijf_id' => $bedrijf->id,
                 'name' => 'Master-Digit: Software Licentie & Support',
-                'description' => 'Yearly SaaS license / equivalent to â‚¬50/mo MRR.',
+                'description' => 'Yearly SaaS license / equivalent to €50/mo MRR.',
                 'price' => 600.00,
                 'type' => ProductType::LICENSE,
                 'is_recurring' => true,

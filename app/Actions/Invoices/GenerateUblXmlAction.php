@@ -18,7 +18,7 @@ class GenerateUblXmlAction
      *    and benefits from Blade's auto-escaping for XSS prevention in XML values).
      *  - Validates the rendered output with PHP's DOMDocument parser before storage.
      *    If the document is not well-formed XML, a UblGenerationException is thrown BEFORE
-     *    writing anything to disk â€” preventing a corrupt XML file from being stored.
+     *    writing anything to disk — preventing a corrupt XML file from being stored.
      *  - Throws UblGenerationException (not generic Exception) so callers can catch
      *    Peppol-specific failures independently from other errors.
      *
@@ -48,7 +48,7 @@ class GenerateUblXmlAction
             libxml_clear_errors();
             $firstError = ! empty($errors) ? $errors[0]->message : 'Unknown XML parse error';
 
-            Log::error('UBL XML generation failed â€” malformed XML output', [
+            Log::error('UBL XML generation failed — malformed XML output', [
                 'invoice_id'     => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
                 'xml_error'      => $firstError,

@@ -48,8 +48,8 @@
                                 <tr class="border-b border-slate-50">
                                     <td class="py-4 text-slate-800">{{ $item->description }}</td>
                                     <td class="py-4 text-slate-600 text-right">{{ $item->quantity }}</td>
-                                    <td class="py-4 text-slate-600 text-right">â‚¬{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="py-4 text-slate-800 font-medium text-right">â‚¬{{ number_format($item->total, 2) }}</td>
+                                    <td class="py-4 text-slate-600 text-right">€{{ number_format($item->unit_price, 2) }}</td>
+                                    <td class="py-4 text-slate-800 font-medium text-right">€{{ number_format($item->total, 2) }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -65,15 +65,15 @@
                     <div class="w-1/2 max-w-sm">
                         <div class="flex justify-between py-2 text-sm text-slate-600">
                             <span>Subtotal</span>
-                            <span>â‚¬{{ number_format($invoice->subtotal, 2) }}</span>
+                            <span>€{{ number_format($invoice->subtotal, 2) }}</span>
                         </div>
                         <div class="flex justify-between py-2 text-sm text-slate-600 border-b border-slate-100">
                             <span>Tax (21%)</span>
-                            <span>â‚¬{{ number_format($invoice->tax_total, 2) }}</span>
+                            <span>€{{ number_format($invoice->tax_total, 2) }}</span>
                         </div>
                         <div class="flex justify-between py-3 text-lg font-bold text-slate-900 border-b-2 border-slate-800">
                             <span>Total Due</span>
-                            <span class="text-blue-600">â‚¬{{ number_format($invoice->total_amount, 2) }}</span>
+                            <span class="text-blue-600">€{{ number_format($invoice->total_amount, 2) }}</span>
                         </div>
                     </div>
                 </div>

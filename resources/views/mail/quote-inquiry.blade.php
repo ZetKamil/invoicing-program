@@ -21,7 +21,7 @@
         <p>Thank you for your interest in our services. Please find below the summary of your requested quote (<strong>{{ $quote->quote_number }}</strong>).</p>
         
         <div class="total">
-            Total Amount: â‚¬{{ number_format($quote->total_amount, 2) }}
+            Total Amount: €{{ number_format($quote->total_amount, 2) }}
         </div>
         
         <p>This quote is valid until {{ $quote->valid_until->format('d M Y') }}.</p>

@@ -19,7 +19,7 @@ class StripeService
      */
     public function createCheckoutSessionForInvoice(Invoice $invoice)
     {
-        // FINANCIAL PRECISION: BCMath cents conversion â€” never use round($amount * 100).
+        // FINANCIAL PRECISION: BCMath cents conversion — never use round($amount * 100).
         // round() uses PHP float multiplication internally. On certain decimal values, IEEE 754
         // drift causes round(x * 100) to produce the wrong integer (off by 1 cent).
         // bcmul('12345.67', '100', 0) = '1234567' (exact), then cast to int.

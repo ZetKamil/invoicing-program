@@ -19,22 +19,22 @@ class InvoicePayPortal extends Component
      * WITHOUT #[Locked]: Livewire serializes the property value into a signed browser snapshot.
      * An attacker using DevTools can intercept the Livewire POST request and swap this ULID
      * to any other invoice ID. On hydration, Livewire would re-fetch that invoice and pass it
-     * to pay() â€” creating a Stripe session for someone else's invoice.
+     * to pay() — creating a Stripe session for someone else's invoice.
      *
      * WITH #[Locked]: Any attempt to modify this value from the browser triggers a
-     * "CannotBindToComponentDataWithoutValidation" exception â€” Livewire refuses to hydrate
+     * "CannotBindToComponentDataWithoutValidation" exception — Livewire refuses to hydrate
      * the tampered request entirely.
      *
      * We store the ID (string) rather than the Eloquent model (public Invoice $invoice)
      * because Livewire serializes models into the DOM snapshot. A string ULID has minimal
-     * attack surface â€” there is nothing to tamper with structurally.
+     * attack surface — there is nothing to tamper with structurally.
      */
     #[Locked]
     public string $invoiceId = '';
 
     public function mount(Invoice $invoice): void
     {
-        // Store only the ID â€” never the full model â€” in component state.
+        // Store only the ID — never the full model — in component state.
         $this->invoiceId = $invoice->id;
     }
 
@@ -44,7 +44,7 @@ class InvoicePayPortal extends Component
         // using the locked ID. This guarantees we always operate on the authoritative
         // server state, not on any potentially stale or tampered browser snapshot.
         //
-        // We use withoutGlobalScopes() because this is a PUBLIC portal â€” the customer
+        // We use withoutGlobalScopes() because this is a PUBLIC portal — the customer
         // accessing their invoice is not authenticated as a bedrijf user.
         $invoice = Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId);
 
@@ -88,7 +88,7 @@ class InvoicePayPortal extends Component
 
     public function render()
     {
-        // Re-fetch fresh data on every render â€” never trust stale hydrated model state.
+        // Re-fetch fresh data on every render — never trust stale hydrated model state.
         $invoice = Invoice::withoutGlobalScopes()
             ->with(['bedrijf', 'customer', 'items'])
             ->findOrFail($this->invoiceId);

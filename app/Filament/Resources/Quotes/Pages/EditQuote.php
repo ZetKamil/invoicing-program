@@ -56,7 +56,7 @@ class EditQuote extends EditRecord
                         return;
                     }
 
-                    // Queue the email â€” QuoteInquiryMail implements ShouldQueue, so we must
+                    // Queue the email — QuoteInquiryMail implements ShouldQueue, so we must
                     // use ->queue() (not ->send()) to avoid blocking the HTTP worker thread.
                     \Illuminate\Support\Facades\Mail::to($record->lead->email)->queue(new \App\Mail\QuoteInquiryMail($record));
 

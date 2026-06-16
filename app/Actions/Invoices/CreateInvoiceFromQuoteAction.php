@@ -22,9 +22,9 @@ class CreateInvoiceFromQuoteAction
             $taxRate  = '21.00';
             $subtotal = (string) $quote->total_amount;
 
-            // Tax = subtotal Ă— 21%  â†’ bcmul with scale 2 rounds to cent precision
+            // Tax = subtotal × 21%  → bcmul with scale 2 rounds to cent precision
             $taxTotal    = bcmul($subtotal, bcdiv($taxRate, '100', 10), 2);
-            // Total = subtotal + tax â†’ bcadd with scale 2
+            // Total = subtotal + tax → bcadd with scale 2
             $totalAmount = bcadd($subtotal, $taxTotal, 2);
 
             $currentYear = date('Y');

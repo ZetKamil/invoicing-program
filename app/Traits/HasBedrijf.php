@@ -14,9 +14,11 @@ trait HasBedrijf
     public static function bootHasBedrijf(): void
     {
         static::addGlobalScope(new BedrijfScope());
-
+        /**
+         * opstaart van event listener met anonyme functie
+         */
         static::creating(function (Model $model) {
-            if (\Illuminate\Support\Facades\Auth::hasUser() && ! $model->bedrijf_id) {
+            if (\Illuminate\Support\Facades\Auth::hasUser() && !$model->bedrijf_id) {
                 $model->bedrijf_id = \Illuminate\Support\Facades\Auth::user()->bedrijf_id;
             }
         });

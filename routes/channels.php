@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Broadcast;
 | Laravel calls this callback with the authenticated user.
 |
 | The callback must return true/false. If false, the subscription is rejected
-| and the client receives a 403 â€” preventing unauthorized users from listening
+| and the client receives a 403 — preventing unauthorized users from listening
 | to another bedrijf's real-time notifications.
 |
 */

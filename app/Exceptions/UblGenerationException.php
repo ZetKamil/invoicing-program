@@ -9,7 +9,7 @@ use RuntimeException;
  *
  * This exception separates XML compliance failures from general application
  * errors. It allows callers (e.g. GenerateInvoicePdfAction) to catch and
- * handle UBL failures independently â€” ensuring PDF generation succeeds even
+ * handle UBL failures independently — ensuring PDF generation succeeds even
  * when the XML pipeline is broken, and providing structured logging for
  * Peppol Access Point rejection debugging.
  *

@@ -58,10 +58,10 @@ class CreateQuoteAction
         } else {
             // Fallback if product not found in database
             $fallbackAmount = match($package) {
-                'start'      => '99.00',
-                'pro'        => '199.00',
-                'enterprise' => '0.00',
-                default      => '500.00',
+                'start'      => '850.00',
+                'pro'        => '2450.00',
+                'enterprise' => '600.00',
+                default      => '850.00',
             };
             
             $quote->items()->create([

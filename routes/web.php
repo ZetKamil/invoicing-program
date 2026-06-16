@@ -19,7 +19,7 @@ Route::get('/pay/{invoice}', \App\Livewire\Public\InvoicePayPortal::class)
 
 // Stripe Webhook Handler
 // Uses a named rate limiter (registered in AppServiceProvider) instead of
-// the generic throttle:60,1 â€” provides proper Retry-After headers and
+// the generic throttle:60,1 — provides proper Retry-After headers and
 // limits to 30 req/min per IP (Stripe never sends more than 1 per event).
 Route::post('/webhook/stripe', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])
     ->middleware('throttle:stripe-webhooks')

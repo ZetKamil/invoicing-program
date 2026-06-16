@@ -8,28 +8,28 @@
       <div class="footer-col">
         <h4>Navigatie</h4>
         <ul>
-          <li><a href="{{ url('/diensten') }}">Diensten & Pakketten</a></li>
-          <li><a href="{{ url('/#smartquote') }}">Smart Quote</a></li>
-          <li><a href="{{ url('/cases') }}">Realisaties</a></li>
-          <li><a href="{{ url('/blog') }}">Blog</a></li>
+          <li><a href="{{ url('/') }}#services">Diensten & Pakketten</a></li>
+          <li><a href="{{ url('/') }}#smartquote">Smart Quote</a></li>
+          <li><a href="{{ url('/') }}#testimonials">Realisaties</a></li>
+          <li><a href="{{ url('/') }}#blog">Blog</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Juridisch</h4>
         <ul>
-          <li><a href="#">Privacybeleid</a></li>
-          <li><a href="#">Algemene voorwaarden</a></li>
-          <li><a href="#">Cookie-instellingen</a></li>
-          <li><a href="#">BTW: BE 0XXX.XXX.XXX</a></li>
+          <li><a href="javascript:void(0)">Privacybeleid</a></li>
+          <li><a href="javascript:void(0)">Algemene voorwaarden</a></li>
+          <li><a href="javascript:void(0)">Cookie-instellingen</a></li>
+          <li style="font-size: 13.5px; color: var(--dim); padding-top: 5px;">BTW: BE 0XXX.XXX.XXX</li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
         <ul>
-          <li><a href="#">info@transdigitmaster.be</a></li>
-          <li><a href="#">West-Vlaanderen, België</a></li>
-          <li><a href="#">LinkedIn</a></li>
-          <li><a href="{{ url('/#audit') }}">Gratis audit</a></li>
+          <li><a href="mailto:info@transdigitmaster.be">info@transdigitmaster.be</a></li>
+          <li><a href="javascript:void(0)" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Neem contact op</a></li>
+          <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+          <li><a href="{{ url('/') }}#audit">Gratis audit</a></li>
         </ul>
       </div>
     </div>
