@@ -13,11 +13,37 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
-    'bedrijf_id', 'customer_type', 'customer_id', 'quote_id', 'invoice_number', 'trailer_type',
-    'subtotal', 'tax_total', 'total_amount', 'ubl_xml_path',
-    'buyer_reference', 'notes', 'cmr_number', 'truck_license_plate', 'trailer_license_plate',
-    'loading_address', 'delivery_address', 'loading_date', 'delivery_date', 'due_date', 'stripe_payment_intent_id',
-    'paid_at', 'status', 'last_reminder_sent_at', 'cargo_weight_kg', 'pallet_count', 'incoterms', 'driver_name', 'driver_phone', 'is_reverse_charge', 'cmr_document_path'
+    'bedrijf_id',
+    'customer_type',
+    'customer_id',
+    'quote_id',
+    'invoice_number',
+    'trailer_type',
+    'subtotal',
+    'tax_total',
+    'total_amount',
+    'ubl_xml_path',
+    'buyer_reference',
+    'notes',
+    'cmr_number',
+    'truck_license_plate',
+    'trailer_license_plate',
+    'loading_address',
+    'delivery_address',
+    'loading_date',
+    'delivery_date',
+    'due_date',
+    'stripe_payment_intent_id',
+    'paid_at',
+    'status',
+    'last_reminder_sent_at',
+    'cargo_weight_kg',
+    'pallet_count',
+    'incoterms',
+    'driver_name',
+    'driver_phone',
+    'is_reverse_charge',
+    'cmr_document_path'
 ])]
 class Invoice extends Model
 {
@@ -96,11 +122,11 @@ class Invoice extends Model
 
         $this->subtotal = bcadd($sub, '0', 2);
         $this->tax_total = bcadd($tax, '0', 2);
-        
-        // Zgodnie z zasadami księgowości: kwota całkowita = suma netto + suma podatku.
-        // Gwarantuje to brak rozjazdu o 1 grosz na łącznym dokumencie.
+
+        // Volgens de boekhoudprincipes geldt: totaalbedrag = nettobedrag + belastingbedrag.
+        //  Dit zorgt ervoor dat er geen verschil van 1 cent in het totaalbedrag staat.
         $this->total_amount = bcadd($this->subtotal, $this->tax_total, 2);
-        
+
         $this->saveQuietly();
     }
 }

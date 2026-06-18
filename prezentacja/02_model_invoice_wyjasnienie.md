@@ -84,10 +84,19 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+
+    public function recalculateTotals(): void
+    {
+        // ... kod obliczający sumy z użyciem BCMath ...
+    }
 }
 ```
-**Co to jest:** Klasyczna relacja "Jeden-do-Wielu" (One-to-Many). Każda faktura składa się z wielu pozycji. Ta funkcja to most łączący z tabelą InvoiceItems.
-**Co masz powiedzieć:** *"Zwieńczeniem modelu jest definicja klasycznej encji jeden-do-wielu dla wierszy na dokumencie fakturowym, rozwiązana z zachowaniem dobrych praktyk nazewnictwa metod Eloquent."*
+**Co to jest:** Klasyczna relacja "Jeden-do-Wielu" (One-to-Many) łącząca z tabelą InvoiceItems. Następnie znajduje się potężna metoda `recalculateTotals()`, wykorzystująca moduł BCMath (np. `bcmul`, `bcadd`) do przeliczania podatków i sum częściowych linijka po linijce.
+**Co masz powiedzieć:** *"Zwieńczeniem modelu jest definicja klasycznej encji jeden-do-wielu dla wierszy na dokumencie fakturowym. Pod nią zaimplementowałem autorską logikę `recalculateTotals()`. 
+
+Dane wewnątrz pętli pochodzą bezpośrednio z pozycji na fakturze (tabela `invoice_items`). Świadomie odrzuciłem standardowe operatory matematyczne PHP (takie jak `*` czy `+`), które w systemach informatycznych są obarczone błędem precyzji zmiennoprzecinkowej IEEE 754. Zamiast tego, wykorzystałem niskopoziomową bibliotekę BCMath (Binary Calculator), gwarantując stuprocentową, księgową precyzję na każdym etapie obliczeń. 
+
+Aby jednak biblioteka BCMath działała z całkowitą dokładnością, wymaga przekazania do niej liczb nie w typie klasycznym (float/int), ale jako tekst (string). Dlatego rygorystycznie wymuszam to rzutowaniem typu `(string) $item->quantity` przed każdym obliczeniem. Gwarantuje to, że ominiemy fizyczne ograniczenia architektury procesora w obliczeniach zmiennoprzecinkowych, zapobiegając rozjazdowi salda na koniec roku księgowego o choćby jeden grosz."*
 
 ---
 

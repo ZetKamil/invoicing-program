@@ -1,7 +1,0 @@
-
-### [2026-06-11 11:39] - Task: Expose Line Items in QuoteForm
-- **Files Modified:** `app/Filament/Resources/Quotes/Schemas/QuoteForm.php`
-- **Technical Logic:** Added a Filament `Repeater` for the `items` relationship to `QuoteForm.php`. This allows the user to add and edit line items (which contain the `description`, `quantity`, `unit_price`, etc.) directly from the Filament UI, making the quotes meaningful rather than just a total sum.
-- **Senior Concept:** Database Normalization & UI Relationship Mapping. Instead of creating a redundant `description` column on the `Quote` model, we exposed the existing `QuoteItem` relationship. The backend `QuoteItemObserver` automatically calculates line totals and rolls them up to the Quote total via BCMath to avoid float precision issues.
-- **Exam Defense Tip:** "To ensure proper financial tracking, I exposed the Line Items relationship in the UI rather than adding a static text description to the Quote. This allows the backend observers to calculate precise totals per line using BCMath, preventing IEEE 754 floating-point errors."
-- **Keywords to Learn:** `Repeater`, `Observer`, `BCMath`

@@ -252,10 +252,10 @@
       background: rgba(212,255,0,0.05);
     }
     .popular-label {
-      position: absolute; top: 20px; right: 20px;
+      position: absolute; top: 0; right: 0;
       background: var(--orange); color: var(--accent-text);
       font-size: 11px; font-weight: 700;
-      padding: 4px 12px; border-radius: 100px;
+      padding: 6px 16px; border-radius: 0 16px 0 16px;
       letter-spacing: 0.6px; text-transform: uppercase;
     }
     .pkg-tier {
@@ -309,10 +309,10 @@
     }
     .steps-grid::after {
       content: '';
-      position: absolute; top: 32px; left: 12.5%; right: 12.5%; height: 1px;
+      position: absolute; top: 42px; left: 12.5%; right: 12.5%; height: 1px;
       background: linear-gradient(90deg, transparent, var(--border-o), transparent);
     }
-    .step { text-align: center; padding: 10px 20px; }
+    .step { text-align: center; padding: 10px 20px; position: relative; z-index: 1; }
     .step-num {
       width: 64px; height: 64px; border-radius: 50%;
       background: var(--navy-card);
@@ -323,7 +323,7 @@
       position: relative; z-index: 1;
       transition: background 0.3s, border-color 0.3s;
     }
-    .step:hover .step-num { background: rgba(212,255,0,0.12); border-color: var(--orange); }
+    .step:hover .step-num { background: linear-gradient(rgba(212,255,0,0.12), rgba(212,255,0,0.12)), var(--navy-card); border-color: var(--orange); }
     .step-title {
       font-family: 'Outfit', sans-serif; font-weight: 700;
       font-size: 16px; color: #fff; margin-bottom: 9px;
@@ -386,7 +386,7 @@
       font-weight: 800; color: var(--orange); line-height: 1;
     }
     .sb-num span { color: var(--text); }
-    .sb-label { font-size: 13px; color: rgba(9,9,11,0.78); margin-top: 5px; font-weight: 600; }
+    .sb-label { font-size: 13px; color: var(--muted); margin-top: 5px; font-weight: 600; }
 
     /* ===== AUDIT ===== */
     #audit { padding: 100px 0; background: var(--navy-mid); }
