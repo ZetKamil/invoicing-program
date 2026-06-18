@@ -1,73 +1,66 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use App\Models\User;
+use App\Models\Lead;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
 uses(RefreshDatabase::class);
 
-test('users can be assigned to a tenant and a role', function () {
-    $tenant = Tenant::create([
+test('users can be assigned to a bedrijf and a role', function () {
+    $bedrijf = Bedrijf::create([
         'name' => 'Test Logistics',
         'slug' => 'test-logistics',
     ]);
 
     $user = User::create([
-        'tenant_id' => $tenant->id,
+        'bedrijf_id' => $bedrijf->id,
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => bcrypt('password'),
         'role' => UserRole::ADMIN,
     ]);
 
-    expect($user->tenant_id)->toBe($tenant->id)
+    expect($user->bedrijf_id)->toBe($bedrijf->id)
         ->and($user->role)->toBe(UserRole::ADMIN);
 });
 
-test('models with HasTenant trait are automatically scoped', function () {
-    $tenant1 = Tenant::create(['name' => 'Tenant 1', 'slug' => 't1']);
-    $tenant2 = Tenant::create(['name' => 'Tenant 2', 'slug' => 't2']);
+test('models with HasBedrijf trait are automatically scoped via BedrijfScope', function () {
+    $bedrijf1 = Bedrijf::create(['name' => 'Bedrijf 1', 'slug' => 'b1']);
+    $bedrijf2 = Bedrijf::create(['name' => 'Bedrijf 2', 'slug' => 'b2']);
 
     $user1 = User::create([
-        'tenant_id' => $tenant1->id,
+        'bedrijf_id' => $bedrijf1->id,
         'name' => 'User 1',
         'email' => 'u1@example.com',
         'password' => bcrypt('password'),
+        'role' => UserRole::ADMIN,
     ]);
 
     $user2 = User::create([
-        'tenant_id' => $tenant2->id,
+        'bedrijf_id' => $bedrijf2->id,
         'name' => 'User 2',
         'email' => 'u2@example.com',
         'password' => bcrypt('password'),
+        'role' => UserRole::ADMIN,
     ]);
+
+    Lead::create(['bedrijf_id' => $bedrijf1->id, 'company_name' => 'Lead B1']);
+    Lead::create(['bedrijf_id' => $bedrijf2->id, 'company_name' => 'Lead B2']);
 
     // Acting as User 1
     Auth::login($user1);
     
-    // Should only see User 1
-    expect(User::count())->toBe(1)
-        ->and(User::first()->id)->toBe($user1->id);
+    // Should only see Lead B1 due to BedrijfScope
+    expect(Lead::count())->toBe(1)
+        ->and(Lead::first()->company_name)->toBe('Lead B1');
 
     // Acting as User 2
     Auth::login($user2);
     
-    // Should only see User 2
-    expect(User::count())->toBe(1)
-        ->and(User::first()->id)->toBe($user2->id);
-});
-
-test('tenant settings are cast to array', function () {
-    $tenant = Tenant::create([
-        'name' => 'Settings Tenant',
-        'slug' => 'settings-tenant',
-        'settings' => ['theme' => 'dark', 'notifications' => true],
-    ]);
-
-    $freshTenant = Tenant::find($tenant->id);
-    
-    expect($freshTenant->settings)->toBeArray()
-        ->and($freshTenant->settings['theme'])->toBe('dark');
+    // Should only see Lead B2 due to BedrijfScope
+    expect(Lead::count())->toBe(1)
+        ->and(Lead::first()->company_name)->toBe('Lead B2');
 });

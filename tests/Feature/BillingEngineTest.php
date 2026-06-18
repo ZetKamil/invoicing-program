@@ -6,7 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lead;
 use App\Models\Product;
-use App\Models\Tenant;
+use App\Models\Bedrijf;
 use App\Models\User;
 use App\Enums\ProductType;
 use App\Enums\InvoiceStatus;
@@ -19,12 +19,12 @@ class BillingEngineTest extends TestCase
 
     public function test_can_create_product_with_ulid()
     {
-        $tenant = Tenant::factory()->create();
+        $bedrijf = Bedrijf::factory()->create();
         
         $product = Product::create([
-            'tenant_id' => $tenant->id,
-            'name' => 'SEO Audit',
-            'description' => 'Comprehensive SEO report',
+            'bedrijf_id' => $bedrijf->id,
+            'name' => 'Transport Service',
+            'description' => 'Pallet transport',
             'price' => 500.00,
             'type' => ProductType::SERVICE,
             'is_recurring' => false,
@@ -32,27 +32,27 @@ class BillingEngineTest extends TestCase
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
-            'name' => 'SEO Audit',
+            'name' => 'Transport Service',
         ]);
         
         $this->assertIsString($product->id);
         $this->assertEquals(26, strlen($product->id));
     }
 
-    public function test_invoice_item_total_is_calculated_automatically()
+    public function test_invoice_totals_are_calculated_by_observer()
     {
-        $tenant = Tenant::factory()->create();
+        $bedrijf = Bedrijf::factory()->create();
         $product = Product::create([
-            'tenant_id' => $tenant->id,
-            'name' => 'SEO Audit',
+            'bedrijf_id' => $bedrijf->id,
+            'name' => 'Pallet Transport',
             'price' => 100.00,
             'type' => ProductType::SERVICE,
         ]);
 
-        $user = User::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->create(['bedrijf_id' => $bedrijf->id]);
         
         $invoice = Invoice::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'customer_type' => User::class,
             'customer_id' => $user->id,
             'invoice_number' => 'INV-001',
@@ -63,29 +63,37 @@ class BillingEngineTest extends TestCase
         $item = InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_id' => $product->id,
-            'description' => 'SEO Audit Item',
+            'description' => 'Transport',
             'quantity' => 2,
             'unit_price' => 100.00,
             'tax_rate' => 21.00,
+            // total is calculated by observer, so we don't set it here explicitly
         ]);
 
-        // 2 * 100 * 1.21 = 242.00
+        // Refresh the models to see the observer's changes
+        $item->refresh();
+        $invoice->refresh();
+
+        // 2 * 100 = 200 (subtotal), 200 * 0.21 = 42 (tax), total = 242
         $this->assertEquals(242.00, $item->total);
+        $this->assertEquals(200.00, $invoice->subtotal);
+        $this->assertEquals(42.00, $invoice->tax_total);
+        $this->assertEquals(242.00, $invoice->total_amount);
     }
 
     public function test_invoice_can_belong_to_lead_or_user()
     {
-        $tenant = Tenant::factory()->create();
+        $bedrijf = Bedrijf::factory()->create();
         
-        $user = User::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->create(['bedrijf_id' => $bedrijf->id]);
         $lead = Lead::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'company_name' => 'Test Corp',
             'contact_person' => 'John Doe',
         ]);
 
         $invoiceUser = Invoice::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'customer_type' => User::class,
             'customer_id' => $user->id,
             'invoice_number' => 'INV-USER',
@@ -93,7 +101,7 @@ class BillingEngineTest extends TestCase
         ]);
 
         $invoiceLead = Invoice::create([
-            'tenant_id' => $tenant->id,
+            'bedrijf_id' => $bedrijf->id,
             'customer_type' => Lead::class,
             'customer_id' => $lead->id,
             'invoice_number' => 'INV-LEAD',

@@ -48,7 +48,7 @@ class CreateInvoiceFromQuoteAction
                 'delivery_address'      => $quote->delivery_address,
                 'delivery_date'         => $quote->delivery_date,
                 'incoterms'             => $quote->incoterms,
-                'notes'                 => $quote->description,
+                'notes'                 => $this->buildNotes($quote),
                 'subtotal'              => $subtotal,
                 'tax_total'             => $taxTotal,
                 'total_amount'          => $totalAmount,
@@ -88,5 +88,19 @@ class CreateInvoiceFromQuoteAction
 
             return $invoice;
         });
+    }
+
+    private function buildNotes(Quote $quote): ?string
+    {
+        $notes = $quote->description;
+
+        if (is_array($quote->metadata) && count($quote->metadata) > 0) {
+            $notes .= "\n\nSpeciale Transportvereisten:\n";
+            foreach ($quote->metadata as $key => $val) {
+                $notes .= "- {$key}: {$val}\n";
+            }
+        }
+
+        return trim($notes) ?: null;
     }
 }

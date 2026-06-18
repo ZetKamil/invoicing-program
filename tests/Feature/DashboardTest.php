@@ -8,10 +8,10 @@ test('guests are redirected to the login page', function () {
 });
 
 test('authenticated users can visit the dashboard', function () {
-    $tenant = \App\Models\Tenant::factory()->create(['stripe_subscription_status' => 'active']);
+    $bedrijf = \App\Models\Bedrijf::factory()->create(['stripe_subscription_status' => 'active']);
     $user = User::factory()->create([
         'role' => \App\Enums\UserRole::ADMIN,
-        'tenant_id' => $tenant->id,
+        'bedrijf_id' => $bedrijf->id,
     ]);
     $this->actingAs($user);
 

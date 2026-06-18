@@ -75,6 +75,7 @@ class InvoiceSeeder extends Seeder
                     'tax_total' => $taxTotal,
                     'total_amount' => $total + $taxTotal,
                     'paid_at' => $status === InvoiceStatus::PAID ? now() : null,
+                    'stripe_payment_intent_id' => $status === InvoiceStatus::PAID ? 'pi_seeder_' . \Illuminate\Support\Str::random(17) : null,
                 ]);
             }
         }

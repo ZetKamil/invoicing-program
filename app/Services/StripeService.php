@@ -41,7 +41,7 @@ class StripeService
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('invoice.pay', ['invoice' => $invoice->id]) . '?success=true',
+            'success_url' => route('invoice.pay', ['invoice' => $invoice->id]) . '?success=true&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('invoice.pay', ['invoice' => $invoice->id]) . '?canceled=true',
             'metadata' => [
                 'invoice_id' => $invoice->id,

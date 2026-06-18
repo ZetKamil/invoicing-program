@@ -261,6 +261,7 @@ class ClientDemoSeeder extends Seeder
                     'paid_at'        => $status === InvoiceStatus::PAID
                                             ? now()->subDays(rand(1, 20))
                                             : null,
+                    'stripe_payment_intent_id' => $status === InvoiceStatus::PAID ? 'pi_demo_' . \Illuminate\Support\Str::random(19) : null,
                     'trailer_type'   => $set['lead']->metadata['trailer_type'] ?? collect(['Huifwagen', 'Koelwagen', 'Container'])->random(),
                     'cargo_weight_kg' => $set['lead']->metadata['cargo_weight_kg'] ?? rand(10000, 24000),
                     'pallet_count'   => $set['lead']->metadata['pallet_count'] ?? rand(10, 33),

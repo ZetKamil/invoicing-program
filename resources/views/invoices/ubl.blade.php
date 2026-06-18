@@ -66,8 +66,12 @@
             <cbc:TaxableAmount currencyID="EUR">{{ number_format($invoice->subtotal, 2, '.', '') }}</cbc:TaxableAmount>
             <cbc:TaxAmount currencyID="EUR">{{ number_format($invoice->tax_total, 2, '.', '') }}</cbc:TaxAmount>
             <cac:TaxCategory>
-                <cbc:ID>S</cbc:ID>
-                <cbc:Percent>21.00</cbc:Percent>
+                <cbc:ID>{{ $invoice->is_reverse_charge ? 'AE' : 'S' }}</cbc:ID>
+                <cbc:Percent>{{ $invoice->is_reverse_charge ? '0.00' : '21.00' }}</cbc:Percent>
+                @if($invoice->is_reverse_charge)
+                <cbc:TaxExemptionReasonCode>AE</cbc:TaxExemptionReasonCode>
+                <cbc:TaxExemptionReason>Reverse charge</cbc:TaxExemptionReason>
+                @endif
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
@@ -86,12 +90,12 @@
     <cac:InvoiceLine>
         <cbc:ID>{{ $index + 1 }}</cbc:ID>
         <cbc:InvoicedQuantity unitCode="EA">{{ $item->quantity }}</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="EUR">{{ number_format($item->total, 2, '.', '') }}</cbc:LineExtensionAmount>
+        <cbc:LineExtensionAmount currencyID="EUR">{{ number_format($item->quantity * $item->unit_price, 2, '.', '') }}</cbc:LineExtensionAmount>
         <cac:Item>
             <cbc:Name>{{ $item->description }}</cbc:Name>
             <cac:ClassifiedTaxCategory>
-                <cbc:ID>S</cbc:ID>
-                <cbc:Percent>21.00</cbc:Percent>
+                <cbc:ID>{{ $invoice->is_reverse_charge ? 'AE' : 'S' }}</cbc:ID>
+                <cbc:Percent>{{ $invoice->is_reverse_charge ? '0.00' : number_format($item->tax_rate, 2, '.', '') }}</cbc:Percent>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>

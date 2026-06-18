@@ -36,6 +36,33 @@ class InvoicePayPortal extends Component
     {
         // Store only the ID — never the full model — in component state.
         $this->invoiceId = $invoice->id;
+
+        // Fallback for missing local webhooks: Check Stripe session synchronously
+        $sessionId = request()->query('session_id');
+        if ($sessionId && $invoice->status !== \App\Enums\InvoiceStatus::PAID) {
+            try {
+                \Stripe\Stripe::setApiKey(config('services.stripe.secret', 'sk_test_dummy'));
+                $session = \Stripe\Checkout\Session::retrieve($sessionId);
+                
+                if ($session->payment_status === 'paid') {
+                    $invoice->update([
+                        'status' => \App\Enums\InvoiceStatus::PAID,
+                        'paid_at' => now(),
+                        'stripe_payment_intent_id' => $session->payment_intent ?? null,
+                    ]);
+                    
+                    app(\App\Actions\Communications\LogCommunicationAction::class)->execute(
+                        $invoice->bedrijf_id,
+                        'Invoice Mark As Paid via Stripe (Sync Fallback)',
+                        $invoice,
+                        \App\Enums\CommType::SYSTEM,
+                        'Stripe Checkout Session ID: ' . $session->id
+                    );
+                }
+            } catch (\Exception $e) {
+                // Silently ignore Stripe API errors on public portal mount
+            }
+        }
     }
 
     public function pay(StripeService $stripeService)

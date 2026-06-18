@@ -84,6 +84,7 @@ class Invoice extends Model
 > *   `array` – Zadeklarowany typ zwracany: funkcja musi oddać tablicę/listę.
 > *   `=>` – Operator przypisania w tablicy (klucz przypisany do wartości).
 > *   `::class` – Bezwzględna ścieżka do obiektu wyciągana w formie tekstu.
+> *   `Cast` (Rzutowanie) – Wymuszenie na systemie (w locie), by w momencie czytania/zapisu surowych danych z bazy automatycznie zamienił je na sprytniejszy obiekt lub konkretny typ (np. tekst na liczbę dziesiętną albo na Enum).
 > *   `Enum` (Wyliczeniowiec) – Specjalny obiekt w PHP (np. `InvoiceStatus`), który zawiera sztywną, zamkniętą listę dozwolonych opcji (np. tylko: DRAFT, SENT, PAID).
 >
 > **Na chłopski rozum:**
@@ -105,10 +106,10 @@ class Invoice extends Model
 
 > **Edukacja dla Ciebie (Pojęcia w kodzie):**
 > *   `: MorphTo` – Silne typowanie zwracanego wyniku. Informuje kompilator, że wraca obiekt specyficznej relacji polimorficznej.
-> *   `$this->morphTo()` – Uruchamia dynamiczne wiązanie polimorficzne na bazie kolumn z sufiksem `_type` i `_id`.
+> *   `$this->morphTo()` – `$this` to w programowaniu "JA SAM" (czyli w tym przypadku Faktura). Metoda `morphTo()` jest niezwykle inteligentna: patrzy na nazwę funkcji (`customer`), domyśla się, że w bazie musi istnieć kolumna `customer_id` oraz `customer_type`, i na ich podstawie automatycznie szuka powiązanego klienta.
 >
 > **Na chłopski rozum:**
-> Relacja polimorficzna `MorphTo` to po prostu "Uniwersalny Pilot RTV". Nie ma on przypisanego jednego na stałe telewizora. Model sam patrzy w bazę na pole `customer_type` i wie z niego: "Aha! Przesuwam przełącznik na pilocie! Tym razem obsługuję Lead'a, a nie Klienta!". Dzięki temu Faktura może wystawiona na cokolwiek – i na firmę, i na osobę prywatną, bez dodawania kolejnych niepotrzebnych kolumn w bazie.
+> Pytasz: *"Dlaczego nie ma tu słowa Invoice ani nazwy konkretnego klienta?"*. Bo relacja polimorficzna `MorphTo` to po prostu "Uniwersalny Pilot RTV". Ten pilot (`$this`) nie ma przypisanego jednego na stałe telewizora. Model sam zagląda do własnej teczki (Faktury) i patrzy na pole `customer_type`. Widzi np. wpis "App\Models\Lead" i mówi: "Aha! Przesuwam przełącznik na pilocie! Tym razem obsługuję wstępny Lead, a nie stałego Klienta!". Dzięki temu Faktura może być wystawiona absolutnie na cokolwiek – i na firmę, i na osobę prywatną, bez dodawania dziesiątek pustych kolumn w bazie (np. `lead_id`, `client_id`, `company_id`).
 
 ```php
     public function items(): HasMany
@@ -122,8 +123,12 @@ class Invoice extends Model
 > **Edukacja dla Ciebie (Pojęcia w kodzie):**
 > *   `HasMany` – Typ relacji bazy danych jeden-do-wielu (One to Many).
 > *   `$this->hasMany(...)` – Znajduje połączone rekordy w obcej tabeli posiłkując się id_faktury.
+> *   `InvoiceItem::class` – Bezwzględny adres do innego pliku w systemie (modelu). Używamy `::class` zamiast zwykłego tekstu `"App\Models\InvoiceItem"`, aby uchronić się przed literówkami (edytor od razu wykryje błąd) i móc szybko klikać w kod, by przeskoczyć do tego pliku.
 >
-> **Na chłopski rozum:** `HasMany` ("Ma wiele") to klasyczny "Segregator na rachunki". Mówisz Fakturze: "Weź swój własny numer ID, pójdź do szafy pełnej wszystkich pozycji na świecie (InvoiceItems) i wyciągnij całą teczkę linijek, które mają napisany Twój numerek".
+> **Na chłopski rozum:** 
+> Wyobraź sobie wydrukowaną fakturę. Sama kartka papieru (z datą, danymi firmy, podsumowaniem) to nasz główny model `Invoice`. Natomiast pojedyncze linijki tekstu na tej kartce (np. "Usługa transportowa", "Ubezpieczenie", "Palety") to są właśnie **InvoiceItems**. Rozbijając to na dwa pliki osiągamy nieskończoną skalowalność – na jednej "kartce" możesz zmieścić i zsumować 1000 linijek usług. 
+> Funkcja `HasMany` ("Ma wiele") to klasyczny "Segregator na rachunki". Mówisz Fakturze: "Weź swój własny numer ID, pójdź do szafy pełnej wszystkich linijek na świecie i wyciągnij z niej tylko te, na których z tyłu naklejono Twój numerek".
+> **Zaraz... gdzie w tym kodzie wpisany jest ten numer ID?** Pytasz: *"Gdzie tu wpisujemy, że chodzi o fakturę nr 1?"*. Odpowiedź brzmi: **nigdzie**, bo ten plik (Model) to tylko "przepis na stworzenie robota". Kiedy klient klika na stronie "Pokaż Fakturę nr 5", program (w Zupełnie Innym Pliku – np. w Kontrolerze) ładuje z bazy konkretną fakturę. W tym momencie ten wywołany robot ożywa i to on staje się naszym `$this`. Gdy wykonujemy relację `hasMany`, ten żywy robot patrzy do własnych bebechów, widzi swoje wbudowane ID (np. 5) i sam automatycznie układa sobie zapytanie do bazy (`WHERE invoice_id = 5`). My w ogóle nie musimy mu go podawać!
 
 ```php
     public function recalculateTotals(): void
