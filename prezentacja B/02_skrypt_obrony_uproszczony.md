@@ -32,19 +32,23 @@ Linijka 17: `->required()` oraz Linijka 31: `->email()`
 
 ---
 
-## 🕒 KROK 2: Ochrona Danych (Multi-Tenant & Global Scopes)
+## 🕒 KROK 2: Cykl Żądania i Architektura Multi-Tenancy (Middleware, Trait, Global Scope)
 
 **Akcja na ekranie (UI):** 
 Wpisujesz poprawne dane klienta i klikasz Zapisz. Wraca Cię do listy klientów, gdzie widać Twojego nowego klienta.
 
 **Kod do otwarcia w IDE:** 
-Otwórz plik `app/Models/Scopes/BedrijfScope.php`
+Najpierw otwórz `app/Traits/HasBedrijf.php`, a następnie `app/Models/Scopes/BedrijfScope.php`.
 
-**Zaznacz myszką w kodzie:** 
-Linijka 16 (lub okoliczna): `$builder->where($model->getTable() . '.bedrijf_id', $user->bedrijf_id);`
+**Zaznacz myszką w kodzie (`HasBedrijf.php`):** 
+Linijki 14-25, gdzie znajduje się metoda `bootHasBedrijf()`.
 
 **Co mówisz (Słowo w słowo):**
-> "Klient został zapisany. Ale skąd system wie, że to mój klient, a nie innej firmy transportowej na tym serwerze? Zastosowałem wzorzec **Global Scope**. Ten plik, który teraz pokazuję, automatycznie wstrzykuje klauzulę SQL `WHERE bedrijf_id = X` do **każdego** zapytania w systemie. Nie muszę o tym pamiętać w kontrolerach. To gwarantuje absolutną hermetyczność danych – wyciek faktur między firmami jest niemożliwy."
+> "Zanim powiem jak te dane zapisały się w bazie, muszę nakreślić architekturę przepływu. Żądanie z formularza HTTP najpierw przechodzi przez **Middleware autentykacji**. To bardzo wczesny etap, na którym framework weryfikuje ciastko sesyjne i ładuje do pamięci serwera obiekt użytkownika wraz z jego `bedrijf_id`.
+> 
+> Mając użytkownika w pamięci, kontroler zleca zapis. Używam tu architektury Multi-Tenancy. Aby zachować kod zgodny z zasadą DRY, stworzyłem Trait `HasBedrijf`. Jak widzicie, podpinam w nim event `creating`. Kiedy ORM chce zrobić Insert, zatrzymuje na moment proces, wyciąga z pamięci (od Middleware) identyfikator firmy i dokleja go do modelu.
+> *(Przełącz się na plik BedrijfScope.php)*
+> W tym samym traicie rejestruję również `BedrijfScope`. Z kolei jego zadaniem jest bezpieczeństwo odczytu. Scope przechwytuje zapytania typu SELECT już w Query Builderze i na twardo dokleja klauzulę `WHERE bedrijf_id = X`. Całkowicie uwalnia to moje kontrolery od powtarzania tej logiki."
 
 ---
 
@@ -114,7 +118,7 @@ Nauczyciel zapyta o konkrety. Wykuj te odpowiedzi:
 
 ### Pytanie 3: "W pasku URL widzę np. /invoices/2. Co by było, gdybym w przeglądarce zmienił dwójkę na ID faktury innej firmy?"
 **Twoja odpowiedź:**
-> "Atak typu IDOR (Insecure Direct Object Reference) się nie uda. Na początku prezentacji pokazywałem Państwu plik `BedrijfScope.php`. Zanim Laravel w ogóle wyciągnie fakturę numer 3, dokleja do zapytania `WHERE bedrijf_id = <moje id>`. Baza danych odpowie po prostu `404 Not Found`, ponieważ pod moją firmą nie istnieje faktura z takim ID. Dodatkowo nad modelem czuwa plik `InvoicePolicy.php`, autoryzujący samą próbę wyświetlenia rekordu."
+> "Atak typu IDOR (Insecure Direct Object Reference) się nie uda. Jak pokazywałem wcześniej omawiając architekturę Multi-Tenancy, odpowiada za to Global Scope rejestrowany przez Trait `HasBedrijf`. Zanim system w ogóle spróbuje pobrać fakturę numer 2, klasa `BedrijfScope` automatycznie, na poziomie Query Buildera, dokleja do zapytania `WHERE bedrijf_id = <moje id z sesji>`. Baza danych odpowie po prostu `404 Not Found`, ponieważ w wyizolowanej przestrzeni mojej firmy nie istnieje faktura z takim ID. Dodatkowo nad modelem czuwa plik `InvoicePolicy.php`, który jako druga warstwa zabezpieczeń na poziomie samej aplikacji autoryzuje próbę dostępu do rekordu."
 
 ### Pytanie 4: "Przechowujesz sesję. Jak uchronisz użytkownika przed atakiem typu XSS i przejęciem ciasteczka z sesją (Session Hijacking)?"
 **Twoja odpowiedź:**
