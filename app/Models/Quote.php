@@ -12,35 +12,35 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['bedrijf_id', 'lead_id', 'quote_number', 'trailer_type', 'loading_address', 'delivery_address', 'description', 'metadata', 'total_amount', 'valid_until', 'status', 'last_reminded_at', 'cargo_weight_kg', 'pallet_count', 'loading_date', 'delivery_date', 'incoterms'])]
-class Quote extends Model
-{
-    /** @use HasFactory<\Database\Factories\QuoteFactory> */
-    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    #[Fillable(['bedrijf_id', 'customer_id', 'quote_number', 'trailer_type', 'loading_address', 'delivery_address', 'description', 'metadata', 'total_amount', 'valid_until', 'status', 'last_reminded_at', 'cargo_weight_kg', 'pallet_count', 'loading_date', 'delivery_date', 'incoterms'])]
+    class Quote extends Model
     {
-        return [
-            'valid_until' => 'date',
-            'total_amount' => 'decimal:2',
-            'status' => QuoteStatus::class,
-            'last_reminded_at' => 'datetime',
-            'metadata' => 'array',
-        ];
-    }
-
-    /**
-     * Get the lead that owns the quote.
-     */
-    public function lead(): BelongsTo
-    {
-        return $this->belongsTo(Lead::class);
-    }
+        /** @use HasFactory<\Database\Factories\QuoteFactory> */
+        use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
+    
+        /**
+         * Get the attributes that should be cast.
+         *
+         * @return array<string, string>
+         */
+        protected function casts(): array
+        {
+            return [
+                'valid_until' => 'date',
+                'total_amount' => 'decimal:2',
+                'status' => QuoteStatus::class,
+                'last_reminded_at' => 'datetime',
+                'metadata' => 'array',
+            ];
+        }
+    
+        /**
+         * Get the customer that owns the quote.
+         */
+        public function customer(): BelongsTo
+        {
+            return $this->belongsTo(Customer::class);
+        }
 
     /**
      * Scope a query to only include overdue/expired quotes.

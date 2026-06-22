@@ -20,6 +20,21 @@ class InvoiceForm
             ->components([
                 Section::make('Factuurgegevens')
                     ->schema([
+                        \Filament\Forms\Components\MorphToSelect::make('customer')
+                            ->label('Klant / Afnemer')
+                            ->types([
+                                \Filament\Forms\Components\MorphToSelect\Type::make(\App\Models\Customer::class)
+                                    ->titleAttribute('company_name')
+                                    ->label('Bestaande Klant'),
+                                \Filament\Forms\Components\MorphToSelect\Type::make(\App\Models\Lead::class)
+                                    ->titleAttribute('company_name')
+                                    ->label('Lead / Aanvraag'),
+                            ])
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->columnSpanFull(),
+
                         TextInput::make('invoice_number')
                             ->label('Factuurnummer')
                             ->required()

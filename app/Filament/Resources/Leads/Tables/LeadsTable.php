@@ -61,6 +61,39 @@ class LeadsTable
                             
                         return redirect()->to(\App\Filament\Resources\Quotes\QuoteResource::getUrl('edit', ['record' => $quote->id]));
                     }),
+                \Filament\Actions\Action::make('convert_to_customer')
+                    ->label('Maak Klant aan')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Klant aanmaken')
+                    ->modalDescription('Weet je zeker dat je van deze aanvraag een vaste klant wilt maken?')
+                    ->action(function (\App\Models\Lead $record) {
+                        $customer = \App\Models\Customer::where('bedrijf_id', $record->bedrijf_id)
+                            ->where(function($q) use ($record) {
+                                $q->where('company_name', $record->company_name)
+                                  ->orWhere('email', $record->email);
+                            })->first();
+
+                        if (!$customer) {
+                            \App\Models\Customer::create([
+                                'bedrijf_id' => $record->bedrijf_id,
+                                'company_name' => $record->company_name,
+                                'contact_person' => $record->contact_person,
+                                'email' => $record->email,
+                                'phone' => $record->phone,
+                            ]);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Klant succesvol aangemaakt!')
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Deze klant (Bedrijfsnaam of e-mail) bestaat al in het systeem.')
+                                ->warning()
+                                ->send();
+                        }
+                    }),
                 \Filament\Actions\Action::make('reject')
                     ->label('Wijzen af')
                     ->icon('heroicon-o-x-circle')

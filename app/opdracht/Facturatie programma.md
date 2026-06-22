@@ -1,58 +1,406 @@
-# Master-Digit: Realizacja Wymagań i Architektura
+EINDOPDRACHT
+1. Algemene situering
+Tijdens deze eindopdracht ontwikkel je individueel een volledige webapplicatie in Laravel.
+Afhankelijk van je gekozen traject en je eerdere oefeningen werk je deze applicatie uit met
+Laravel blade components, Livewire of met Filament. De eindopdracht vormt het sluitstuk
+van de opleiding en moet aantonen dat je in staat bent om een realistische webtoepassing
+zelfstandig te analyseren, op te bouwen en toe te lichten.
+Je kiest een van de vier opgegeven opdrachten en werkt deze uit volgens de verwachtingen
+van jouw traject.
+De vier mogelijke domeinen zijn:
+• E-commerce platform
+• Ticketing platform
+• Facturatieprogramma
+• Warehouse Management System (WMS)
+Hoewel de onderwerpen verschillen, worden alle opdrachten als gelijkwaardig beschouwd.
+Elke opdracht vraagt een combinatie van datamodellering, backendlogica,
+gebruikersinterface, validatie, beheerfunctionaliteiten en technische onderbouwing
 
-Poniższe punkty stanowią szczegółową analizę realizacji wymogów projektu pod kątem oceny końcowej oraz wykorzystanych zaawansowanych wzorców programistycznych (Modern MVC i OOP).
+3. Wat voor alle opdrachten verplicht is
+Elke eindopdracht moet aan onderstaande algemene voorwaarden voldoen.
+3.1 Werkende applicatie
+Je applicatie moet effectief bruikbaar zijn. Dat betekent dat de belangrijkste flows volledig
+doorlopen kunnen worden en dat de kernfunctionaliteiten werken zoals bedoeld.
+3.2 Logische database-structuur
+Je database moet correct ontworpen zijn. Tabellen, relaties en sleutels moeten logisch
+gekozen zijn en passen bij de werking van de applicatie.
+3.3 Correcte validatie
+Formulieren moeten gevalideerd worden. Verkeerde of onvolledige invoer moet op een
+gecontroleerde manier afgehandeld worden.
+3.4 Verzorgde gebruikersinterface
+De applicatie moet duidelijk en bruikbaar zijn. De nadruk ligt niet op grafische perfectie,
+maar wel op overzicht, logica en gebruiksvriendelijkheid.
+3.5 Beheergedeelte
+Elke opdracht moet een duidelijke beheerkant bevatten. Het project mag dus niet enkel uit
+publieke pagina’s bestaan.
+3.6 Presentatie en verdediging
+Je moet tijdens de presentatie niet alleen tonen dat de applicatie werkt, maar ook uitleg
+kunnen geven over je keuzes, je databankstructuur, je logica en je technische aanpak
 
-## 1. Wymagania Zaliczeniowe (Checklista)
+FACTURATIEPROGRAMMA
+1. Doel van de opdracht
+In deze opdracht ontwikkel je een zakelijke applicatie voor het beheren van klanten,
+offertes en facturen. De gebruiker moet documenten kunnen opmaken, exporteren,
+versturen en opvolgen.
 
-### 3.1 Werkende applicatie (Działająca aplikacja)
-- **Status:** Spełniony w 100%
-- **Opis:** Główny przepływ biznesowy (*core flow*) działa bez najmniejszego zarzutu i jest zautomatyzowany. Użytkownik płynnie przechodzi od wpadającego Leada, przez wygenerowanie interaktywnej Oferty (Quote), aż po wygenerowanie Faktury (Invoice - wraz z e-invoicingiem XML i renderingiem PDF) zaledwie jednym kliknięciem z poziomu panelu. Wdrożona bramka Stripe zamyka cykl płatności od strony ostatecznego klienta (InvoicePayPortal). Posiadamy 45 testów automatycznych Pest, udowadniających, że aplikacja "nie tylko się klika", ale jest zwalidowana matematycznie i algorytmicznie.
+3. Traject B, zonder stage
+3.1 Multi-bedrijf of tenant-structuur
+• Meerdere bedrijven op hetzelfde platform
+• Data per bedrijf gescheiden
+• Centrale admin
+Je werkt een platform uit waarop meerdere bedrijven hun eigen facturatieomgeving
+hebben.
+3.2 Factuur locking en data-integriteit
+• Verzonden facturen niet vrij wijzigbaar
+• Veilige statusovergangen
+• Bewust omgaan met definitieve documenten
+Een factuur is geen vrijblijvend record. In traject B verwachten we dat je nadenkt over de
+integriteit van zakelijke data.
+3.3 Online betaling van facturen
+• Integratie met Stripe of Mollie
+• Factuurstatus automatisch aanpassen
+Je breidt de applicatie uit zodat klanten facturen online kunnen betalen.
+3.4 Webhooks en synchronisatie
+• Externe betalingsupdates verwerken
+• Logging
+• Correct omgaan met fouten
+Je zorgt voor een robuustere koppeling met de betaalprovider.
+3.5 Automatische herinneringen
+• Herinneringen voor openstaande facturen
+• Scheduler of cron gebruiken
+Je werkt ook tijdsgebonden logica uit zodat openstaande facturen automatisch opgevolgd
+kunnen worden.
+3.6 Uitgebreide rapportering
+• Omzet per maand
+• Omzet per klant
+• Openstaande bedragen
+De gebruiker moet diepgaander inzicht krijgen in de financiele situatie.
+3.7 Queue en mailarchitectuur
+• Mails via queue
+• Herinneringsmails automatiseren
+Hiermee toon je dat je professionele e-mailverwerking begrijpt.
+3.8 Professionele architectuur
+• Services
+• Logging
+• Onderhoudbare structuur
+Complexe documentlogica en betaalverwerking moeten op een schaalbare manier
+opgebouwd zijn.
 
-### 3.2 Logische database-structuur (Logiczna struktura bazy danych)
-- **Status:** Spełniony z wyróżnieniem (Senior level)
-- **Opis:** Baza danych jest wzorowa. Wprowadziliśmy nowoczesne identyfikatory **ULID** zamiast standardowych inkrementowanych ID (1, 2, 3), co w pełni chroni przed atakami typu *ID-guessing*. Cała relacyjność jest twardo powiązana kluczami obcymi do `tenant_id`, a logika perfekcyjnie oddaje domenę B2B SaaS. Migracje pilnują kaskadowego usuwania i pełnej integralności danych (`foreign key constraints`).
+4. In te dienen onderdelen
+Elke cursist dient minstens volgende onderdelen in:
+• De volledige broncode van het project
+• Een export van de databank of de nodige migraties en seeders
+• Een korte README met uitleg over installatie en gebruik
+• Een korte toelichting van de gekozen opdracht en het uitgewerkte traject
+• Eventuele testaccounts indien nodig voor demo of jury
+De bedoeling is dat het project door de jury op een vlotte manier opgestart en getest kan
+worden.
+5. Presentatieverwachtingen
+Tijdens de presentatie moet je minstens kunnen tonen:
+• Wat het doel is van jouw applicatie
+• Welke kernfunctionaliteiten je gebouwd hebt
+• Hoe je databank is opgebouwd
+• Welke keuzes je gemaakt hebt in je code
+• Wat het verschil is tussen jouw basisfunctionaliteiten en eventuele verdiepingen
+• Welke moeilijkheden je bent tegengekomen en hoe je die hebt opgelost
+Een presentatie is dus niet enkel een klikdemo. We verwachten ook technische toelichting
+en inzicht.
+6. Algemene evaluatielogica
+Alle opdrachten worden beoordeeld volgens dezelfde hoofdlijnen, zodat de opdrachten
+gelijkwaardig blijven ondanks hun verschillend domein.
+6.1 Functionele uitwerking
+Werken de kernfunctionaliteiten correct en volledig?
+6.2 Datamodel en logica
+Zijn tabellen, relaties en processen logisch opgebouwd?
+6.3 Beheer en gebruiksvriendelijkheid
+Is de applicatie bruikbaar voor de eindgebruiker en de beheerder?
+6.4 Technische kwaliteit
+Is de code gestructureerd, gevalideerd en onderhoudbaar?
 
-### 3.3 Correcte validatie (Poprawna walidacja)
-- **Status:** Spełniony w 100%
-- **Opis:** Cała aplikacja opiera się na komponentach Filament v3 oraz Livewire 4, które narzucają żelazne, serwerowe walidacje. Wszystkie typy danych finansowych używają ścisłego rzutowania `decimal:12,2`, co całkowicie eliminuje powszechne błędy wyliczeń zmiennoprzecinkowych (*floating point errors*) przy liczeniu podatków. Próba przesłania pustych danych czy wstrzyknięcia złośliwego kodu zatrzymuje się na warstwie Requestów (`422 Unprocessable Entity`). Złe dane nigdy nie dotrą do bazy.
 
-### 3.4 Verzorgde gebruikersinterface (Zadbany interfejs użytkownika)
-- **Status:** Spełniony w 100%
-- **Opis:** Ekosystem Filament / Tailwind CSS / Livewire sprawia, że interfejs jest nie tylko czysty i czytelny, ale też niezwykle wydajny dzięki technologii SPA (*Single Page Application*). Wdrożony "Business Blue" styling dla portalu płatności `/pay` zapewnia maksymalnie estetyczne i wzbudzające pełne zaufanie doświadczenie dla klienta końcowego.
+Verwachtingen eindopdracht Frontend en Backend voor jullie mapje die je dient in te geven bij de verdediging:
 
-### 3.5 Beheergedeelte (Panel Administracyjny)
-- **Status:** Spełniony z wyróżnieniem
-- **Opis:** Panel to prawdziwe serce naszego projektu. Aplikacja NIE składa się tylko z prostych stron publicznych. Około 90% inżynierii to bezpieczny, zamknięty za paywallem system ERP/CRM dla przewoźników. Zarządzają tam swoimi danymi finansowymi, klientami i usługami w zamkniętym ekosystemie.
+Voor de eindopdracht bouwen de cursisten een eigen gekozen project uit waarin ze aantonen dat ze de aangeleerde technieken zelfstandig, professioneel en doordacht kunnen toepassen. Het project moet niet alleen technisch werken, maar ook logisch opgebouwd, verzorgd gepresenteerd en verdedigbaar zijn tegenover een vakjury.
+Dezelfde beoordelingsstructuur geldt voor zowel Frontend als Backend, telkens met een totaal van 400 punten.
 
-### 3.6 Presentatie en verdediging (Prezentacja i obrona)
-- **Status:** Spełniony w 100%
-- **Opis:** Posiadasz rozbudowaną "Tarczę Obronną" w postaci gotowych odpowiedzi na najcięższe pytania techniczne dotyczące m.in. Global Scopes, asynchronicznych Webhooków i struktury.
+1. Scope en projectplanning /50
+De cursist moet aantonen dat het project vooraf duidelijk werd afgebakend en dat de uitvoering planmatig gebeurde.
+Verwachtingen
+De cursist levert een duidelijke projectscope aan met daarin:
 
----
+het doel van het project;
+de doelgroep of gebruiker van de applicatie;
+de belangrijkste functionaliteiten;
+wat wel en niet binnen de opdracht valt;
+een realistische planning;
+tussentijdse mijlpalen of oplevermomenten;
+een overzicht van wat effectief gerealiseerd werd.
+Professionele minimumverwachting
+Een goede eindopdracht bevat geen vaag idee, maar een afgebakend project met duidelijke keuzes. De cursist moet kunnen uitleggen waarom bepaalde functionaliteiten gekozen zijn en waarom andere zaken eventueel buiten scope vielen.
+Beoordeling
+Er wordt gekeken naar:
 
-## 2. Zaawansowana Architektura: Nowoczesne MVC i Wzorce OOP
+volledigheid van de scope;
+haalbaarheid van de planning;
+mate waarin tussentijdse opleveringen behaald werden;
+professionele opvolging van het project;
+realistische inschatting van tijd en complexiteit;
+duidelijke reflectie op wat wel of niet gelukt is.
 
-Nasz projekt to nie jest zwykłe, archaiczne rozwiązanie z początku lat 2000. To **Nowoczesne, Złożone MVC (Component-Based MVC)** nasycone potężnymi wzorcami Programowania Obiektowego (OOP).
 
-### Ewolucja Wzorca MVC (Model-View-Controller)
-Tradycyjne MVC w Laravelu to zazwyczaj: Plik Modelu, Plik Kontrolera i Plik Widoku (`.blade.php`). W naszym systemie opartym na ekosystemie Filament, weszliśmy na znacznie wyższy, obiektowy poziom:
+2. Presentatie eigen project /50
+De cursist presenteert het eigen project op een professionele manier aan de jury.
+Verwachtingen
+De presentatie bevat minimaal:
 
-- **Model (M):** Znajduje się w `app/Models/`. Odpowiada wyłącznie za strukturę danych, relacje i restrykcyjne zasady (np. Trait `HasTenant` pilnuje granic). Jest to kręgosłup aplikacji.
-- **Controller (C):** Zamiast gigantycznych kontrolerów, rolę tę przejęły sprecyzowane klasy z folderu `Pages` (np. `CreateInvoice.php`). To one natywnie przechwytują żądania HTTP, uruchamiają "Hooki" (akcje przed/po zapisie) i hermetycznie zarządzają stanem.
-- **View (V):** Zamiast HTML/Blade, Widoki stały się **obiektami PHP**. Pliki `InvoiceForm.php` czy `InvoicesTable.php` to warstwa prezentacji definiowana strukturalnie (`TextColumn::make(...)`). Ręcznych widoków użyliśmy tylko tam, gdzie było to absolutnie wymuszone (np. renderowanie silnikiem PDF).
+een korte introductie van het project;
+het probleem of de behoefte waarop het project inspeelt;
+een overzicht van de belangrijkste functionaliteiten;
+visuele ondersteuning via slides, demo of screenshots;
+uitleg over de technische keuzes;
+een korte reflectie op moeilijkheden en oplossingen;
+een duidelijke afsluiting.
+Voor Frontend
+Bij Frontend ligt de nadruk op:
 
-### Wzorce Obiektowe (OOP / SOLID) w praktyce
+visuele kwaliteit;
+layout;
+gebruiksvriendelijkheid;
+responsive design;
+interactie;
+consistentie in stijl;
+toegankelijkheid en leesbaarheid.
+Voor Backend
+Bij Backend ligt de nadruk op:
 
-Komisja będzie szukać potwierdzenia, czy rozumiesz zasady SOLID i architekturę obiektową. Nasz kod w pełni je demonstruje:
+logische datastructuur;
+correcte werking van functionaliteiten;
+validatie;
+security;
+performantie;
+beheerbaarheid;
+correcte koppeling met de frontend of API.
+Beoordeling
+Er wordt gekeken naar:
 
-1. **Single Responsibility Principle (Zasada Jednej Odpowiedzialności):**
-   Zamiast "pchać" cały kod do jednego `InvoiceResource.php`, rozbiliśmy kod wstrzykując mu małe klasy – `InvoiceForm.php` (wie tylko jak zarysować pola wejścia) i `InvoicesTable.php` (wie tylko jak formatować wiersze danych).
-   
-2. **Polimorfizm (Polymorphism) w Relacjach Bazy Danych:**
-   Zastosowaliśmy natywne relacje polimorficzne (*MorphTo*). Faktura ma metodę `customer()`, która zwraca obiekty różnych typów. Dzięki temu faktura może być złączona z potencjalnym klientem (klasa `Lead`) lub pełnoprawnym użytkownikiem (klasa `User`), nie psując schematu bazy danych. To książkowy przykład polimorfizmu na poziomie bazy danych.
-   
-3. **Kompozycja zamiast Dziedziczenia (Composition over Inheritance):**
-   Zamiast tworzyć powolny, gigantyczny `BaseModel` z dziesiątkami metod, używamy kompozycji przez Traity. Klasy składane są jak z klocków: dokładamy `HasUlids` (dla identyfikatorów kryptograficznych), `HasTenant` (dla bezpieczeństwa) czy `SoftDeletes` (aby uniknąć bezpowrotnej utraty danych). To dowód na ewolucyjne podejście do projektowania systemów.
-   
-4. **Enkapsulacja (Encapsulation):**
-   Ciężka logika biznesowa nie miesza się z kontrolerami widoków. Na przykład wygenerowanie pliku XML standardu Peppol (UBL 2.1) wywoływane jest tylko jako obiekt `GenerateUblXmlAction`. Formularz ani kontroler nie wiedzą "jak" robi się taki XML – ukryliśmy całą wewnętrzną złożoność (enkapsulacja), delegując proces do wyspecjalizowanej, odseparowanej klasy.
+professionele uitstraling;
+duidelijke uitleg;
+structuur van de presentatie;
+kwaliteit van de demo;
+technische onderbouwing;
+verzorgd taalgebruik;
+vermogen om het project overtuigend voor te stellen.
+
+
+3. Neerslag eigen project /100
+De cursist levert een schriftelijke neerslag of projectdocumentatie in waarin het project professioneel wordt toegelicht.
+Verwachtingen
+De neerslag bevat minimaal:
+1. Projectomschrijving
+titel van het project;
+korte samenvatting;
+doelstelling;
+doelgroep;
+probleemstelling of behoefte.
+2. Scope
+wat werd gebouwd;
+wat bewust niet werd gebouwd;
+belangrijkste functionaliteiten;
+uitbreidingsmogelijkheden.
+3. Analyse
+functionele vereisten;
+niet-functionele vereisten;
+gebruikersrollen indien van toepassing;
+user stories of use cases.
+4. Technische uitwerking
+gebruikte technologieën;
+projectstructuur;
+belangrijke bestanden of componenten;
+databankstructuur indien van toepassing;
+API’s of externe koppelingen indien gebruikt.
+5. Ontwerp en UX
+wireframes, screenshots of designkeuzes;
+motivatie van kleuren, typografie en layout;
+responsive gedrag;
+toegankelijkheid.
+6. Testing en kwaliteitscontrole
+wat werd getest;
+gekende fouten of beperkingen;
+hoe bugs werden opgelost;
+eventuele screenshots van tests.
+7. Reflectie
+wat goed ging;
+wat moeilijk was;
+wat de cursist geleerd heeft;
+wat bij een volgende versie beter zou kunnen.
+8. Bronnen en hulpmiddelen
+gebruikte documentatie;
+gebruikte AI-tools indien van toepassing;
+gebruikte libraries, packages of frameworks;
+correcte vermelding van externe code of templates.
+Professionele minimumverwachting
+De neerslag moet duidelijk genoeg zijn zodat een externe beoordelaar begrijpt wat het project doet, hoe het technisch is opgebouwd en welke keuzes de cursist gemaakt heeft.
+De neerslag mag geen losse verzameling screenshots zijn. Het moet een gestructureerd document zijn met uitleg, onderbouwing en reflectie.
+
+4. Verdediging eigen project /100
+De cursist verdedigt het project mondeling voor een vakjury.
+Verwachtingen
+Tijdens de verdediging moet de cursist kunnen aantonen dat hij of zij het project zelf begrijpt en zelfstandig kan uitleggen.
+De cursist moet kunnen antwoorden op vragen over:
+
+projectkeuzes;
+technische implementatie;
+gebruikte code;
+structuur van het project;
+databank of componenten;
+validatie en foutafhandeling;
+beveiliging;
+UX-keuzes;
+beperkingen van het project;
+mogelijke uitbreidingen.
+Voor Frontend
+De cursist moet onder andere kunnen uitleggen:
+
+hoe de pagina’s zijn opgebouwd;
+hoe responsive design werd toegepast;
+waarom bepaalde layoutkeuzes gemaakt zijn;
+hoe interacties werken;
+hoe componenten of scripts georganiseerd zijn;
+hoe de frontend gekoppeld is aan data of backendlogica indien van toepassing.
+Voor Backend
+De cursist moet onder andere kunnen uitleggen:
+
+hoe de databank is opgebouwd;
+welke relaties er bestaan;
+hoe validatie werkt;
+hoe CRUD-functionaliteit is opgebouwd;
+hoe routes, controllers, Livewire-componenten of API’s werken;
+hoe authenticatie of autorisatie is toegepast;
+hoe fouten worden afgehandeld;
+hoe data veilig wordt verwerkt.
+Beoordeling
+Er wordt gekeken naar:
+
+technische kennis;
+zelfstandigheid;
+inzicht in de eigen code;
+correct gebruik van vakterminologie;
+vermogen om keuzes te verantwoorden;
+probleemoplossend denken;
+eerlijkheid over beperkingen;
+professionele houding tegenover feedback.
+
+
+5. Parate kennis /100
+Naast het eigen project wordt ook de algemene kennis van de aangeleerde topics bevraagd via open vragen.
+Verwachtingen
+De cursist moet kunnen aantonen dat hij of zij de geziene leerstof begrijpt en niet enkel het eigen project van buiten kent.
+Mogelijke topics Frontend
+De cursist moet vragen kunnen beantwoorden over onder andere:
+
+HTML-structuur;
+semantische HTML;
+CSS en layout;
+responsive design;
+Flexbox en Grid;
+JavaScript-basisprincipes;
+DOM-manipulatie;
+componentgericht werken;
+formulieren;
+validatie aan frontendzijde;
+UX/UI-principes;
+toegankelijkheid;
+performance;
+SEO-basisprincipes;
+gebruik van libraries of frameworks indien gezien.
+Mogelijke topics Backend
+De cursist moet vragen kunnen beantwoorden over onder andere:
+
+routes;
+controllers;
+views;
+models;
+migrations;
+seeders;
+factories;
+Eloquent-relaties;
+CRUD;
+validatie;
+authenticatie;
+autorisatie;
+middleware;
+databanknormalisatie;
+security;
+foutafhandeling;
+API’s;
+file uploads;
+mailing;
+deploymentbasis;
+gebruik van packages of frameworks indien gezien.
+Beoordeling
+Er wordt gekeken naar:
+
+correctheid van de antwoorden;
+inzicht in de leerstof;
+vermogen om voorbeelden te geven;
+gebruik van juiste terminologie;
+verbanden leggen tussen theorie en praktijk;
+toepassen van kennis buiten het eigen project.
+
+
+Algemene professionele vereisten
+Elke eindopdracht moet voldoen aan een aantal basisverwachtingen.
+Technische kwaliteit
+Het project moet:
+
+functioneel werken;
+geen kritieke fouten bevatten;
+logisch gestructureerd zijn;
+leesbare code bevatten;
+duidelijke naamgeving gebruiken;
+geen overbodige of dode code bevatten;
+foutmeldingen correct afhandelen;
+data correct verwerken;
+veilig omgaan met input van gebruikers.
+Codekwaliteit
+De code moet professioneel genoeg zijn om door iemand anders gelezen en begrepen te worden.
+Er wordt verwacht dat:
+
+bestanden logisch benoemd zijn;
+functies, componenten of classes een duidelijke verantwoordelijkheid hebben;
+herhaling zoveel mogelijk vermeden wordt;
+comments alleen gebruikt worden waar ze nuttig zijn;
+formatting consequent is;
+de projectstructuur overzichtelijk blijft.
+Design en gebruikservaring
+Vooral bij Frontend, maar ook bij volledige projecten, wordt gekeken naar:
+
+duidelijke navigatie;
+consistente layout;
+leesbare typografie;
+correcte spacing;
+responsive werking op mobiel, tablet en desktop;
+duidelijke knoppen en acties;
+begrijpelijke foutmeldingen;
+professionele afwerking.
+Documentatie
+De cursist moet documentatie voorzien waarmee het project kan worden begrepen, geïnstalleerd en beoordeeld.
+Minimaal verwacht:
+
+korte installatie-instructies;
+gebruikte technologieën;
+login-gegevens indien nodig;
+overzicht van functionaliteiten;
+gekende beperkingen;
+screenshots of demo-instructies;
+bronvermelding.
+AI-gebruik
+AI-tools mogen gebruikt worden, maar de cursist blijft verantwoordelijk voor de inhoud, code en uitleg.
+De cursist moet kunnen aantonen:
+
+welke onderdelen eventueel met AI ondersteund werden;
+dat hij of zij de gegenereerde code begrijpt;
+dat de code aangepast werd aan het eigen project;
+dat fouten of onlogische output gecontroleerd werden;
+dat er geen volledige opdracht blind werd overgenomen zonder begrip.
+Een project dat technisch werkt, maar niet verdedigd kan worden, wordt onvoldoende beschouwd.

@@ -48,7 +48,7 @@ class QuoteResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('lead');
+        return parent::getEloquentQuery()->with('customer');
     }
 
     public static function getPages(): array

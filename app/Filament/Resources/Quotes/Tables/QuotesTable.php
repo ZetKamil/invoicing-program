@@ -19,8 +19,8 @@ class QuotesTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('lead.company_name')
-                    ->label('Aanvraag / Klant')
+                TextColumn::make('customer.company_name')
+                    ->label('Klant / Afnemer')
                     ->sortable(),
 
                 TextColumn::make('total_amount')
@@ -41,7 +41,7 @@ class QuotesTable
                 //
             ])
             ->recordActions([
-                \Filament\Actions\Action::make('convert_to_invoice')
+                \Filament\Tables\Actions\Action::make('convert_to_invoice')
                     ->label('Zet om naar Factuur')
                     ->icon('heroicon-o-document-currency-euro')
                     ->color('success')
@@ -68,7 +68,7 @@ class QuotesTable
 
                         return redirect()->to(\App\Filament\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
                     }),
-                \Filament\Actions\Action::make('send_quote')
+                \Filament\Tables\Actions\Action::make('send_quote')
                     ->label('Verstuur Offerte via E-mail')
                     ->icon('heroicon-o-envelope')
                     ->color('primary')
@@ -78,12 +78,12 @@ class QuotesTable
                             abort(403, 'Ongeautoriseerde actie.');
                         }
     
-                        if (!$record->lead || !$record->lead->email) {
-                            \Filament\Notifications\Notification::make()->title('Aanvraag heeft geen e-mailadres.')->danger()->send();
+                        if (!$record->customer || !$record->customer->email) {
+                            \Filament\Notifications\Notification::make()->title('Klant heeft geen e-mailadres.')->danger()->send();
                             return;
                         }
     
-                        \Illuminate\Support\Facades\Mail::to($record->lead->email)->send(new \App\Mail\QuoteInquiryMail($record));
+                        \Illuminate\Support\Facades\Mail::to($record->customer->email)->send(new \App\Mail\QuoteInquiryMail($record));
     
                         $subject = 'Your Quote from ' . $record->bedrijf->name;
                         $logCommunicationAction->execute($record->bedrijf_id, $subject, $record, \App\Enums\CommType::EMAIL);

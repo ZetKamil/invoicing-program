@@ -211,9 +211,13 @@ class ClientDemoSeeder extends Seeder
                 $qty     = rand(1, 3);
                 $amount  = $product->price * $qty;
 
+                $customer = \App\Models\Customer::where('bedrijf_id', $bedrijf->id)
+                                ->where('email', $lead->email)
+                                ->first();
+
                 $quote = Quote::create([
                     'bedrijf_id'    => $bedrijf->id,
-                    'lead_id'      => $lead->id,
+                    'customer_id'   => $customer->id,
                     'quote_number' => 'OFT-2026-' . str_pad(($ci * 10) + $qi + 1, 4, '0', STR_PAD_LEFT),
                     'total_amount' => $amount,
                     'valid_until'  => now()->addDays(rand(7, 30)),
@@ -231,6 +235,7 @@ class ClientDemoSeeder extends Seeder
                 $bedrijfQuotes[] = [
                     'quote'   => $quote,
                     'lead'    => $lead,
+                    'customer'=> $customer,
                     'product' => $product,
                     'qty'     => $qty,
                 ];
@@ -250,8 +255,8 @@ class ClientDemoSeeder extends Seeder
 
                 $invoice = Invoice::create([
                     'bedrijf_id'      => $bedrijf->id,
-                    'customer_type'  => Lead::class,
-                    'customer_id'    => $set['lead']->id,
+                    'customer_type'  => \App\Models\Customer::class,
+                    'customer_id'    => $set['customer']->id,
                     'invoice_number' => 'FACT-2026-' . $invoiceSeqNr,
                     'subtotal'       => $subtotal,
                     'tax_total'      => $taxTotal,

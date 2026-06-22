@@ -19,6 +19,28 @@ class Lead extends Model
     /** @use HasFactory<\Database\Factories\LeadFactory> */
     use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
 
+    protected static function booted(): void
+    {
+        static::created(function (Lead $lead) {
+            // Automatyczna rezerwacja klienta
+            $customer = \App\Models\Customer::where('bedrijf_id', $lead->bedrijf_id)
+                ->where(function($q) use ($lead) {
+                    $q->where('company_name', $lead->company_name)
+                      ->orWhere('email', $lead->email);
+                })->first();
+
+            if (!$customer) {
+                \App\Models\Customer::create([
+                    'bedrijf_id' => $lead->bedrijf_id,
+                    'company_name' => $lead->company_name,
+                    'contact_person' => $lead->contact_person,
+                    'email' => $lead->email,
+                    'phone' => $lead->phone,
+                ]);
+            }
+        });
+    }
+
     /**
      * Get the prunable model query.
      */

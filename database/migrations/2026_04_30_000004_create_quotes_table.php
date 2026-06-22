@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('quotes', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('bedrijf_id')->constrained('bedrijven')->cascadeOnDelete();
-            $table->foreignUlid('lead_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('customer_id')->constrained()->cascadeOnDelete();
             $table->string('quote_number')->unique();
             $table->decimal('total_amount', 12, 2);
             $table->date('valid_until');

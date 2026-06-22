@@ -25,9 +25,9 @@ class QuoteForm
                             ->unique(ignoreRecord: true)
                             ->columnSpan(1),
 
-                        Select::make('lead_id')
-                            ->label('Aanvraag (Lead)')
-                            ->relationship('lead', 'company_name')
+                        Select::make('customer_id')
+                            ->label('Klant / Afnemer')
+                            ->relationship('customer', 'company_name')
                             ->searchable()
                             ->preload()
                             ->required()

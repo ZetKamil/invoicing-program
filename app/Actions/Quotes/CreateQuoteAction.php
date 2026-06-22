@@ -14,9 +14,26 @@ class CreateQuoteAction
      */
     public function handle(Lead $lead, int $validDays = 14): Quote
     {
+        // Zapewnienie, że klient istnieje (automat rezerwacji z Lead)
+        $customer = \App\Models\Customer::where('bedrijf_id', $lead->bedrijf_id)
+            ->where(function($q) use ($lead) {
+                $q->where('company_name', $lead->company_name)
+                  ->orWhere('email', $lead->email);
+            })->first();
+
+        if (!$customer) {
+            $customer = \App\Models\Customer::create([
+                'bedrijf_id' => $lead->bedrijf_id,
+                'company_name' => $lead->company_name,
+                'contact_person' => $lead->contact_person,
+                'email' => $lead->email,
+                'phone' => $lead->phone,
+            ]);
+        }
+
         $quote = new Quote();
         $quote->bedrijf_id = $lead->bedrijf_id;
-        $quote->lead_id = $lead->id;
+        $quote->customer_id = $customer->id;
         $quote->quote_number = $this->generateQuoteNumber();
         $quote->valid_until = now()->addDays($validDays);
         $quote->status = QuoteStatus::DRAFT;

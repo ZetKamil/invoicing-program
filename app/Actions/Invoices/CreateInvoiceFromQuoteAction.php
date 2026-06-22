@@ -34,10 +34,14 @@ class CreateInvoiceFromQuoteAction
             
             $invoiceNumber = 'INV-' . $currentYear . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
 
+            // W tym momencie każda Oferta ma już przypisanego Klienta ($quote->customer)
+            // więc wystarczy go pobrać.
+            $customer = $quote->customer;
+
             $invoice = Invoice::create([
-                'bedrijf_id'             => $quote->bedrijf_id,
-                'customer_type'         => get_class($quote->lead),
-                'customer_id'           => $quote->lead_id,
+                'bedrijf_id'            => $quote->bedrijf_id,
+                'customer_type'         => get_class($customer),
+                'customer_id'           => $customer->id,
                 'quote_id'              => $quote->id,
                 'invoice_number'        => $invoiceNumber,
                 'trailer_type'          => $quote->trailer_type,
