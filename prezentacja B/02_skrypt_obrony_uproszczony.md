@@ -6,6 +6,16 @@ Przepływ to: **Klant -> Offerte -> Factuur**.
 
 ---
 
+## 🛑 KROK 0: Przygotowanie przed pokazem (BARDZO WAŻNE)
+
+Zanim Jury zacznie patrzeć na Twój ekran, upewnij się, że masz:
+1. Otwartą w przeglądarce stronę **Mailtrap** (Twoją skrzynkę Inboxes).
+2. Otwarty **terminal w VS Code**, a w nim wpisaną komendę:
+   `php artisan queue:work`
+   *Wciśnij Enter i zostaw to włączone w tle! To Twój "Listonosz". Bez tego zaciętego na zielono procesu w terminalu żaden e-mail nie wyjdzie z systemu.*
+
+---
+
 ## 🕒 KROK 1: Tworzenie Klienta (Walidacja i Bezpieczeństwo)
 
 **Akcja na ekranie (UI):** 
@@ -38,19 +48,21 @@ Linijka 16 (lub okoliczna): `$builder->where($model->getTable() . '.bedrijf_id',
 
 ---
 
-## 🕒 KROK 3: Tworzenie Wyceny (Relacje Bazy Danych)
+## 🕒 KROK 3: Tworzenie Wyceny (Relacje Bazy Danych i E-mail)
 
 **Akcja na ekranie (UI):** 
-Wchodzisz w zakładkę `Offertes` (Wyceny) i klikasz "Nieuwe offerte". Z listy rozwijanej wybierasz klienta, którego przed chwilą stworzyłeś.
+Wchodzisz w zakładkę `Offertes` (Wyceny) i klikasz "Nieuwe offerte". Z listy rozwijanej wybierasz klienta. Po zapisaniu klikasz na górze przycisk "Verstuur Offerte via E-mail" (Wyślij Ofertę E-mailem) i pokazujesz skrzynkę Mailtrap, do której wpadła wiadomość. Zwróć też uwagę Jury na terminal, w którym mignie napis "Processed".
 
 **Kod do otwarcia w IDE:** 
-Otwórz plik `app/Models/Quote.php`
+Otwórz plik `app/Models/Quote.php` (aby pokazać relacje) oraz wspomnij o pliku `.env`.
 
 **Zaznacz myszką w kodzie:** 
-Linijka 40-43: `public function customer(): BelongsTo` oraz Linijka 58-61: `public function items(): HasMany`
+Linijka 40-43: `public function customer(): BelongsTo`
 
 **Co mówisz (Słowo w słowo):**
-> "Teraz tworzę wycenę. Zamiast pisać surowe zapytania SQL z `JOIN`, używam systemu ORM o nazwie Eloquent. W modelu `Quote.php` zdefiniowałem relacje. `BelongsTo` oznacza, że ta wycena 'Należy Do' konkretnego klienta. Z kolei `HasMany` oznacza, że ta sama wycena może mieć wiele pozycji (np. różne ładunki czy usługi dodatkowe). Laravel sam tłumaczy to pod spodem na zapytania SQL, co sprawia, że kod jest krótki i obiektowy."
+> "Mogę teraz łatwo wystawić ofertę i wysłać ją mailem do klienta. Ale żeby strona nie zacinała się na czas połączenia z serwerem pocztowym SMTP, zrealizowałem wymaganie numer 3.7. Wcisnąłem wysyłkę e-maili do asynchronicznej **Kolejki (Queue)** w bazie danych. W tle cały czas chodzi u mnie demon (Worker), który możecie zobaczyć tutaj w terminalu. Gdy klikam przycisk w przeglądarce, on automatycznie w ułamku sekundy wysyła ten list, co widać teraz w skrzynce."
+> 
+> "Od strony bazy danych używam tu systemu ORM Eloquent. Model Quote ma przypisane relacje np. `BelongsTo` (Należy Do Klienta), dzięki czemu nie muszę pisać surowych skomplikowanych JOINów w SQL."
 
 ---
 

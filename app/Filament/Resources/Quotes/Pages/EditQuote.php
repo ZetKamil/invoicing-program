@@ -50,19 +50,19 @@ class EditQuote extends EditRecord
                         abort(403, 'Ongeautoriseerde actie.');
                     }
 
-                    // Ensure lead email exists
-                    if (!$record->lead || !$record->lead->email) {
-                        \Filament\Notifications\Notification::make()->title('Aanvraag heeft geen e-mailadres.')->danger()->send();
+                    // Ensure customer email exists
+                    if (!$record->customer || !$record->customer->email) {
+                        \Filament\Notifications\Notification::make()->title('Klant heeft geen e-mailadres.')->danger()->send();
                         return;
                     }
 
                     // Queue the email — QuoteInquiryMail implements ShouldQueue, so we must
                     // use ->queue() (not ->send()) to avoid blocking the HTTP worker thread.
-                    \Illuminate\Support\Facades\Mail::to($record->lead->email)->queue(new \App\Mail\QuoteInquiryMail($record));
+                    \Illuminate\Support\Facades\Mail::to($record->customer->email)->queue(new \App\Mail\QuoteInquiryMail($record));
 
                     // Log communication
-                    $subject = 'Your Quote from ' . $record->bedrijf->name;
-                    $body = 'Automated system email sent to ' . $record->lead->email . ' containing the quote.';
+                    $subject = 'Uw offerte van ' . $record->bedrijf->name;
+                    $body = 'Automatisch systeembericht verzonden naar ' . $record->customer->email . ' met de offerte.';
                     $logCommunicationAction->execute($record->bedrijf_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
 
                     // Update status

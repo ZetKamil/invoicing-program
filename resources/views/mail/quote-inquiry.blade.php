@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-top: 4px solid #2563eb; }
@@ -16,25 +17,25 @@
             <h2>{{ $quote->bedrijf->name }}</h2>
         </div>
         
-        <p>Dear {{ $quote->lead->contact_person }},</p>
+        <p>Beste {{ $quote->customer->contact_person ?? $quote->customer->company_name }},</p>
         
-        <p>Thank you for your interest in our services. Please find below the summary of your requested quote (<strong>{{ $quote->quote_number }}</strong>).</p>
+        <p>Bedankt voor uw interesse in onze diensten. Hieronder vindt u een samenvatting van uw offerte (<strong>{{ $quote->quote_number }}</strong>).</p>
         
         <div class="total">
-            Total Amount: €{{ number_format($quote->total_amount, 2) }}
+            Totaalbedrag: &euro;{{ number_format($quote->total_amount, 2, ',', '.') }}
         </div>
         
-        <p>This quote is valid until {{ $quote->valid_until->format('d M Y') }}.</p>
+        <p>Deze offerte is geldig tot {{ $quote->valid_until->format('d-m-Y') }}.</p>
         
-        <p><em>(PDF attachment of the detailed quote will be appended here once the generator is implemented)</em></p>
+        <p><strong>Indien u akkoord gaat met deze offerte, gelieve op deze e-mail te antwoorden met uw bevestiging.</strong></p>
         
-        <p style="text-align: center; margin-top: 30px;">
-            <a href="#" class="btn">View Full Quote</a>
-        </p>
+        <p><em>(De PDF-bijlage met de gedetailleerde offerte volgt nog)</em></p>
+        
+
         
         <div class="footer">
-            &copy; {{ date('Y') }} {{ $quote->bedrijf->name }}. All rights reserved.<br>
-            This is an automated message, please do not reply directly.
+            &copy; {{ date('Y') }} {{ $quote->bedrijf->name }}. Alle rechten voorbehouden.<br>
+            Dit is een automatisch gegenereerd bericht, gelieve hier niet direct op te antwoorden.
         </div>
     </div>
 </body>
