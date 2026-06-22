@@ -17,11 +17,13 @@ Scenariusz opiera się dokładnie na Flow, o który prosiłeś: Impersonate -> L
 
 ---
 
-## 🕒 0:05 - 0:10 | Flow: Tworzenie Klienta (Lead jako potencjalny Klient) i Relacje Polimorficzne
-**Twoja akcja w UI:** Będąc zalogowanym (impersonated) jako firma, wchodzisz w `Leads` i tworzysz nowy rekord z danymi firmy klienta (to nasz zamiennik dla zasobu Client w tym flow).
-**Co otwierasz w IDE:** `app/Models/Invoice.php` (zaznacz relację `customer(): MorphTo`).
+## 🕒 0:05 - 0:10 | Flow: Auto-Provisioning (Data Capture) i Relacje Polimorficzne
+**Twoja akcja w UI:** Pokazujesz zakładkę `Aanvragen` (Leads), do której spływają zapytania z formularza. Następnie pokazujesz zakładkę `Klanten` (Klienci), gdzie system w tle automatycznie wygenerował profil dla tego zapytania.
+**Co otwierasz w IDE:** `app/Models/Lead.php` (metoda `booted`) oraz `app/Models/Invoice.php` (relacja `customer(): MorphTo`).
 **Twój tekst:**
-> "W panelu dodaję teraz nowego Leada. Dlaczego Leada, a nie sztywnego klienta? Ponieważ zaimplementowałem wzorzec **Polymorphic Relations** (Relacje Polimorficzne) w bazie danych. Tabela `invoices` posiada dwie kolumny: `customer_type` oraz `customer_id`. Dzięki temu na poziomie SQL nie muszę tworzyć oddzielnych, rzadkich kolumn (*sparse columns*) ze wskaźnikami NULL dla tabeli 'users', 'leads' czy 'clients'. Jedna kolumna typu String i jedna ULID pozwalają mi łączyć (`JOIN`) fakturę z absolutnie dowolną encją w systemie. To gwarantuje czystość struktury bazy."
+> "Widzimy tutaj zapytanie, które wpłynęło przez formularz publiczny (tzw. Data Capture). Jednak nie muszę go ręcznie przepisywać! Wykorzystałem architekturę sterowaną zdarzeniami (Event-Driven Architecture). Dzięki *Eloquent Model Events*, w tej samej milisekundzie, w której Lead trafia do bazy, uruchamia się **Auto-Provisioning**, który rezerwuje wpis w docelowej tabeli `customers`. 
+> 
+> Dodatkowo, jeśli chodzi o przypisanie dokumentów – zaimplementowałem wzorzec **Polymorphic Relations** (Relacje Polimorficzne). Tabela faktur nie ma na sztywno przypiętego klucza obcego tylko do jednej tabeli. Zamiast tego używa kolumn `customer_type` oraz `customer_id`. Pozwala mi to bez ingerencji w schemat SQL (bez tworzenia *sparse columns* pełnych wartości NULL) podpiąć Fakturę do firmy (Customer), agencji, czy nawet fizycznego kierowcy (User). To gwarantuje potężną elastyczność i czystość relacyjną na lata."
 
 ---
 

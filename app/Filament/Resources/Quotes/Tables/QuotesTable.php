@@ -41,7 +41,7 @@ class QuotesTable
                 //
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('convert_to_invoice')
+                \Filament\Actions\Action::make('convert_to_invoice')
                     ->label('Zet om naar Factuur')
                     ->icon('heroicon-o-document-currency-euro')
                     ->color('success')
@@ -68,7 +68,7 @@ class QuotesTable
 
                         return redirect()->to(\App\Filament\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
                     }),
-                \Filament\Tables\Actions\Action::make('send_quote')
+                \Filament\Actions\Action::make('send_quote')
                     ->label('Verstuur Offerte via E-mail')
                     ->icon('heroicon-o-envelope')
                     ->color('primary')

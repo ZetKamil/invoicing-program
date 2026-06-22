@@ -39,8 +39,8 @@ Dyspozytor widzi powiadomienie, otwiera profil Leada i klika "Wygeneruj Wycenę"
 *   **Wywoływana funkcja:** `public function handle(Lead $lead)`
 *   **Szczegóły techniczne (Co dokładnie się dzieje):**
     1.  Akcja tworzy w pamięci nowy obiekt `Quote` (Wycenę).
-    2.  Przypina go twardo do naszego Leada: `$quote->lead_id = 15;`
-    3.  **Wypakowanie JSON-a:** Akcja wyciąga dane schowane wcześniej w kolumnie `metadata` i przepisuje je na sztywne pola transportowe, np.:
+    2.  Pobiera automatycznie wygenerowany profil Klienta (Customer) i przypina go do wyceny: `$quote->customer_id = 15;`
+    3.  **Wypakowanie JSON-a:** Akcja wyciąga dane schowane wcześniej w kolumnie `metadata` z zapytania (Leada) i przepisuje je na sztywne pola transportowe, np.:
         `$quote->trailer_type = $lead->metadata['trailer_type'] ?? null;`
     4.  **Pricing (Cennik):** Akcja analizuje wybrany przez klienta pakiet i na podstawie nazwy podkłada cenę z biznesplanu (VLAIO):
         Jeżeli pakiet to "Start" -> `850.00`
@@ -58,9 +58,9 @@ Gdy klient akceptuje wycenę nr `Q-20260616-ABCD`, dyspozytor klika "Generuj Fak
 *   **Wywoływana funkcja:** `public function execute(Quote $quote): Invoice`
 *   **Szczegóły techniczne (Rozwiązanie zagadki ID):**
     1.  **Obliczenia Finansowe (BCMath):** System wylicza podatek i kwoty brutto. Zamiast używać zwykłych typów `float` (co generuje błędy dziesiętne np. 0.1+0.2=0.30004), używa wbudowanych w serwer funkcji `bcmul` i `bcadd`. Obliczenia są 100% dokładne rzędu dziesiętnych części centa.
-    2.  **Relacja Polimorficzna:** System przypina fakturę do Leada używając `morphTo`:
-        `'customer_type' => get_class($quote->lead)` (Zapisuje: "App\Models\Lead")
-        `'customer_id'   => $quote->lead_id` (Zapisuje: 15)
+    2.  **Relacja Polimorficzna:** System przypina fakturę do profilu Klienta (Customer) używając `morphTo`:
+        `'customer_type' => get_class($quote->customer)` (Zapisuje: "App\Models\Customer")
+        `'customer_id'   => $quote->customer_id` (Zapisuje: 15)
     3.  **Generowanie ID Faktury:** System wywołuje komendę `Invoice::create([...])`. Właśnie w tym ułamku sekundy Baza Danych nadaje tej fakturze **Klucz Główny (ID)**, np. `ID = 100`.
     4.  **Przekazywanie ID do Pozycji (InvoiceItem):**
         Akcja od razu uruchamia pętlę po pozycjach z wyceny (`foreach ($quote->items as $item)`). 

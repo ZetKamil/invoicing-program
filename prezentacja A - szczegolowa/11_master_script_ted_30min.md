@@ -29,9 +29,9 @@ Prezentacje dla Jury (szczególnie "freaków programowania") muszą opierać si�
 ## 🕒 MINUTA 10:00 - 15:00 | THE CORE ENGINE (Akcje, Transakcje i Polimorfizm)
 *(Slajd: Kod modelu Invoice z funkcją `morphTo()` z pliku 02, oraz kod `CreateInvoiceFromQuoteAction` z pliku 10)*
 
-**Ty:** "Kiedy dyspozytor ma już Leada, tworzy z niego Wycenę (Quote), a następnie Fakturę (Invoice). Jak zaprojektować model danych, w którym Fakturę możemy wystawić raz na Zwykłego Leada (osobę z ulicy), a raz na stałego Klienta Korporacyjnego?"
+**Ty:** "Kiedy dyspozytor widzi nowe zapytanie (Leada), system natychmiast – dzięki Model Events – dokonuje *Auto-Provisioningu* i tworzy w tle docelowy profil Klienta. Z niego powstaje Wycena (Quote), a następnie Faktura (Invoice). Ale jak zaprojektować model danych, w którym Fakturę możemy wystawić nie tylko na tego Klienta, ale w przyszłości np. na zaprzyjaźnioną agencję (Bedrijf) czy pracownika (User)?"
 
-"Użyłem relacji **Polimorficznych (MorphTo)**. To taki uniwersalny port USB. Faktura nie ma pustych kolumn typu `lead_id` czy `client_id`. Ma jedno gniazdo `customer_type` i na bieżąco – na podstawie tego pola – decyduje w pamięci, z kim się połączyć. Oszczędność zasobów bazy i czysty kod."
+"Użyłem relacji **Polimorficznych (MorphTo)**. To taki uniwersalny port USB. Faktura nie zamyka się na jedną tabelę (nie ma twardego `customer_id` z jednym typem). Posiada parę `customer_type` oraz `customer_id` i na bieżąco decyduje w pamięci, z jaką encją się połączyć. Oszczędność zasobów bazy i czysty, elastyczny kod gotowy na lata."
 
 "Co więcej, aby trzymać się reguły **Single Responsibility Principle (Zasady Pojedynczej Odpowiedzialności)** ze słynnego zestawu SOLID, przeniosłem całą logikę generowania dokumentów do niezależnych klas typu **Action**. Proces powstania faktury działa w ścisłej **Transakcji Bazodanowej (DB Transaction)**. Najpierw zapisujemy Fakturę, odzyskujemy jej unikalne ID, i twardo wbijamy to ID w każdą pozycję (InvoiceItem). Jeśli prąd zgasłby na serwerze ułamku sekundy później – system cofa całą operację (Rollback). U nas nigdy nie powstanie pusta faktura."
 

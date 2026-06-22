@@ -27,11 +27,18 @@ class InvoiceSeeder extends Seeder
             foreach ($leads as $index => $lead) {
                 // Determine a random status
                 $status = collect([InvoiceStatus::DRAFT, InvoiceStatus::SENT, InvoiceStatus::PAID])->random();
+
+                // Find the auto-provisioned Customer for this Lead
+                $customer = \App\Models\Customer::where('bedrijf_id', $bedrijf->id)
+                    ->where(function($q) use ($lead) {
+                        $q->where('email', $lead->email)
+                          ->orWhere('company_name', $lead->company_name);
+                    })->first();
                 
                 $invoice = Invoice::create([
                     'bedrijf_id' => $bedrijf->id,
-                    'customer_type' => Lead::class,
-                    'customer_id' => $lead->id,
+                    'customer_type' => \App\Models\Customer::class,
+                    'customer_id' => $customer ? $customer->id : null,
                     'invoice_number' => 'INV-2026-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
                     'subtotal' => 0, 
                     'tax_total' => 0,

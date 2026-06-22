@@ -786,3 +786,13 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 - **Exam Defense Tip:** "After completing the architectural shift to our Logistics engine, I completely rewrote our Pest testing suite. I added dedicated feature tests to mathematically prove our Quote-to-Invoice logistics mapping and ensure our Peppol UBL generation perfectly complies with EU Reverse Charge tax laws."
 - **Keywords to Learn:** `Regression Testing`, `Feature Tests`, `TDD (Test Driven Development)`
 
+---
+
+## 2026-06-22: Faza 5 — Auto-Provisioning & B2B CRM Architecture
+
+### [2026-06-22] - Task: Lead to Customer Auto-Provisioning
+- **Files Modified:** `app/Models/Lead.php`, `database/migrations/*_create_customers_table.php`, `app/Models/Customer.php`, `app/Filament/Resources/*`
+- **Technical Logic:** Decoupled the monolithic Lead-Invoice relationship by introducing a dedicated `Customer` aggregate root. Implemented an Eloquent `booted()` observer on the `Lead` model that triggers an 'Auto-Provisioning' routine. Whenever a Lead is submitted via the public form, the system automatically reserves a strict `Customer` profile in the database within the same millisecond. Quotes and Invoices were refactored to explicitly bind to `Customer` via polymorphic and direct relations, guaranteeing CRM integrity.
+- **Senior Concept:** Event-Driven Architecture & Entity Segregation. Leads represent inbound Data Capture (Events), while Customers represent long-term B2B Relationships (Entities). By auto-provisioning Customers from Leads via Model Events, we maintain a clean Domain-Driven Design (DDD) where dispatchers don't have to manually 'convert' or type data twice.
+- **Exam Defense Tip:** "We implemented Event-Driven Auto-Provisioning. When a web form (Data Capture) hits the database, a Model Observer fires instantly to allocate a strict Customer profile in the background. This segregates our Sales Pipeline (Leads) from our Financial Ledger (Customers) without creating extra manual work for dispatchers."
+- **Keywords to Learn:** `Auto-Provisioning`, `Model Events`, `Entity Segregation`
