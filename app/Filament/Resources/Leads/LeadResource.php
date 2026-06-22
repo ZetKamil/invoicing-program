@@ -25,6 +25,8 @@ class LeadResource extends Resource
     protected static ?string $modelLabel = 'Aanvraag';
     protected static ?string $pluralModelLabel = 'Aanvragen';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Schema $schema): Schema
     {
         return LeadForm::configure($schema);
