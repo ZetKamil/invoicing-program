@@ -3,7 +3,7 @@
 use App\Enums\UserRole;
 use App\Models\Bedrijf;
 use App\Models\User;
-use App\Models\Lead;
+use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,20 +47,20 @@ test('models with HasBedrijf trait are automatically scoped via BedrijfScope', f
         'role' => UserRole::ADMIN,
     ]);
 
-    Lead::create(['bedrijf_id' => $bedrijf1->id, 'company_name' => 'Lead B1']);
-    Lead::create(['bedrijf_id' => $bedrijf2->id, 'company_name' => 'Lead B2']);
+    Customer::create(['bedrijf_id' => $bedrijf1->id, 'company_name' => 'Customer B1']);
+    Customer::create(['bedrijf_id' => $bedrijf2->id, 'company_name' => 'Customer B2']);
 
     // Acting as User 1
     Auth::login($user1);
     
-    // Should only see Lead B1 due to BedrijfScope
-    expect(Lead::count())->toBe(1)
-        ->and(Lead::first()->company_name)->toBe('Lead B1');
+    // Should only see Customer B1 due to BedrijfScope
+    expect(Customer::count())->toBe(1)
+        ->and(Customer::first()->company_name)->toBe('Customer B1');
 
     // Acting as User 2
     Auth::login($user2);
     
-    // Should only see Lead B2 due to BedrijfScope
-    expect(Lead::count())->toBe(1)
-        ->and(Lead::first()->company_name)->toBe('Lead B2');
+    // Should only see Customer B2 due to BedrijfScope
+    expect(Customer::count())->toBe(1)
+        ->and(Customer::first()->company_name)->toBe('Customer B2');
 });

@@ -29,10 +29,12 @@ class CustomerForm
                         \Filament\Forms\Components\TextInput::make('email')
                             ->label('E-mailadres')
                             ->email()
+                            ->required()
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('phone')
                             ->label('Telefoonnummer')
                             ->tel()
+                            ->required()
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('address')
                             ->label('Straat en Huisnummer')

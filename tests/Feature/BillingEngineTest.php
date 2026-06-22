@@ -81,12 +81,12 @@ class BillingEngineTest extends TestCase
         $this->assertEquals(242.00, $invoice->total_amount);
     }
 
-    public function test_invoice_can_belong_to_lead_or_user()
+    public function test_invoice_can_belong_to_customer_or_user()
     {
         $bedrijf = Bedrijf::factory()->create();
         
         $user = User::factory()->create(['bedrijf_id' => $bedrijf->id]);
-        $lead = Lead::create([
+        $customer = \App\Models\Customer::create([
             'bedrijf_id' => $bedrijf->id,
             'company_name' => 'Test Corp',
             'contact_person' => 'John Doe',
@@ -100,15 +100,15 @@ class BillingEngineTest extends TestCase
             'due_date' => now(),
         ]);
 
-        $invoiceLead = Invoice::create([
+        $invoiceCustomer = Invoice::create([
             'bedrijf_id' => $bedrijf->id,
-            'customer_type' => Lead::class,
-            'customer_id' => $lead->id,
-            'invoice_number' => 'INV-LEAD',
+            'customer_type' => \App\Models\Customer::class,
+            'customer_id' => $customer->id,
+            'invoice_number' => 'INV-CUSTOMER',
             'due_date' => now(),
         ]);
 
         $this->assertInstanceOf(User::class, $invoiceUser->customer);
-        $this->assertInstanceOf(Lead::class, $invoiceLead->customer);
+        $this->assertInstanceOf(\App\Models\Customer::class, $invoiceCustomer->customer);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\Quote;
 use App\Models\Bedrijf;
 use App\Models\User;
+use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,7 +35,7 @@ test('create quote action generates a valid quote', function () {
     $quote = $action->handle($lead, 1500.50, 14);
 
     expect($quote)->toBeInstanceOf(Quote::class)
-        ->and($quote->lead_id)->toBe($lead->id)
+        ->and($quote->customer->email)->toBe($lead->email)
         ->and($quote->bedrijf_id)->toBe($bedrijf->id)
         ->and($quote->total_amount)->toEqual(1500.50)
         ->and($quote->status)->toBe(QuoteStatus::DRAFT)
@@ -53,7 +54,7 @@ test('quote overdue scope filters correctly', function () {
     
     Auth::login($user);
 
-    $lead = Lead::create([
+    $customer = Customer::create([
         'bedrijf_id' => $bedrijf->id,
         'company_name' => 'Beta Corp',
         'contact_person' => 'Jane Doe',
@@ -62,7 +63,7 @@ test('quote overdue scope filters correctly', function () {
     // Active Quote (not overdue)
     Quote::create([
         'bedrijf_id' => $bedrijf->id,
-        'lead_id' => $lead->id,
+        'customer_id' => $customer->id,
         'quote_number' => 'Q-ACTIVE-001',
         'total_amount' => 1000,
         'valid_until' => now()->addDays(5),
@@ -72,7 +73,7 @@ test('quote overdue scope filters correctly', function () {
     // Overdue Quote
     $overdueQuote = Quote::create([
         'bedrijf_id' => $bedrijf->id,
-        'lead_id' => $lead->id,
+        'customer_id' => $customer->id,
         'quote_number' => 'Q-OVERDUE-001',
         'total_amount' => 2000,
         'valid_until' => now()->subDays(1),
@@ -82,7 +83,7 @@ test('quote overdue scope filters correctly', function () {
     // Accepted Quote (even if past valid_until, it shouldn't be overdue)
     Quote::create([
         'bedrijf_id' => $bedrijf->id,
-        'lead_id' => $lead->id,
+        'customer_id' => $customer->id,
         'quote_number' => 'Q-ACCEPTED-001',
         'total_amount' => 3000,
         'valid_until' => now()->subDays(5),
