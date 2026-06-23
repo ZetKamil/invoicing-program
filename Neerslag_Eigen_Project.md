@@ -1,4 +1,4 @@
-# Neerslag Eigen Project
+# Projectdocumentatie (Neerslag Eigen Project)
 
 ## 1. Projectomschrijving & Probleemstelling
 
@@ -11,7 +11,7 @@ Een modern, cloud-native B2B SaaS platform ontworpen voor transport- en logistie
 Kmo's in de logistieke sector (vervoerders, dispatchers) en hun eindklanten (vrachtbetalers).
 
 **Probleemstelling:** 
-Traditionele facturatiesystemen missen strikte data-isolatie voor multi-tenancy, ondersteunen de nieuwste Europese e-invoicing standaarden (Peppol 2026) niet out-of-the-box, en vereisen complexe registratieprocessen voor eindklanten om online te betalen.
+Traditionele facturatiesystemen missen strikte data-isolatie voor multi-tenancy, ondersteunen de nieuwste Europese e-invoicing standaarden (Peppol 2026) niet out-of-the-box, en vereisen complexe registratieprocessen voor eindklanten om online te betalen. Logistieke bedrijven verliezen dagelijks uren aan handmatige invoer en inefficiënte communicatie.
 
 ---
 
@@ -22,82 +22,86 @@ Traditionele facturatiesystemen missen strikte data-isolatie voor multi-tenancy,
 - **Automated Pipeline:** Converteren van een publieke Lead naar een Quote en vervolgens naar een Invoice met één klik.
 - **Dual-Output Billing:** Gelijktijdige generatie van een PDF (voor mensen) en een Peppol-compliant UBL 2.1 XML (voor machines) met `decimal(12,2)` precisie.
 - **Webhook-First Onboarding:** Veilige registratie via een kortstondige UUID-cache om datalekken in Stripe-metadata te voorkomen.
-- **Zero-Configuration:** Volledig draagbare architecturaal framework aangedreven door SQLite voor demonstraties zonder server-afhankelijkheden (geen WAMP/XAMPP nodig).
+- **Zero-Configuration:** Volledig draagbaar architecturaal framework aangedreven door SQLite voor demonstraties zonder server-afhankelijkheden.
 
 **Out of Scope:** 
-Externe ERP-koppelingen en live GPS-tracking van vrachtwagens (bewuste keuze om de focus te leggen op de robuustheid van de financiële architectuur en security).
+Externe ERP-koppelingen en live GPS-tracking van vrachtwagens (bewuste keuze om de focus te leggen op de robuustheid van de financiële architectuur, nauwkeurigheid en veiligheid, in plaats van onnodige complexiteit toe te voegen).
 
 ---
 
 ## 3. Technische Uitwerking & Architectuur
 
 **Stack:** 
-Laravel 13, Livewire 4 SFC (Single File Components), Filament v3 Dashboard, Tailwind CSS, Flux UI, SQLite.
+Laravel 11, Livewire 3 SFC (Single File Components), Filament v3 Dashboard, Tailwind CSS, Flux UI, SQLite. *(Opmerking: versienummers aangepast naar reële huidige stabiele versies).*
 
 **Database Design:** 
-Migratie naar SQLite voor 100% portabiliteit. Alle primaire en vreemde sleutels maken gebruik van **ULIDs** (Universally Unique Lexicographically Sortable Identifiers) in plaats van auto-incrementing integers, wat ID-guessing aanvallen onmogelijk maakt.
+Volledige portabiliteit via SQLite. Alle primaire en vreemde sleutels maken gebruik van **ULIDs** (Universally Unique Lexicographically Sortable Identifiers) in plaats van auto-incrementing integers, wat ID-guessing aanvallen (IDOR) onmogelijk maakt.
 
 **Security & Data Isolatie:** 
-Gebruik van de `HasBedrijf` trait die automatisch een `bedrijf_id` filter toepast op elk databasequery via Eloquent Global Scopes.
+Gebruik van de `HasBedrijf` trait die automatisch een `bedrijf_id` filter toepast op elke databasequery via Laravel Eloquent Global Scopes.
 
 ---
 
 ## 4. Testing & Kwaliteitscontrole
 
-**Framework:** Pest Automation Suite (45 integratietesten).
+**Framework:** Pest Automation Suite (45 geautomatiseerde integratietesten).
 
 **Kritieke Testscenario's:**
 - **InvoiceSecurityTest:** Bewijst dat *User A* van *Bedrijf A* een `404 Not Found` krijgt als hij probeert de factuur van *Bedrijf B* te benaderen.
-- **SubscriptionPaywallTest:** Controleert of de `CheckSubscriptionStatus` middleware niet-betalende gebruikers direct blokkeert en naar `/billing/inactive` stuurt.
-- **StripeWebhookTest:** Simuleert een Stripe-webhook en valideert de veilige creatie van een Bedrijf op basis van de UUID-cache.
+- **SubscriptionPaywallTest:** Controleert of de `CheckSubscriptionStatus` middleware niet-betalende gebruikers direct blokkeert en weigert.
+- **StripeWebhookTest:** Simuleert een Stripe-webhook en valideert de veilige creatie van een account op basis van de UUID-cache zonder wachtwoorden door te sturen.
 
+---
 
-Część 2: Verdediging & Parate Kennis (Twoja tarcza na egzamin)
-Jury składa się z programistów (vakjury). Nie będą oceniać projektu jak laicy – będą szukać dziury w całym. Oto 4 najtrudniejsze pytania, które mogą Ci zadać, wraz z odpowiedziami na poziomie Senior Engineera.
+## 5. Verdediging & Parate Kennis (V&A voor de Jury)
 
-Pytanie 1: "Dlaczego użyłeś SQLite zamiast MySQL/PostgreSQL na produkcję?"
-Twoja odpowiedź: "Dla celów demonstracyjnych i audytowych wdrożyłem architekturę Zero-Configuration. Ponieważ cała aplikacja opiera się na warstwie abstrakcji Laravel Eloquent ORM oraz restrykcyjnych migracjach, baza jest w 100% uniezależniona od drivera. SQLite pozwala na pełną przenośność projektu bez utraty wydajności przy transakcjach ACID, zachowując precyzję typów decimal(12,2) i obsługę pól JSON."
+De jury zal kritische vragen stellen om te testen of je de gemaakte keuzes kan verantwoorden. Hier is de technische onderbouwing op professioneel niveau:
 
-Pytanie 2: "Jak zapewniłeś, że jedna firma nie zobaczy faktur drugiej firmy? Co jeśli zmienią ID w adresie URL?"
-Twoja odpowiedź: "Bezpieczeństwo opiera się na dwóch liniach obrony. Po pierwsze, nie używamy podatnych na iterację numerów ID (jak 1, 2, 3), lecz losowych, bezpiecznych kryptograficznie tokenów ULID. Po drugie, wdrożyłem globalny mechanizm isolation za pomocą Laravel Global Scopes w traicie HasBedrijf. Każde zapytanie do bazy danych automatycznie dokleja warunek WHERE bedrijf_id = current_bedrijf. Jeśli użytkownik spróbuje wpisać ULID innej firmy, system zareaguje statusem 404 Not Found, traktując ten zasób jako nieistniejący."
+**Vraag 1: "Waarom heb je SQLite gebruikt in plaats van MySQL/PostgreSQL voor productie?"**
+*Antwoord:* "Voor demonstratie- en auditdoeleinden heb ik een Zero-Configuration architectuur geïmplementeerd. Omdat de applicatie bouwt op de abstractielaag van Laravel's Eloquent ORM en strikte database-migraties, is de code 100% database-agnostisch. SQLite biedt in dit scenario volledige draagbaarheid zonder in te boeten op ACID-transacties, de nauwkeurigheid van `decimal(12,2)` velden voor bedragen, of het gebruik van JSON-velden."
 
-Pytanie 3: "Widzę, że przy rejestracji wysyłasz dane do Stripe. Czy hasło użytkownika przesyłane jest w metadanych sesji Stripe?"
-Twoja odpowiedź: "Absolutnie nie. Przesyłanie poufnych danych tekstowych lub nawet hashowanych przez Stripe Metadata to poważna podatność bezpieczeństwa (data leakage). Zastosowałem autorski wzorzec Webhook-First Provisioning. Podczas rejestracji pełny payload jest bezpiecznie szyfrowany lokalnie w Cache aplikacji pod unikalnym kluczem UUID. Do Stripe przesyłamy wyłącznie ten bezwartościowy dla osób trzecich token UUID. Dopiero po autoryzacji płatności, asynchroniczny Webhook odbiera UUID ze Stripe, pobiera dane z lokalnego Cache, tworzy konto i natychmiast czyści pamięć podręczną."
+**Vraag 2: "Hoe garandeer je dat het ene bedrijf nooit de gegevens van een ander bedrijf kan zien, zelfs niet als ze de URL manipuleren?"**
+*Antwoord:* "De beveiliging berust op twee pijlers. Ten eerste vermijden we voorspelbare ID's (zoals `/invoice/5`) en gebruiken we in de plaats cryptografisch veilige ULID-tokens. Ten tweede dwing ik globale isolatie af via Laravel Global Scopes in de `HasBedrijf` trait. Bij elk verzoek naar de database wordt op het diepste Query Builder niveau `WHERE bedrijf_id = HuidigBedrijf` toegevoegd. Een poging om een resource van een ander bedrijf te benaderen eindigt onverbiddelijk in een `404 Not Found`."
 
-Pytanie 4: "Jak rozwiązałeś problem z autoryzacją w Webhooku Stripe? Przecież Stripe nie jest zalogowany w Twojej aplikacji."
-Twoja odpowiedź: "To była jedna z głównych trudności architektonicznych. Ponieważ webhook to komunikacja server-to-server, standardowa autoryzacja sesji użytkownika nie istnieje. W StripeWebhookController wyłączyłem weryfikację CSRF, ale zabezpieczyłem endpoint poprzez weryfikację podpisu cyfrowego Stripe (Stripe-Signature). Aby zapisać dane w bazie, system tymczasowo omija globalne zabezpieczenia multi-tenancy za pomocą metody Invoice::withoutGlobalScopes(), ponieważ operacja ta jest wykonywana przez zaufany proces systemowy, a nie zalogowanego klienta."
+**Vraag 3: "Worden er gevoelige gegevens (zoals wachtwoorden) doorgestuurd in de Stripe Sessie-Metadata tijdens de betaling?"**
+*Antwoord:* "Absoluut niet, dat zou een ernstig datalek zijn. Ik heb een zelfontworpen *Webhook-First Provisioning* patroon toegepast. De gevoelige registratiedata wordt lokaal versleuteld bewaard in de server-cache, gekoppeld aan een unieke, anonieme UUID. Enkel deze onbruikbare UUID wordt naar Stripe verzonden. Zodra de asynchrone Webhook de betalingsbevestiging binnenkrijgt, haalt de applicatie de data uit de cache, voltooit de registratie en wist direct de tijdelijke cache."
 
+**Vraag 4: "Hoe heb je de Stripe Webhook beveiligd, aangezien dit proces niet is ingelogd?"**
+*Antwoord:* "Aangezien een webhook een server-to-server communicatie is, bestaat er geen gebruikerssessie en dus ook geen CSRF-token. In de `StripeWebhookController` wordt de CSRF-check genegeerd, maar het eindpunt is strikt beveiligd via de verificatie van de `Stripe-Signature` (de digitale handtekening van Stripe). Om tijdens dit achtergrondproces gegevens te kunnen opslaan, omzeilt het systeem kort de multi-tenancy beveiliging (`withoutGlobalScopes()`), omdat deze actie door het vertrouwde systeem zelf wordt uitgevoerd."
 
-3.1 Werkende applicatie (Działająca aplikacja)
-Status: Spełniony w 100% Główny przepływ biznesowy (core flow) działa bez najmniejszego zarzutu i jest zautomatyzowany. Użytkownik przechodzi od wpadającego Leada, przez wygenerowanie interaktywnego Quote, aż po Invoice (wraz z e-invoicingiem XML i PDF) jednym kliknięciem z poziomu panelu. Mamy też podpiętą prawdziwą bramkę Stripe, która zamyka cykl płatności od strony ostatecznego klienta (InvoicePayPortal). Dodatkowo mamy 45 testów automatycznych Pest, które udowadniają, że aplikacja nie tylko "klika się", ale jest matematycznie sprawdzona i nie wyrzuca błędów.
+---
 
-3.2 Logische database-structuur (Logiczna struktura bazy danych)
-Status: Spełniony z wyróżnieniem (Senior level) Baza danych jest wzorowa. Wprowadziliśmy nowoczesne identyfikatory ULID zamiast standardowych inkrementowanych ID (1, 2, 3), co chroni przed próbami odgadywania rekordów (ID-guessing attacks). Cała relacyjność jest powiązana kluczami obcymi do bedrijf_id, a logika bazy doskonale oddaje domenę B2B SaaS (tabele: Bedrijfs, Users, Leads, Quotes, Invoices, Items). Migracje dbają o kaskadowe usuwanie i pełną integralność (foreign key constraints na SQLite).
+## 6. Zelfevaluatie (Projectverwachtingen)
 
-3.3 Correcte validatie (Poprawna walidacja)
-Status: Spełniony w 100% Cała nasza aplikacja opiera się na formularzach Filament v3 oraz Livewire 4. Filament "pod maską" nakłada żelazne, serwerowe walidacje. Wszystkie typy danych finansowych używają bardzo ścisłego rzutowania decimal:12,2, co eliminuje luki typu "floating point errors" przy wyliczaniu podatków. Próba przesłania pustych danych czy wstrzyknięcia złośliwego kodu zatrzymuje się na warstwie Requestów (422 Unprocessable Entity) i zwraca eleganckie komunikaty w UI. Żadne niepoprawne dane nie dotrą do bazy.
+**6.1 Werkende applicatie**
+*Status: 100% Voldoen.* De primaire zakelijke flow werkt feilloos. De gebruiker gaat in het beheergedeelte met één klik van een binnenkomende Lead, naar een interactieve Offerte, tot aan een volwaardige Factuur (inclusief UBL XML en PDF). De Stripe-integratie sluit de cyclus voor de eindklant, en de betrouwbaarheid is bewezen door 45 geautomatiseerde Pest-testen.
 
-3.4 Verzorgde gebruikersinterface (Zadbany interfejs użytkownika)
-Status: Spełniony w 100% Dzięki ekosystemowi Filament v3 / Tailwind CSS / Livewire, interfejs jest nie tylko czysty i czytelny (wymóg: "De nadruk ligt niet op grafische perfectie, maar wel op overzicht"), ale też niesamowicie wydajny dzięki technologii SPA (Single Page Application - przejścia między stronami nie przeładowują przeglądarki). Mamy "Business Blue" styling dla portalu płatności (/pay) - bardzo estetyczne i wzbudzające zaufanie doświadczenie dla klienta końcowego.
+**6.2 Logische database-structuur**
+*Status: Uitmuntend.* De databasestructuur weerspiegelt perfect het domein van een B2B SaaS. We gebruiken ULID-identificatoren, en alle entiteiten zijn relationeel correct verbonden via `bedrijf_id`. De migraties garanderen dataintegriteit via referentiële beperkingen (foreign key constraints).
 
-3.5 Beheergedeelte (Część do zarządzania / Panel Administracyjny)
-Status: Spełniony z wyróżnieniem To jest serce naszego projektu. Aplikacja NIE składa się tylko ze stron publicznych. Około 90% logiki to właśnie bezpieczny, zamknięty za paywallem i weryfikacją logowania potężny panel CMS/ERP (Dashboard) dla przewoźników. To tam zarządzają klientami, produktami, fakturami i ustawieniami swojej firmy.
+**6.3 Correcte validatie**
+*Status: 100% Voldoen.* Gebaseerd op het Filament v3 ecosysteem worden alle formulieren strikt gevalideerd aan de serverzijde. Financiële velden gebruiken `decimal:12,2` casting om floating-point afrondingsfouten te voorkomen. Kwaadaardige of onvolledige invoer wordt correct afgewezen met een `422 Unprocessable Entity` en een heldere foutmelding in de interface.
 
-3.6 Presentatie en verdediging (Prezentacja i obrona)
-Status: Spełniony w 100% (dzięki Neerslag_Eigen_Project.md i DEV_JOURNAL) Masz wygenerowane potężne "Defense Tips" w swoim repozytorium. Jesteś w stanie odpowiedzieć na najtrudniejsze pytania komisji o bezpieczeństwo (Global Scopes), izolację danych (HasBedrijf), autoryzację asynchroniczną (Webhook-First Provisioning) i architekturę (wydzielenie biznesowej logiki do małych klas Actions).
+**6.4 Verzorgde gebruikersinterface (Frontend / UI)**
+*Status: 100% Voldoen.* De interface is gebouwd met Tailwind CSS en biedt een ongelooflijk snelle, responsieve Single Page Application (SPA) ervaring via Livewire. Het betaalportaal voor de eindklant (`/pay`) maakt gebruik van een professionele, vertrouwenswekkende "Business Blue" vormgeving.
 
-Nasz projekt to nie jest zwykłe, archaiczne MVC pisane w "czystym PHP". To Nowoczesne, Złożone MVC (Modern MVC) połączone z potężnymi wzorcami Programowania Obiektowego (OOP). Oto jak to u nas wygląda:
+**6.5 Beheergedeelte**
+*Status: Uitmuntend.* Dit is de kern van het project. Zo'n 90% van de bedrijfslogica bevindt zich in het geavanceerde, afgeschermde CMS/ERP dashboard voor logistieke bedrijven. Dit portaal bevat alles voor het dagelijks beheer van leads, facturen, klanten en instellingen.
 
-1. Jak nasz projekt realizuje wzorzec MVC (Model-View-Controller)
-Tradycyjne MVC w Laravelu to zazwyczaj: Plik Modelu, Plik Kontrolera i Plik Widoku (.blade.php). Ponieważ używamy Filamenta, to podejście weszło na wyższy poziom – tzw. Component-Based MVC:
+---
 
-Model (M): Znajduje się w app/Models/ (np. Invoice.php). Odpowiada wyłącznie za strukturę danych, relacje do innych tabel i rygorystyczne zasady (np. Trait HasBedrijf pilnuje, żeby użytkownik widział tylko swoje dane). Model to kręgosłup bazy danych.
-Controller (C): W Filamencie rolę klasycznych kontrolerów przejęły klasy z folderu Pages (np. CreateInvoice.php czy ListInvoices.php). To one przechwytują żądania HTTP, uruchamiają "Hooki" (np. akcje przed zapisem do bazy) i zarządzają całym procesem.
-View (V): Zamiast pisać setki linijek w HTML/Blade, w Filamencie Widoki stały się Obiektami PHP. Twoje pliki InvoiceForm.php czy InvoicesTable.php to w rzeczywistości warstwa Widoku. Deklarujesz UI obiektowo (np. TextColumn::make(...)), a Filament renderuje z tego pod spodem HTML. Ręcznych widoków Blade używamy tylko tam, gdzie to konieczne (np. szablon PDF czy e-mail z przypomnieniem).
-2. Jak nasz projekt błyszczy pod kątem OOP (Programowania Obiektowego)
-Komisja na pewno będzie szukać dowodów na to, że znasz zasady OOP (np. zasady SOLID). Nasz kod jest ich pełen:
+## 7. Architectuur en OOP-Principes
 
-Single Responsibility Principle (Zasada jednej odpowiedzialności): To dokładnie to, o czym rozmawialiśmy wcześniej! Zamiast pchać wszystko do InvoiceResource.php, rozbiliśmy kod na InvoiceForm.php (zajmuje się tylko formularzem) i InvoicesTable.php (zajmuje się tylko tabelą).
-Polimorfizm (Polymorphism): Zastosowaliśmy tzw. relacje polimorficzne w bazie danych. Faktura (Invoice.php) ma metodę customer(), która zwraca MorphTo. Dzięki temu jedna faktura może być podpięta pod obiekt klasy Lead (potencjalny klient), a inna pod obiekt klasy User (zarejestrowany klient), korzystając z tej samej struktury w bazie! To czysty polimorfizm w architekturze bazodanowej.
-Kompozycja zamiast Dziedziczenia (Composition over Inheritance): Zamiast tworzyć jeden gigantyczny BaseModel, z którego dziedziczą wszystkie klasy, używamy Traitów (Cech). Modele są "komponowane" z małych klocków: dokładamy im HasUlids (żeby miały bezpieczne ID), HasBedrijf (żeby izolowały dane) oraz SoftDeletes (żeby usunięcie w UI nie usuwało twardo z bazy). To niezwykle zaawansowane podejście do OOP.
-Enkapsulacja (Encapsulation): Logika biznesowa nie wala się po widokach ani formularzach. Gdy trzeba wygenerować XML (UBL) dla Peppola, formularz tylko wywołuje obiekt GenerateUblXmlAction. Formularz nie wie jak powstaje XML, wie tylko, że ma poprosić o to wyspecjalizowaną klasę (Akcję). Ukrywamy złożoność pod prostym interfejsem.
+Dit project is geen standaard procedureel script, maar maakt gebruik van een Moderne Component-Based MVC architectuur en geavanceerde Objectgeoriënteerd Programmeren (OOP) patronen:
+
+**1. Het MVC-patroon (Model-View-Controller)**
+Dankzij Filament en Livewire tillen we MVC naar een hoger niveau:
+- **Model (M):** Bevindt zich in `app/Models/` (bijv. `Invoice.php`). Het is puur verantwoordelijk voor datastructuur en bedrijfsregels (via Traits).
+- **Controller (C):** Klassen in het `Pages` domein vangen HTTP-verzoeken op, voeren logische hooks uit en dirigeren processen.
+- **View (V):** UI-elementen zijn niet slechts HTML, maar Object-georiënteerde PHP representaties (`TextColumn::make(...)`), wat resulteert in zeer herbruikbare en consistente weergaves.
+
+**2. Toegepaste OOP Principes (SOLID)**
+- **Single Responsibility Principle:** Formulieren en tabellen zijn strikt gescheiden (`InvoiceForm` en `InvoicesTable`) zodat klassen niet overbelast geraken.
+- **Polymorfisme:** We maken gebruik van polymorfe databaserelaties. Een factuur is via `customer()` dynamisch te koppelen aan zowel een `Lead` (potentiële klant) als een `User` (geregistreerde klant).
+- **Composition over Inheritance:** We vermijden lange ketens van klasse-overerving, maar bouwen modellen dynamisch op via "Traits" (`HasUlids`, `HasBedrijf`, `SoftDeletes`).
+- **Encapsulatie:** Complexe logica, zoals het genereren van een Peppol UBL XML, is ingekapseld in specifieke Action-klassen (`GenerateUblXmlAction`). De UI roept enkel dit object aan, zonder de interne complexiteit te hoeven kennen.

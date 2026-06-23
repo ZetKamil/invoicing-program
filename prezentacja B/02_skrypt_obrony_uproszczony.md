@@ -104,7 +104,25 @@ Znajdź sekcję w instrukcji switch: `case 'checkout.session.completed':` oraz l
 
 ---
 
-## 🛡️ KROK 6: Ogień Pytań (Odpowiedzi na pytania Nauczyciela)
+## 🕒 KROK 6: Wsparcie Techniczne (Impersonacja i Global Scopes Bypass)
+
+**Akcja na ekranie (UI):** 
+Logujesz się jako główny Super Admin aplikacji. Z menu wybierasz opcję "Wciel się w firmę" (Impersonate). Ekran odświeża się i pokazuje panel z perspektywy wybranego klienta. Klikasz "Opuść wcielenie" (Leave Impersonation), by wrócić do bycia Super Adminem.
+
+**Kod do otwarcia w IDE:** 
+Otwórz plik `app/Livewire/BedrijfSwitcher.php`.
+
+**Zaznacz myszką w kodzie:** 
+Metodę `leaveImpersonation()`, w szczególności linijkę z `User::withoutGlobalScopes()->find($superAdminId);`.
+
+**Co mówisz (Słowo w słowo):**
+> "System Multi-Tenancy jest tak szczelny, że nawet ja jako właściciel platformy nie widzę danych klientów. Aby jednak móc świadczyć im wsparcie techniczne, stworzyłem mechanizm **Wcielania się (Impersonation)**. Przełączam kontekst globalnej sesji na ID mojego klienta.
+> 
+> Największym wyzwaniem inżynieryjnym był jednak powrót. Kiedy próbowałem opuścić wcielenie, mój własny system mnie blokował – szukał mojego konta Super Admina wewnątrz zamkniętej bazy danych klienta! Jak widzicie w klasie `BedrijfSwitcher`, rozwiązałem to stosując zaawansowaną technikę **Global Scopes Bypass**. Używam metody `withoutGlobalScopes()`, aby na ułamek sekundy wyłączyć `BedrijfScope`, odnaleźć swoje prawdziwe uprawnienia w głównej bazie i z powrotem zalogować się do właściwego środowiska na poziomie sesji."
+
+---
+
+## 🛡️ KROK 7: Ogień Pytań (Odpowiedzi na pytania Nauczyciela)
 
 Nauczyciel zapyta o konkrety. Wykuj te odpowiedzi:
 

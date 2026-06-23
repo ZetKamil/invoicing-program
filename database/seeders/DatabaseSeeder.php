@@ -11,12 +11,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. Platform configuratie (De SaaS-eigenaar / SuperAdmin)
         $this->call([
             BedrijfSeeder::class,
             UserSeeder::class,
-            ProductSeeder::class,
-            LeadQuoteSeeder::class,
-            InvoiceSeeder::class,
+        ]);
+
+        // 2. Multi-Tenant Demo Data (4 logistieke bedrijven met facturen, leads en producten)
+        $this->call([
             ClientDemoSeeder::class,
         ]);
     }

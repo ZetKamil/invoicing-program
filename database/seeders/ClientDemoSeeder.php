@@ -64,7 +64,7 @@ class ClientDemoSeeder extends Seeder
             ],
         ];
 
-        // Freight shippers / B2B lead prospects â€“ cycled across all 4 bedrijven
+        // Freight shippers / B2B lead prospects - cycled across all 4 bedrijven
         $sampleLeads = [
             ['company_name' => 'Beko Huishoudtoestellen NV',   'contact_person' => 'Ahmed Boulanger',    'email' => 'ahmedb@beko.eu'],
             ['company_name' => 'Decathlon Logistiek BE',        'contact_person' => 'Sophie Mertens',     'email' => 'smertens@decathlon.be'],
@@ -147,7 +147,7 @@ class ClientDemoSeeder extends Seeder
             $products = [
                 Product::create([
                     'bedrijf_id'    => $bedrijf->id,
-                    'name'         => 'Wegtransport â€“ Standaard',
+                    'name'         => 'Wegtransport - Standaard',
                     'description'  => 'Standaard wegtransport binnen België',
                     'price'        => 850.00,
                     'type'         => ProductType::SERVICE,
@@ -155,7 +155,7 @@ class ClientDemoSeeder extends Seeder
                 ]),
                 Product::create([
                     'bedrijf_id'    => $bedrijf->id,
-                    'name'         => 'Wegtransport â€“ Express',
+                    'name'         => 'Wegtransport - Express',
                     'description'  => 'Expressleveringen op dezelfde dag',
                     'price'        => 1450.00,
                     'type'         => ProductType::SERVICE,
@@ -284,7 +284,7 @@ class ClientDemoSeeder extends Seeder
                 InvoiceItem::create([
                     'invoice_id'  => $invoice->id,
                     'product_id'  => $set['product']->id,
-                    'description' => $set['product']->name . ' â€“ ' . $set['lead']->company_name,
+                    'description' => $set['product']->name . ' - ' . $set['lead']->company_name,
                     'quantity'    => $qty,
                     'unit_price'  => $unitPrice,
                     'tax_rate'    => 21,
