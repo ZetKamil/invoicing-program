@@ -46,7 +46,7 @@ Linijki 14-25, gdzie znajduje się metoda `bootHasBedrijf()`.
 **Co mówisz (Słowo w słowo):**
 > "Zanim powiem jak te dane zapisały się w bazie, muszę nakreślić architekturę przepływu. Żądanie z formularza HTTP najpierw przechodzi przez **Middleware autentykacji**. To bardzo wczesny etap, na którym framework weryfikuje ciastko sesyjne i ładuje do pamięci serwera obiekt użytkownika wraz z jego `bedrijf_id`.
 > 
-> Mając użytkownika w pamięci, kontroler zleca zapis. Używam tu architektury Multi-Tenancy. Aby zachować kod zgodny z zasadą DRY, stworzyłem Trait `HasBedrijf`. Jak widzicie, podpinam w nim event `creating`. Kiedy ORM chce zrobić Insert, zatrzymuje na moment proces, wyciąga z pamięci (od Middleware) identyfikator firmy i dokleja go do modelu.
+> Mając użytkownika w pamięci, kontroler zleca zapis. Używam tu architektury Multi-Tenancy. Aby zachować kod zgodny z zasadą DRY, stworzyłem Trait `HasBedrijf`. Jak widzicie, podpinam w nim event `creating`. Kiedy ORM chce zrobić Insert, zatrzymuje na moment proces, wyciąga z pamięci (od Middleware) identyfikator firmy i wstrzykuje go do modelu.
 > *(Przełącz się na plik BedrijfScope.php)*
 > W tym samym traicie rejestruję również `BedrijfScope`. Z kolei jego zadaniem jest bezpieczeństwo odczytu. Scope przechwytuje zapytania typu SELECT już w Query Builderze i na twardo dokleja klauzulę `WHERE bedrijf_id = X`. Całkowicie uwalnia to moje kontrolery od powtarzania tej logiki."
 
@@ -128,7 +128,7 @@ Nauczyciel zapyta o konkrety. Wykuj te odpowiedzi:
 
 ### Pytanie 1: "Pokaż mi ten przycisk 'Generuj Fakturę'. Jak on działa na frontendzie? Przeładowuje stronę?"
 **Twoja odpowiedź:**
-> "Używam biblioteki **Livewire**. Kiedy kliknąłem przycisk, strona nie została przeładowana. Zamiast tego JavaScript w tle (Fetch API) wysłał asynchroniczne zapytanie do serwera. PHP przetworzyło moją klasę `CreateInvoiceFromQuoteAction` i zwróciło z powrotem tylko mały wycinek kodu HTML, który zastąpił przycisk, pokazując zielony komunikat sukcesu. To daje odczucie szybkiej aplikacji SPA (Single Page Application)."
+> "Używam biblioteki **Livewire**. Kiedy kliknąłem przycisk, strona nie została przeładowana. Zamiast tego JavaScript w tle wysłał asynchroniczne żądanie AJAX do serwera. PHP przetworzyło moją klasę `CreateInvoiceFromQuoteAction` i zwróciło z powrotem tylko mały wycinek kodu HTML, który zastąpił przycisk, pokazując zielony komunikat sukcesu. To daje odczucie szybkiej aplikacji SPA (Single Page Application)."
 
 ### Pytanie 2: "A jak to zabezpieczyłeś przed podszywaniem się (Cross-Site Request Forgery - CSRF)?"
 **Twoja odpowiedź:**
@@ -141,3 +141,12 @@ Nauczyciel zapyta o konkrety. Wykuj te odpowiedzi:
 ### Pytanie 4: "Przechowujesz sesję. Jak uchronisz użytkownika przed atakiem typu XSS i przejęciem ciasteczka z sesją (Session Hijacking)?"
 **Twoja odpowiedź:**
 > "W pliku konfiguracyjnym sesji mam włączoną flagę **HTTP-Only** dla ciasteczek (`session.cookie_httponly = true`). To oznacza, że żadne skrypty JavaScript (np. jeśli ktoś wstrzyknąłby złośliwy kod XSS w opis faktury) nie mogą odczytać tego ciasteczka za pomocą `document.cookie`. Sesja jest wymieniana tylko przez przeglądarkę pod maską. Oczywiście ruch idzie po szyfrowanym HTTPS, więc po drodze nikt go nie podsłucha."
+
+### Pytanie 5: "Jak upewniłeś się, że aplikacja jest responsywna i dlaczego tak zbudowałeś interfejs (UX)?"
+**Twoja odpowiedź:**
+> "Cały interfejs (UX) opiera się na zasadzie 'Mobile-First'. Ponieważ kierowcy ciężarówek lub dyspozytorzy w terenie często otwierają faktury na smartfonach, użyłem **Tailwind CSS**. Dzięki klasom narzędziowym (utility classes) takim jak `md:grid-cols-2` czy `flex-col`, mój layout dynamicznie łamie się na mniejszych ekranach. Z kolei do budowy panelu administracyjnego użyłem biblioteki **Flux UI** w połączeniu z **Filamentem**, co pozwoliło mi zachować spójny, korporacyjny styl bez konieczności pisania własnego CSS-a od zera. Zależało mi na minimalizmie – logistyka to chaos, więc aplikacja musi być przejrzysta."
+
+### Pytanie 6: "Jakie są największe ograniczenia (beperkingen) tego projektu i jak byś go rozwinął w przyszłości?"
+**Twoja odpowiedź:**
+> "Największym ograniczeniem technicznym na ten moment jest baza danych. Aktualnie (w fazie MVP) aplikacja działa na **SQLite**. SQLite świetnie sprawdza się do prototypowania i małego ruchu, ale przy dużej liczbie firm logistycznych generujących setki faktur jednocześnie, SQLite zablokuje bazę (database locks). Dlatego pierwszym krokiem przed wejściem na rynek będzie zmiana jednej linijki w pliku `.env` i migracja na **PostgreSQL**, który doskonale radzi sobie ze współbieżnością.
+> Jeśli chodzi o rozwój biznesowy, chciałbym w przyszłości dodać integrację z mapami (Google Maps API), aby automatycznie wyliczać dystans trasy i na tej podstawie wyceniać transport w locie."

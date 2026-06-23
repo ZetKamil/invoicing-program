@@ -60,6 +60,56 @@
   - `StripeWebhookController.php` (Verwerkt asynchrone server-to-server betalingsbevestigingen).
 * **Databankstructuur:**
   Relaties lopen centraal via de tabel `Bedrijfs`. Tabellen zoals `Users`, `Leads`, `Quotes` en `Invoices` bevatten allemaal een `bedrijf_id` foreign key. Om ID-guessing aanvallen te vermijden, zijn alle primaire sleutels cryptografisch veilige **ULIDs**.
+  
+  *Hieronder het visuele Entity-Relationship (ER) diagram van de kerntabellen:*
+
+  ```mermaid
+  erDiagram
+      Bedrijfs ||--o{ Users : "heeft (Tenant)"
+      Bedrijfs ||--o{ Customers : "beheert"
+      Bedrijfs ||--o{ Leads : "ontvangt"
+      Bedrijfs ||--o{ Quotes : "maakt"
+      Bedrijfs ||--o{ Invoices : "factureert"
+      Bedrijfs ||--o{ Products : "biedt aan"
+
+      Customers ||--o{ Quotes : "vraagt aan"
+      Customers ||--o{ Invoices : "ontvangt"
+      
+      Quotes ||--|{ QuoteItems : "bevat (Lijnen)"
+      Invoices ||--|{ InvoiceItems : "bevat (Lijnen)"
+
+      Bedrijfs {
+          string id PK "ULID"
+          string name
+          string vat_number
+      }
+      Users {
+          string id PK "ULID"
+          string bedrijf_id FK
+          string email
+          string password
+      }
+      Customers {
+          string id PK "ULID"
+          string bedrijf_id FK
+          string company_name
+          string vat_number
+      }
+      Quotes {
+          string id PK "ULID"
+          string bedrijf_id FK
+          string customer_id FK
+          decimal total_amount "BCMath (12,2)"
+          string status
+      }
+      Invoices {
+          string id PK "ULID"
+          string bedrijf_id FK
+          string customer_id FK
+          decimal total_amount "BCMath (12,2)"
+          string status
+      }
+  ```
 * **API’s:** 
   Stripe API (Checkout Sessions & Webhooks) is geïntegreerd voor betalingsverwerking.
 
@@ -115,3 +165,7 @@
   - `livewire/flux` (UI Components)
 * **Correcte vermelding:** 
   Er zijn geen externe knip-en-plak templates gebruikt; de volledige front- en back-end zijn opgebouwd binnen het Filament/Tailwind ecosysteem.
+
+
+9. Canban board
+https://github.com/users/ZetKamil/projects/5/views/2
