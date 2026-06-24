@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kompletny Diagram Bazy Danych - Facturatieprogramma</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default', maxTextSize: 90000 });
+    </script>
+    <style>
+        body { margin: 0; padding: 20px; font-family: sans-serif; background-color: #f0f2f5; }
+        .mermaid { display: flex; justify-content: center; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center; color: #333;">Diagram Entity-Relationship (Architektura Bazy Danych)</h2>
+    <div class="mermaid">
+erDiagram
+    Bedrijfs {
+        string id PK "ULID"
+        string name
+        string slug
+        string vat_number
+        string peppol_id
+        string stripe_id
+        json settings
+        string stripe_subscription_id
+        string stripe_subscription_status
+        json active_packages
+        datetime created_at
+        datetime updated_at
+    }
+
+    Users {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string name
+        string email
+        string password
+        string role
+        boolean is_super_admin
+        string remember_token
+        datetime created_at
+        datetime updated_at
+    }
+    
+    Leads {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string company_name
+        string contact_person
+        string email
+        string phone
+        string audit_report_url
+        string status
+        json metadata
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    Customers {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string company_name
+        string vat_number
+        string contact_person
+        string email
+        string phone
+        string address
+        string zip_code
+        string city
+        string country
+        json metadata "Schemaless Data"
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    Products {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string name
+        text description
+        decimal price
+        string type
+        boolean is_recurring
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    Quotes {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string customer_id FK
+        string quote_number
+        decimal total_amount
+        date valid_until
+        string status
+        text description
+        json metadata
+        string trailer_type
+        string loading_address
+        string delivery_address
+        date loading_date
+        date delivery_date
+        int cargo_weight_kg
+        int pallet_count
+        string incoterms
+        datetime created_at
+        datetime updated_at
+    }
+
+    QuoteItems {
+        string id PK "ULID"
+        string quote_id FK
+        string product_id FK
+        string description
+        int quantity
+        decimal unit_price
+        decimal tax_rate
+        decimal total
+        datetime created_at
+        datetime updated_at
+    }
+
+    Invoices {
+        string id PK "ULID"
+        string bedrijf_id FK
+        string customer_id FK
+        string quote_id FK
+        string invoice_number
+        decimal subtotal
+        decimal tax_total
+        decimal total_amount
+        string ubl_xml_path
+        date due_date
+        datetime paid_at
+        string status
+        text notes
+        string cmr_number
+        string truck_license_plate
+        date loading_date
+        date delivery_date
+        string trailer_type
+        string loading_address
+        string delivery_address
+        int cargo_weight_kg
+        int pallet_count
+        string trailer_license_plate
+        string incoterms
+        boolean is_reverse_charge
+        string cmr_document_path
+        string driver_name
+        string driver_phone
+        string stripe_payment_intent_id
+        datetime created_at
+        datetime updated_at
+    }
+
+    InvoiceItems {
+        string id PK "ULID"
+        string invoice_id FK
+        string product_id FK
+        string description
+        int quantity
+        decimal unit_price
+        decimal tax_rate
+        decimal total
+        datetime created_at
+        datetime updated_at
+    }
+
+    Bedrijfs ||--o{ Users : "has_many"
+    Bedrijfs ||--o{ Leads : "has_many"
+    Bedrijfs ||--o{ Customers : "has_many"
+    Bedrijfs ||--o{ Products : "has_many"
+    Bedrijfs ||--o{ Quotes : "has_many"
+    Bedrijfs ||--o{ Invoices : "has_many"
+
+    Customers ||--o{ Quotes : "requests"
+    Customers ||--o{ Invoices : "receives"
+    
+    Leads ||--o{ Quotes : "converted_to"
+
+    Quotes ||--o{ Invoices : "generates"
+    Quotes ||--|{ QuoteItems : "contains"
+    Invoices ||--|{ InvoiceItems : "contains"
+
+    Products ||--o{ QuoteItems : "used_in"
+    Products ||--o{ InvoiceItems : "used_in"
+    </div>
+</body>
+</html>

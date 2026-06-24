@@ -94,6 +94,9 @@
           string bedrijf_id FK
           string company_name
           string vat_number
+          string email
+          string phone
+          json metadata "Schemaless (Nullable)"
       }
       Quotes {
           string id PK "ULID"

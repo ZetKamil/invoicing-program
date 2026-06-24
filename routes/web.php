@@ -40,7 +40,7 @@ Route::view('/billing/inactive', 'billing.inactive')->name('billing.inactive');
 | system administrative actions.
 */
 
-// Stripe Webhook Handler (Komunikacja Serwer-Serwer)
+// Stripe Webhook Handler
 // Uses a named rate limiter (registered in AppServiceProvider) instead of
 // the generic throttle:60,1 — provides proper Retry-After headers and
 // limits to 30 req/min per IP (Stripe never sends more than 1 per event).
