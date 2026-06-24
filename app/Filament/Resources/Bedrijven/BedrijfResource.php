@@ -18,6 +18,10 @@ class BedrijfResource extends Resource
 {
     protected static ?string $model = Bedrijf::class;
 
+    protected static ?string $modelLabel = 'Bedrijf';
+    
+    protected static ?string $pluralModelLabel = 'Bedrijven';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Super Admin';
