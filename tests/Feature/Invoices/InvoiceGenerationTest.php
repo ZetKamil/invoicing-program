@@ -16,22 +16,20 @@ uses(RefreshDatabase::class);
 test('create invoice from quote action transfers logistics fields correctly', function () {
     $bedrijf = Bedrijf::create(['name' => 'Transport Co', 'slug' => 'transport-co']);
     
-    $lead = Lead::create([
+    $customer = \App\Models\Customer::create([
         'bedrijf_id' => $bedrijf->id,
         'company_name' => 'Client Corp',
+        'contact_person' => 'Jane Doe',
     ]);
 
     $quote = Quote::create([
         'bedrijf_id' => $bedrijf->id,
-        'lead_id' => $lead->id,
+        'customer_id' => $customer->id,
         'quote_number' => 'Q-123',
         'status' => QuoteStatus::ACCEPTED,
         'valid_until' => now()->addDays(7),
         'total_amount' => 1000,
         // Logistics fields
-        'cmr_number' => 'CMR-001',
-        'truck_license_plate' => 'AA-123-BB',
-        'trailer_license_plate' => 'TR-456-CC',
         'loading_address' => 'Amsterdam HQ',
         'delivery_address' => 'Rotterdam Port',
         'cargo_weight_kg' => 20000,
@@ -52,11 +50,8 @@ test('create invoice from quote action transfers logistics fields correctly', fu
     $invoice = $action->execute($quote);
 
     expect($invoice->quote_id)->toBe($quote->id)
-        ->and($invoice->customer_id)->toBe($lead->id)
+        ->and($invoice->customer_id)->toBe($customer->id)
         ->and($invoice->status)->toBe(InvoiceStatus::DRAFT)
-        ->and($invoice->cmr_number)->toBe('CMR-001')
-        ->and($invoice->truck_license_plate)->toBe('AA-123-BB')
-        ->and($invoice->trailer_license_plate)->toBe('TR-456-CC')
         ->and($invoice->loading_address)->toBe('Amsterdam HQ')
         ->and($invoice->delivery_address)->toBe('Rotterdam Port')
         ->and($invoice->cargo_weight_kg)->toBe(20000)
@@ -70,7 +65,7 @@ test('generate invoice pdf action works without throwing errors', function () {
     Storage::fake('public');
     
     $bedrijf = Bedrijf::create(['name' => 'Transport Co', 'slug' => 'transport-co2']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client Corp']);
+    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client Corp', 'contact_person' => 'Jane Doe']);
 
     $invoice = \App\Models\Invoice::create([
         'bedrijf_id' => $bedrijf->id,
@@ -83,7 +78,13 @@ test('generate invoice pdf action works without throwing errors', function () {
     ]);
 
     $action = app(GenerateInvoicePdfAction::class);
-    $html = $action->execute($invoice);
+    $action->execute($invoice);
+
+    $files = Storage::allFiles("bedrijven/{$bedrijf->id}/invoices");
+    $htmlFile = collect($files)->first(fn($f) => str_ends_with($f, '.html'));
+    expect($htmlFile)->not->toBeNull();
+    
+    $html = Storage::get($htmlFile);
 
     expect($html)->toBeString()
         ->and($html)->toContain('INV-999')

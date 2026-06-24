@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             // Brand identity for Master-Digit platform
             ->brandName('Master-Digit')
-            ->brandLogo(fn () => view('components.logo'))
+            ->brandLogo(fn() => view('components.logo'))
             ->brandLogoHeight('2.5rem')
             ->colors([
                 'primary' => Color::Blue,
@@ -56,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
             // Inject the bedrijf switcher dropdown just before the user avatar menu
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => Blade::render('@livewire("bedrijf-switcher")')
+                fn(): string => Blade::render('@livewire("bedrijf-switcher")')
             )
             ->middleware([
                 EncryptCookies::class,

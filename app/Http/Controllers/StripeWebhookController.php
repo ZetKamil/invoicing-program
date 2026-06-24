@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Communications\LogCommunicationAction;
 use App\Enums\CommType;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
@@ -14,7 +13,7 @@ class StripeWebhookController extends Controller
     /**
      * Handle public Stripe webhook events.
      */
-    public function handleWebhook(Request $request, LogCommunicationAction $logCommunicationAction)
+    public function handleWebhook(Request $request)
     {
         $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');

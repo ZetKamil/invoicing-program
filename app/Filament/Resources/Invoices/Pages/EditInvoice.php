@@ -13,6 +13,22 @@ class EditInvoice extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('download_pdf')
+                ->label('Download Voorbeeld (PDF/HTML)')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('primary')
+                ->action(function (\App\Models\Invoice $record) {
+                    // Generowanie widoku faktury "w locie"
+                    $html = \Illuminate\Support\Facades\View::make('invoices.pdf', [
+                        'invoice' => $record->load(['bedrijf', 'customer', 'items'])
+                    ])->render();
+
+                    return response()->streamDownload(function () use ($html) {
+                        echo $html;
+                    }, $record->invoice_number . '.html', [
+                        'Content-Type' => 'text/html',
+                    ]);
+                }),
             \Filament\Actions\Action::make('generate_ubl')
                 ->label('Genereer Peppol UBL')
                 ->icon('heroicon-o-document-text')

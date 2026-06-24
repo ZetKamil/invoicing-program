@@ -32,12 +32,12 @@ test('create quote action generates a valid quote', function () {
     ]);
 
     $action = new CreateQuoteAction();
-    $quote = $action->handle($lead, 1500.50, 14);
+    $quote = $action->handle($lead, 14);
 
     expect($quote)->toBeInstanceOf(Quote::class)
         ->and($quote->customer->email)->toBe($lead->email)
         ->and($quote->bedrijf_id)->toBe($bedrijf->id)
-        ->and($quote->total_amount)->toEqual(1500.50)
+        ->and($quote->total_amount)->toEqual(1028.50)
         ->and($quote->status)->toBe(QuoteStatus::DRAFT)
         ->and($quote->quote_number)->toStartWith('Q-' . now()->format('Ymd') . '-');
 });

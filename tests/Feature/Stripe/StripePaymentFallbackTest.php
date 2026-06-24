@@ -14,7 +14,7 @@ test('invoice pay portal handles session_id fallback properly', function () {
     // but we can ensure the portal renders correctly for a draft invoice.
     
     $bedrijf = Bedrijf::create(['name' => 'Stripe Co', 'slug' => 'stripe-co']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client']);
+    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client', 'contact_person' => 'Jane Doe']);
     
     $invoice = Invoice::create([
         'bedrijf_id' => $bedrijf->id,
@@ -29,12 +29,12 @@ test('invoice pay portal handles session_id fallback properly', function () {
     $response = $this->get(route('invoice.pay', ['invoice' => $invoice->id]));
     $response->assertOk();
     $response->assertSee('INV-STRIPE-001');
-    $response->assertSee('Pay with Card (Stripe)');
+    $response->assertSee('Betaal met kaart (Stripe)');
 });
 
 test('stripe webhook job marks invoice as paid', function () {
     $bedrijf = Bedrijf::create(['name' => 'Stripe Co 2', 'slug' => 'stripe-co-2']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client 2']);
+    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client 2', 'contact_person' => 'Jane Doe']);
     
     $invoice = Invoice::create([
         'bedrijf_id' => $bedrijf->id,

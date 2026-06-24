@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 test('generate ubl action produces valid xml', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     
     $bedrijf = Bedrijf::create([
         'name' => 'Transport Co UBL', 
@@ -28,6 +28,7 @@ test('generate ubl action produces valid xml', function () {
     $lead = Lead::create([
         'bedrijf_id' => $bedrijf->id,
         'company_name' => 'Client Corp UBL',
+        'contact_person' => 'Jane Doe',
         'vat_number' => 'BE987654321',
         'address' => 'South St 2',
         'city' => 'Antwerp',
@@ -57,16 +58,16 @@ test('generate ubl action produces valid xml', function () {
     $path = $action->execute($invoice);
 
     expect($path)->toBeString()->toEndWith('.xml')
-        ->and(Storage::disk('public')->exists($path))->toBeTrue();
+        ->and(Storage::disk('local')->exists($path))->toBeTrue();
 
-    $xmlContent = Storage::disk('public')->get($path);
+    $xmlContent = Storage::disk('local')->get($path);
     expect($xmlContent)->toContain('<cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>')
         ->toContain('<cbc:Percent>21.00</cbc:Percent>')
         ->toContain('<cbc:ID>S</cbc:ID>'); // Standard tax category
 });
 
 test('ubl xml handles reverse charge logic correctly', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     
     $bedrijf = Bedrijf::create([
         'name' => 'Transport Co RC', 
@@ -78,6 +79,7 @@ test('ubl xml handles reverse charge logic correctly', function () {
     $lead = Lead::create([
         'bedrijf_id' => $bedrijf->id,
         'company_name' => 'Client Corp RC',
+        'contact_person' => 'Jane Doe',
         'vat_number' => 'BE987654321',
         'country' => 'BE',
     ]);
@@ -104,10 +106,12 @@ test('ubl xml handles reverse charge logic correctly', function () {
     $action = app(GenerateUblXmlAction::class);
     $path = $action->execute($invoice);
 
-    $xmlContent = Storage::disk('public')->get($path);
+    $xmlContent = Storage::disk('local')->get($path);
+    
+    expect($xmlContent)->toBeString();
     
     // Check for Reverse Charge Tax Exemption Reason Code and AE TaxCategory
-    expect($xmlContent)->toContain('<cbc:TaxExemptionReasonCode>AE</cbc:TaxExemptionReasonCode>')
-        ->toContain('<cbc:ID>AE</cbc:ID>')
-        ->toContain('<cbc:Percent>0.00</cbc:Percent>');
+    test()->assertStringContainsString('<cbc:TaxExemptionReasonCode>AE</cbc:TaxExemptionReasonCode>', $xmlContent);
+    test()->assertStringContainsString('<cbc:ID>AE</cbc:ID>', $xmlContent);
+    test()->assertStringContainsString('<cbc:Percent>0.00</cbc:Percent>', $xmlContent);
 });
