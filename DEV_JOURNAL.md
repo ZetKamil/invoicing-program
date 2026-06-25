@@ -414,7 +414,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ---
 
-## 2026-06-09: Faza 2 — QuoteItems, Observer Pattern & Data Lifecycle Management
+## 2026-06-09: Phase 2 — QuoteItems, Observer Pattern & Data Lifecycle Management
 
 ### [2026-06-09 ~10:00] - Task: QuoteItem Model, Migration & Policy
 
@@ -494,7 +494,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ---
 
-## 2026-06-10: Faza 3 — Enterprise Security Hardening, Deep Audit & Documentation
+## 2026-06-10: Phase 3 — Enterprise Security Hardening, Deep Audit & Documentation
 
 ### [2026-06-10 ~09:00] - Task: Architectural Audit — 4-Vector Security & Performance Scan
 
@@ -604,17 +604,17 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ---
 
-### [2026-06-10 ~11:00] - Task: Prezentacja Documentation — Phase 3 Defense Scripts
+### [2026-06-10 ~11:00] - Task: Presentation Documentation — Phase 3 Defense Scripts
 
 - **Files Modified:**
-  - `prezentacja/06_architektura_enterprise_bezpieczenstwo.md` (REWRITTEN)
-  - `prezentacja/07_phase3_hardening_deepdive.md` (NEW)
+  - `presentation/06_enterprise_architecture_security.md` (REWRITTEN)
+  - `presentation/07_phase3_hardening_deepdive.md` (NEW)
 
 - **Technical Logic:**
-  Rewrote `06_architektura_enterprise_bezpieczenstwo.md` to incorporate all Phase 3 findings: updated all 4 sections with precise before/after code comparisons, business impact tables, and 3 juror Q&A scripts per section. Created `07_phase3_hardening_deepdive.md` as a new deep-dive document with line-by-line code explanations, the full defense-in-depth architecture diagram (ASCII), and the "myth busting" section on `ShouldQueue` vs. `->send()`.
+  Rewrote `06_enterprise_architecture_security.md` to incorporate all Phase 3 findings: updated all 4 sections with precise before/after code comparisons, business impact tables, and 3 juror Q&A scripts per section. Created `07_phase3_hardening_deepdive.md` as a new deep-dive document with line-by-line code explanations, the full defense-in-depth architecture diagram (ASCII), and the "myth busting" section on `ShouldQueue` vs. `->send()`.
 
 - **Senior Concept:**
-  **Architecture Decision Records (ADRs) as Presentation Defense.** Each prezentacja file functions as an ADR — documenting not just *what* was built but *why* that specific pattern was chosen over alternatives. This is standard practice in software engineering for knowledge transfer and post-mortem reviews. For the jury context, it transforms technical decisions into a narrative of deliberate engineering, not accidental correctness.
+  **Architecture Decision Records (ADRs) as Presentation Defense.** Each presentation file functions as an ADR — documenting not just *what* was built but *why* that specific pattern was chosen over alternatives. This is standard practice in software engineering for knowledge transfer and post-mortem reviews. For the jury context, it transforms technical decisions into a narrative of deliberate engineering, not accidental correctness.
 
 - **Exam Defense Tip:**
   "Every architectural decision in Phase 3 has a documented 'before state' (vulnerability), 'solution' (native Laravel pattern), and 'business impact' (logistics client benefit). This structure follows the Architecture Decision Record format, proving that our implementation choices were deliberate and informed — not lucky."
@@ -623,7 +623,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ---
 
-## 2026-06-10: Faza 4 — Enterprise FinTech Precision & Security Audit
+## 2026-06-10: Phase 4 — Enterprise FinTech Precision & Security Audit
 
 ### [2026-06-10 ~11:00] - Task: BCMath Financial Precision (Vector 1)
 
@@ -746,7 +746,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ### [2026-06-11 11:55] - Task: Road Transport MVP Standardization
 - **Files Modified:** `database/migrations/*_add_road_transport_fields_to_quotes_and_invoices_table.php`, `app/Models/Quote.php`, `app/Models/Invoice.php`, `app/Filament/Resources/Quotes/Schemas/QuoteForm.php`, `app/Filament/Resources/Invoices/Schemas/InvoiceForm.php`, `app/Actions/Quotes/CreateQuoteAction.php`
-- **Technical Logic:** Pivoted the application strategy to a Minimum Viable Product (MVP) specifically focused on Road Transport. Introduced official, strongly-typed columns for `trailer_type` (Enum mapping in UI), `loading_address`, and `delivery_address` to both `quotes` and `invoices` tables. Updated the Filament forms to replace free-text inputs with standardized Select dropdowns for trailer types (Plandeka, Chłodnia, Kontener, Gabaryt, Silos, Wywrotka). Modified the `CreateQuoteAction` to eagerly extract these exact keys from the Lead's unstructured JSON `metadata` and inject them into the new standardized SQL columns during quote generation.
+- **Technical Logic:** Pivoted the application strategy to a Minimum Viable Product (MVP) specifically focused on Road Transport. Introduced official, strongly-typed columns for `trailer_type` (Enum mapping in UI), `loading_address`, and `delivery_address` to both `quotes` and `invoices` tables. Updated the Filament forms to replace free-text inputs with standardized Select dropdowns for trailer types (Tarpaulin, Refrigerated, Container, Oversize, Silo, Tipper). Modified the `CreateQuoteAction` to eagerly extract these exact keys from the Lead's unstructured JSON `metadata` and inject them into the new standardized SQL columns during quote generation.
 - **Senior Concept:** Minimum Viable Product (MVP) & Domain-Driven Design (DDD) Bounded Context. Instead of building a highly complex, generalized transport system that perfectly models everything from container ships to moving trucks, we applied DDD principles to narrow the Bounded Context down to "Road Transport". This pragmatic approach standardizes 90% of use cases into highly optimized SQL structures, while keeping the flexible JSON metadata layer as a fallback for the remaining 10% edge cases.
 - **Exam Defense Tip:** "When discussing the MVP scope, I realized that attempting to standardize every mode of transport would lead to an overly complex schema. By narrowing our bounded context strictly to Road Transport, I was able to introduce strict typings for `trailer_type` and critical logistical addresses directly into the SQL tables. We retained the JSON metadata solely as an anti-corruption layer for non-standard requests."
 - **Keywords to Learn:** `Minimum Viable Product (MVP)`, `Bounded Context`, `Domain-Driven Design (DDD)`
@@ -788,7 +788,7 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 
 ---
 
-## 2026-06-22: Faza 5 — Auto-Provisioning & B2B CRM Architecture
+## 2026-06-22: Phase 5 — Auto-Provisioning & B2B CRM Architecture
 
 ### [2026-06-22] - Task: Lead to Customer Auto-Provisioning
 - **Files Modified:** `app/Models/Lead.php`, `database/migrations/*_create_customers_table.php`, `app/Models/Customer.php`, `app/Filament/Resources/*`
