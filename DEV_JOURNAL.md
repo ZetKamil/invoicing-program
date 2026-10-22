@@ -106,6 +106,50 @@
 
 - **Keywords to Learn:** `Filament canViewAny()`, `Subscription-driven Feature Flags`, `Multi-Tenant Resource Scoping`
 
+### [2026-10-22 10:40] - Task: Krok 4 — Panel Administracyjny Filament dla Nowego Katalogu (`CategoryResource` & `CatalogItemResource`)
+
+- **Files Modified:**
+  - `app/Filament/Resources/Categories/CategoryResource.php` *(nowy zasób)*
+  - `app/Filament/Resources/Categories/Schemas/CategoryForm.php` *(formularz kategorii z auto-slug i wyborem typu)*
+  - `app/Filament/Resources/Categories/Tables/CategoriesTable.php` *(tabela z licznikiem pozycji, badge typu i filtrem)*
+  - `app/Filament/Resources/Categories/Pages/ListCategories.php` *(strona listy)*
+  - `app/Filament/Resources/Categories/Pages/CreateCategory.php` *(strona tworzenia)*
+  - `app/Filament/Resources/Categories/Pages/EditCategory.php` *(strona edycji)*
+  - `app/Filament/Resources/CatalogItems/CatalogItemResource.php` *(nowy zasób)*
+  - `app/Filament/Resources/CatalogItems/Schemas/CatalogItemForm.php` *(formularz z obsługą Minor Units, auto-slug, WhatsApp i KeyValue JSON)*
+  - `app/Filament/Resources/CatalogItems/Tables/CatalogItemsTable.php` *(tabela ze statusem badge, ceną, podglądem cech JSON i koszem SoftDeletes)*
+  - `app/Filament/Resources/CatalogItems/Pages/ListCatalogItems.php` *(strona listy)*
+  - `app/Filament/Resources/CatalogItems/Pages/CreateCatalogItem.php` *(strona tworzenia)*
+  - `app/Filament/Resources/CatalogItems/Pages/EditCatalogItem.php` *(strona edycji z SoftDeletes actions)*
+  - `app/Providers/Filament/AdminPanelProvider.php` *(dodana nadrzędna grupa nawigacji 'Katalog')*
+  - `tests/Feature/FilamentCatalogResourcesTest.php` *(nowy pakiet testów)*
+
+- **Technical Logic:**
+  Krok 4 implementuje kompletny interfejs panelu administracyjnego Filament PHP dla uniwersalnego katalogu pozycji (produktów, kotów, psów, samochodów, usług) oraz kategorii.
+  
+  1. **Konwersja Minor Units w locie w formularzu (`price_minor`):**
+     Użytkownik w formularzu wprowadza i widzi czytelną kwotę w złotych lub euro (np. `3500.00`). Dzięki hookom:
+     - `formatStateUsing(fn ($state) => $state !== null ? number_format($state / 100, 2, '.', '') : null)`
+     - `dehydrateStateUsing(fn ($state) => $state !== null ? (int) round(((float) $state) * 100) : null)`
+     Filament transparentnie przelicza kwotę do groszy/centów przed zapisem do bazy. Zero błędów zaokrągleń `float` przy pełnym komforcie użytkownika.
+
+  2. **Interfejs dla Atrybutów Branżowych (Filament `KeyValue` Component):**
+     Komponent `KeyValue::make('attributes')` pozwala administratorowi dowolnie definiować pary klucz-wartość (np. `breed` => `British Shorthair`, `gender` => `male`, `color` => `blue`, `pedigree` => `FPL`). Zapis odbywa się bezpośrednio do zwalidowanej kolumny JSON `attributes` modelu `CatalogItem`.
+
+  3. **Wygoda i UX (Micro-interactions):**
+     - Dynamiczne generowanie sluga w czasie rzeczywistym (`live(onBlur: true)` z `Str::slug()`),
+     - Kolorystyczne kodowanie statusów za pomocą enuma [`CatalogItemStatus`](file:///c:/wamp64/www/facturatieprogramma/app/Enums/CatalogItemStatus.php) (`badgeColor()`),
+     - Filtry tabeli wg kategorii, statusu oraz obsługa kosza (SoftDeletes / TrashedFilter).
+     - Automatyczne wiązanie z tenantem dzięki traitowi [`HasBedrijf`](file:///c:/wamp64/www/facturatieprogramma/app/Traits/HasBedrijf.php).
+
+  **Weryfikacja:** Utworzono 3 testy w [`tests/Feature/FilamentCatalogResourcesTest.php`](file:///c:/wamp64/www/facturatieprogramma/tests/Feature/FilamentCatalogResourcesTest.php). Wszystkie 42 testy w projekcie przechodzą pomyślnie (136 asercji).
+
+- **Senior Concept:** *Hydration/Dehydration Form Lifecycle & Schemaless UI Management.* Użycie metod cyklu życia dehydratacji Filamenta pozwala zachować ścisły standard BCMath na poziomie silnika bazodanowego bez obciążania użytkownika biznesowego wpisywaniem kwot w groszach. Dodatkowo komponent `KeyValue` w połączeniu z Eloquent JSON Casting daje interfejs "No-Code" do rozszerzania atrybutów produktowych bez dotykania kodu źródłowego i schematu bazy.
+
+- **Exam Defense Tip:** *„W celu zapewnienia bezbłędnej obsługi finansowej BCMath w panelu Filament, zastosowałem transformację hydration/dehydration: administrator operuje na standardowych kwotach w walucie, a formularz transparentnie konwertuje je do minor units (groszy). Ponadto cechy branżowe zarządzane są dynamicznie za pomocą komponentu KeyValue zmapowanego na kolumnę JSON, co pozwala jednemu panelowi obsłużyć dowolny asortyment klienta."*
+
+- **Keywords to Learn:** *`Hydration & Dehydration Hooks`*, *`Filament KeyValue Component`*, *`Navigation Group Sorting`*
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation
