@@ -13,7 +13,7 @@ class ListCategories extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Nowa Kategoria'),
+            CreateAction::make()->label('Nieuwe Categorie'),
         ];
     }
 }

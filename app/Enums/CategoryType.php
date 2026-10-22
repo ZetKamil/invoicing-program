@@ -5,28 +5,24 @@ namespace App\Enums;
 /**
  * CategoryType Enum
  *
- * Określa do której części aplikacji należy dana kategoria.
- * Jedna tabela 'categories' obsługuje zarówno katalog produktów
- * jak i kategorie bloga — typ rozróżnia je w zapytaniach.
- *
- * Wzorzec Senior: Single Table z discriminatorem zamiast 2 osobnych tabel
- * (catalog_categories + post_categories) — eliminuje redundancję schema.
+ * Discriminator specifying whether a category belongs to catalog items or blog posts.
+ * Utilizes the Single Table pattern to eliminate schema duplication.
  */
 enum CategoryType: string
 {
-    /** Kategoria używana do grupowania pozycji katalogu (produktów, kotów, usług). */
+    /** Category used to group catalog items (products, services, etc.). */
     case CATALOG = 'catalog';
 
-    /** Kategoria używana do grupowania postów blogowych. */
+    /** Category used to group blog posts. */
     case POST = 'post';
 
     /**
-     * Zwraca czytelną etykietę do UI.
+     * Return human-readable label in Dutch for UI display.
      */
     public function label(): string
     {
         return match($this) {
-            self::CATALOG => 'Katalog',
+            self::CATALOG => 'Catalogus',
             self::POST    => 'Blog',
         };
     }

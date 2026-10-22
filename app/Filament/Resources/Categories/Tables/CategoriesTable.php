@@ -18,7 +18,7 @@ class CategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nazwa')
+                    ->label('Naam')
                     ->searchable()
                     ->sortable(),
 
@@ -27,7 +27,7 @@ class CategoriesTable
                     ->searchable(),
 
                 TextColumn::make('type')
-                    ->label('Typ')
+                    ->label('Type')
                     ->badge()
                     ->color(fn ($state) => match ($state?->value ?? $state) {
                         CategoryType::CATALOG->value => 'info',
@@ -35,7 +35,7 @@ class CategoriesTable
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => match ($state?->value ?? $state) {
-                        CategoryType::CATALOG->value => 'Katalog',
+                        CategoryType::CATALOG->value => 'Catalogus',
                         CategoryType::POST->value    => 'Blog',
                         default => $state,
                     })
@@ -43,20 +43,20 @@ class CategoriesTable
 
                 TextColumn::make('catalog_items_count')
                     ->counts('catalogItems')
-                    ->label('Pozycji w katalogu')
+                    ->label('Aantal artikelen')
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('Utworzono')
+                    ->label('Aangemaakt op')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('type')
-                    ->label('Filtruj wg typu')
+                    ->label('Filter op type')
                     ->options([
-                        CategoryType::CATALOG->value => 'Katalog',
+                        CategoryType::CATALOG->value => 'Catalogus',
                         CategoryType::POST->value    => 'Blog',
                     ]),
             ])

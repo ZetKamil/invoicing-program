@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->navigationGroups([
-                'Katalog',
+                'Catalogus',
                 'Verkoop',
                 'Facturatie',
                 'Communicatie',

@@ -23,17 +23,17 @@ class BedrijfForm
                         TextInput::make('slug')
                             ->required(),
                         Select::make('plan')
-                            ->label('Abonament / SaaS Plan')
+                            ->label('Abonnement / SaaS Plan')
                             ->options([
-                                TenantPlan::START->value => 'Start (Katalog + Blog, brak ERP)',
-                                TenantPlan::PRO->value   => 'Pro (Katalog + Blog + Fakturowanie)',
-                                TenantPlan::SCALE->value => 'Scale (Pełny ERP + Peppol UBL)',
+                                TenantPlan::START->value => 'Start (Catalogus + Blog, geen ERP)',
+                                TenantPlan::PRO->value   => 'Pro (Catalogus + Blog + Facturatie)',
+                                TenantPlan::SCALE->value => 'Scale (Volledig ERP + Peppol UBL)',
                             ])
                             ->default(TenantPlan::START->value)
                             ->required(),
                         TextInput::make('custom_domain')
-                            ->label('Własna Domena (np. kotyzmazowieckiejszwajcarii.pl)')
-                            ->placeholder('twojadomena.pl'),
+                            ->label('Eigen Domein')
+                            ->placeholder('uwdomein.nl'),
                         TextInput::make('vat_number'),
                         TextInput::make('peppol_id'),
                         TextInput::make('stripe_id'),

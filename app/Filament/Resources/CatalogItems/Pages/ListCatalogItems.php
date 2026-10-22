@@ -13,7 +13,7 @@ class ListCatalogItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Nowa Pozycja w Katalogu'),
+            CreateAction::make()->label('Nieuw Catalogusartikel'),
         ];
     }
 }

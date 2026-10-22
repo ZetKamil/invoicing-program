@@ -37,11 +37,8 @@ class Bedrijf extends Model
     }
 
     /**
-     * Sprawdza czy tenant ma dostęp do modułu ERP (faktury, oferty, Peppol).
-     * Feature Flag bazujący na TenantPlan Enum — używany w canViewAny()
-     * zasobów Filament, aby ukryć/pokazać zasoby ERP jedną linijką kodu.
-     *
-     * Wzorzec Senior: delegowanie logiki biznesowej do Enum, a nie do modelu.
+     * Determine if the tenant has access to the ERP module (invoices, quotes, Peppol).
+     * Feature flag delegating subscription logic directly to the TenantPlan enum.
      */
     public function hasErpAccess(): bool
     {

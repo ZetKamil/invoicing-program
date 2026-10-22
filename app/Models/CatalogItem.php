@@ -31,20 +31,17 @@ class CatalogItem extends Model
     {
         return [
             'status'     => CatalogItemStatus::class,
-            'attributes' => 'array',   // JSON -> array automatycznie przy odczycie
+            'attributes' => 'array',   // JSON cast to array automatically
         ];
     }
 
     // ──────────────────────────────────────────────
-    // Accessors (wyliczone atrybuty)
+    // Accessors
     // ──────────────────────────────────────────────
 
     /**
-     * Zwraca cenę w złotych/euro jako string BCMath z 2 miejscami po przecinku.
-     * Przeliczenie: price_minor (w groszach) / 100 = cena w walucie.
-     *
-     * Wzorzec Senior: prezentacja ceny ZAWSZE z Accessorem, nigdy surowo w widoku.
-     * Eliminuje rozrzucone "/ 100" po całym kodzie.
+     * Get price formatted in currency units with 2 decimal places.
+     * Calculation: price_minor (cents) / 100 = currency value.
      */
     public function getPriceFormattedAttribute(): ?string
     {
@@ -56,11 +53,11 @@ class CatalogItem extends Model
     }
 
     // ──────────────────────────────────────────────
-    // Relacje
+    // Relationships
     // ──────────────────────────────────────────────
 
     /**
-     * Kategoria do której należy ta pozycja.
+     * Category that this catalog item belongs to.
      */
     public function category(): BelongsTo
     {
@@ -68,12 +65,12 @@ class CatalogItem extends Model
     }
 
     // ──────────────────────────────────────────────
-    // Query Scopes (filtry wielokrotnego użytku)
+    // Query Scopes
     // ──────────────────────────────────────────────
 
     /**
-     * Tylko publicznie widoczne pozycje (status = available).
-     * Użycie: CatalogItem::available()->get()
+     * Scope query to publicly available items only.
+     * Usage: CatalogItem::available()->get()
      */
     public function scopeAvailable(Builder $query): Builder
     {
@@ -81,8 +78,8 @@ class CatalogItem extends Model
     }
 
     /**
-     * Wyklucza ukryte pozycje — przydatne w publicznym API i froncie.
-     * Użycie: CatalogItem::visible()->get()
+     * Exclude hidden draft items — useful for frontend and public API.
+     * Usage: CatalogItem::visible()->get()
      */
     public function scopeVisible(Builder $query): Builder
     {

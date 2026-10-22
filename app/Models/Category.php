@@ -30,11 +30,11 @@ class Category extends Model
     }
 
     // ──────────────────────────────────────────────
-    // Relacje
+    // Relationships
     // ──────────────────────────────────────────────
 
     /**
-     * Pozycje katalogu należące do tej kategorii.
+     * Catalog items associated with this category.
      */
     public function catalogItems(): HasMany
     {
@@ -42,12 +42,12 @@ class Category extends Model
     }
 
     // ──────────────────────────────────────────────
-    // Query Scopes (filtry wielokrotnego użytku)
+    // Query Scopes
     // ──────────────────────────────────────────────
 
     /**
-     * Filtruje tylko kategorie katalogu produktów.
-     * Użycie: Category::catalog()->get()
+     * Scope query to catalog categories only.
+     * Usage: Category::catalog()->get()
      */
     public function scopeCatalog(Builder $query): Builder
     {
@@ -55,8 +55,8 @@ class Category extends Model
     }
 
     /**
-     * Filtruje tylko kategorie bloga.
-     * Użycie: Category::forPosts()->get()
+     * Scope query to blog post categories only.
+     * Usage: Category::forPosts()->get()
      */
     public function scopeForPosts(Builder $query): Builder
     {

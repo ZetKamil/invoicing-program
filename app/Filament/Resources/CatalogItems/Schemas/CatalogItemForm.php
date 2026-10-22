@@ -17,11 +17,11 @@ class CatalogItemForm
     {
         return $schema
             ->components([
-                Section::make('Podstawowe Informacje')
+                Section::make('Basisinformatie')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nazwa Pozycji')
-                            ->placeholder('np. Apollo (Kocur Brytyjski), Suzuki Swift, Konsultacja SEO')
+                            ->label('Naam')
+                            ->placeholder('bijv. Apollo (Brits Korthaar), Suzuki Swift, Website Audit')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -35,10 +35,10 @@ class CatalogItemForm
                             ->label('Slug (URL)')
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Identyfikator dla linku na stronie publicznej, np. kot-apollo'),
+                            ->helperText('Unieke identificatie voor de openbare pagina, bijv. kater-apollo'),
 
                         Select::make('category_id')
-                            ->label('Kategoria')
+                            ->label('Categorie')
                             ->relationship(
                                 name: 'category',
                                 titleAttribute: 'name',
@@ -46,50 +46,50 @@ class CatalogItemForm
                             )
                             ->searchable()
                             ->preload()
-                            ->placeholder('Wybierz kategorię (opcjonalnie)'),
+                            ->placeholder('Selecteer een categorie (optioneel)'),
 
                         Select::make('status')
-                            ->label('Status Dostępności')
+                            ->label('Beschikbaarheidsstatus')
                             ->options([
-                                CatalogItemStatus::AVAILABLE->value    => 'Dostępny',
-                                CatalogItemStatus::RESERVED->value     => 'Zarezerwowany',
-                                CatalogItemStatus::SOLD_ADOPTED->value => 'Sprzedany / Adoptowany',
-                                CatalogItemStatus::HIDDEN->value       => 'Ukryty (Draft)',
+                                CatalogItemStatus::AVAILABLE->value    => 'Beschikbaar',
+                                CatalogItemStatus::RESERVED->value     => 'Gereserveerd',
+                                CatalogItemStatus::SOLD_ADOPTED->value => 'Verkocht / Geadopteerd',
+                                CatalogItemStatus::HIDDEN->value       => 'Verborgen (Concept)',
                             ])
                             ->default(CatalogItemStatus::AVAILABLE->value)
                             ->required(),
 
                         TextInput::make('price_minor')
-                            ->label('Cena (PLN / EUR)')
+                            ->label('Prijs (€)')
                             ->numeric()
-                            ->prefix('zł')
-                            ->placeholder('np. 3500.00')
+                            ->prefix('€')
+                            ->placeholder('bijv. 1250.00')
                             ->formatStateUsing(fn ($state) => $state !== null ? number_format($state / 100, 2, '.', '') : null)
                             ->dehydrateStateUsing(fn ($state) => $state !== null && $state !== '' ? (int) round(((float) $state) * 100) : null)
-                            ->helperText('Wprowadź kwotę standardowo. W bazie przechowywana jest w groszach (BCMath / Minor Units). Puste = "Zapytaj o cenę".'),
+                            ->helperText('Voer het bedrag in euro in. Wordt opgeslagen in centen (BCMath). Leeg laten voor "Prijs op aanvraag".'),
 
                         TextInput::make('whatsapp_prefill_text')
-                            ->label('Wstępna wiadomość WhatsApp')
-                            ->placeholder('np. Dzień dobry, pytam o dostępność kocura Apollo')
+                            ->label('Standaard WhatsApp-bericht')
+                            ->placeholder('bijv. Hallo, ik heb interesse in kater Apollo')
                             ->maxLength(255)
-                            ->helperText('Tekst generowany automatycznie po kliknięciu przycisku "Napisz na WhatsApp" na stronie.'),
+                            ->helperText('Tekst die automatisch wordt ingevuld wanneer een bezoeker op de WhatsApp-knop klikt.'),
 
                         Textarea::make('description')
-                            ->label('Opis Pozycji')
+                            ->label('Beschrijving')
                             ->rows(4)
                             ->columnSpanFull()
-                            ->placeholder('Szczegółowy opis, historia, stan, charakterystyka...'),
+                            ->placeholder('Gedetailleerde beschrijving, specificaties, kenmerken...'),
                     ])->columns(2),
 
-                Section::make('Atrybuty Branżowe (Elastyczny JSON — Wzorzec Hybrydowy 3NF)')
+                Section::make('Branchespecifieke kenmerken (JSON-attributen)')
                     ->schema([
                         KeyValue::make('attributes')
-                            ->label('Specyfikacja cech')
-                            ->keyLabel('Klucz cechy (np. breed, gender, color, birth_date, year, mileage)')
-                            ->valueLabel('Wartość (np. Brytyjski, Samiec, Niebieski, 2024-05-10)')
+                            ->label('Kenmerken & Specificaties')
+                            ->keyLabel('Kenmerk (bijv. ras, geslacht, kleur, geboortedatum, bouwjaar)')
+                            ->valueLabel('Waarde (bijv. Brits Korthaar, Kater, Blauw, 2024-05-10)')
                             ->reorderable()
                             ->columnSpanFull()
-                            ->helperText('Zamiast sztywnych kolumn bazodanowych, cechy specyficzne dla branży są zapisywane w schemaless JSON. Eliminuje to puste kolumny w bazie danych.'),
+                            ->helperText('Flexibele branchespecifieke attributen opgeslagen in een gestructureerd JSON-veld.'),
                     ]),
             ]);
     }

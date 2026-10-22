@@ -31,7 +31,7 @@ class BedrijvenTable
                     })
                     ->sortable(),
                 TextColumn::make('custom_domain')
-                    ->label('Własna Domena')
+                    ->label('Eigen Domein')
                     ->searchable(),
                 TextColumn::make('vat_number')
                     ->searchable(),

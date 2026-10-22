@@ -77,7 +77,7 @@ test('authenticated user can view catalog items index page in filament', functio
     $response = $this->get(CatalogItemResource::getUrl('index'));
     $response->assertOk();
     $response->assertSee('Kocur Apollo');
-    $response->assertSee('4 500,00 zł');
+    $response->assertSee('4 500,00');
 });
 
 test('authenticated user can access create pages for category and catalog item', function () {

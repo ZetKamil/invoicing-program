@@ -21,11 +21,11 @@ class CatalogItemResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Katalog';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catalogus';
 
-    protected static ?string $modelLabel = 'Pozycja Katalogu';
+    protected static ?string $modelLabel = 'Catalogusartikel';
 
-    protected static ?string $pluralModelLabel = 'Katalog Pozycji';
+    protected static ?string $pluralModelLabel = 'Catalogusartikelen';
 
     protected static ?int $navigationSort = 1;
 

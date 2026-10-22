@@ -5,26 +5,22 @@ namespace App\Enums;
 /**
  * TenantPlan Enum
  *
- * Definiuje poziomy abonamentu (planu) dostępne dla klientów SaaS.
- * Steruje widocznością modułów w panelu Filament (np. ERP, fakturowanie).
- *
- * Wzorzec Senior: Feature Flag przez Enum zamiast magicznych stringów.
- * Egzaminator: "Plan tenanta jest Enumem PHP 8.1, co daje type-safety i
- * pozwala sterować widocznością zasobów Filament przez canViewAny()."
+ * Defines SaaS subscription levels available to tenants.
+ * Controls the visibility of ERP and invoicing modules in Filament.
  */
 enum TenantPlan: string
 {
-    /** Pakiet podstawowy: tylko katalog i blog. ERP wyłączony. */
+    /** Basic package: catalog and blog only. ERP is disabled. */
     case START = 'start';
 
-    /** Pakiet średni: katalog, blog + fakturowanie. */
+    /** Pro package: catalog, blog, invoicing, and quotes. */
     case PRO = 'pro';
 
-    /** Pakiet pełny: wszystkie moduły + Peppol UBL + zaawansowane raporty. */
+    /** Full enterprise package: full ERP, Peppol UBL, and advanced reporting. */
     case SCALE = 'scale';
 
     /**
-     * Zwraca czytelną etykietę planu do wyświetlenia w UI.
+     * Get human-readable label in Dutch for UI display.
      */
     public function label(): string
     {
@@ -36,20 +32,20 @@ enum TenantPlan: string
     }
 
     /**
-     * Zwraca opis planu — przydatne w panelu SuperAdmina.
+     * Get plan description in Dutch for Super Admin panel.
      */
     public function description(): string
     {
         return match($this) {
-            self::START => 'Katalog produktów + Blog. Brak modułu ERP.',
-            self::PRO   => 'Katalog + Blog + Fakturowanie i ofertowanie.',
-            self::SCALE => 'Pełny dostęp: ERP, Peppol UBL, zaawansowane raporty.',
+            self::START => 'Productcatalogus + Blog. Geen ERP-module.',
+            self::PRO   => 'Catalogus + Blog + Facturatie en offertes.',
+            self::SCALE => 'Volledige toegang: ERP, Peppol UBL en geavanceerde rapportages.',
         };
     }
 
     /**
-     * Sprawdza czy ten plan ma dostęp do modułu ERP (faktury, oferty).
-     * Używane w canViewAny() zasobów Filament.
+     * Determine whether this plan grants access to the ERP module.
+     * Used in canViewAny() authorization hooks in Filament resources.
      */
     public function hasErpAccess(): bool
     {

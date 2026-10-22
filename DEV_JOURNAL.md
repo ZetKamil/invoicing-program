@@ -150,6 +150,41 @@
 
 - **Keywords to Learn:** *`Hydration & Dehydration Hooks`*, *`Filament KeyValue Component`*, *`Navigation Group Sorting`*
 
+### [2026-10-22 10:50] - Task: Refaktoryzacja Językowa — Niderlandzki UI (Nederlands) i Angielskie Komentarze w Kodzie
+
+- **Files Modified:**
+  - `app/Enums/TenantPlan.php` *(English docstrings & comments, Dutch labels/descriptions)*
+  - `app/Enums/CategoryType.php` *(English docstrings, Dutch labels)*
+  - `app/Enums/CatalogItemStatus.php` *(English docstrings, Dutch labels)*
+  - `app/Models/Bedrijf.php` *(English docstrings)*
+  - `app/Models/Category.php` *(English docstrings)*
+  - `app/Models/CatalogItem.php` *(English docstrings)*
+  - `app/Filament/Resources/Bedrijven/Schemas/BedrijfForm.php` *(Dutch labels & placeholders)*
+  - `app/Filament/Resources/Bedrijven/Tables/BedrijvenTable.php` *(Dutch column headers)*
+  - `app/Filament/Resources/Categories/CategoryResource.php` *(Dutch model labels, 'Catalogus' group)*
+  - `app/Filament/Resources/Categories/Schemas/CategoryForm.php` *(Dutch labels, placeholders & helper texts)*
+  - `app/Filament/Resources/Categories/Tables/CategoriesTable.php` *(Dutch columns, filters & badges)*
+  - `app/Filament/Resources/Categories/Pages/ListCategories.php` *(Dutch action labels)*
+  - `app/Filament/Resources/CatalogItems/CatalogItemResource.php` *(Dutch model labels, 'Catalogus' group)*
+  - `app/Filament/Resources/CatalogItems/Schemas/CatalogItemForm.php` *(Dutch labels, placeholders, currency prefix '€')*
+  - `app/Filament/Resources/CatalogItems/Tables/CatalogItemsTable.php` *(Dutch columns, filters & formatters)*
+  - `app/Filament/Resources/CatalogItems/Pages/ListCatalogItems.php` *(Dutch action labels)*
+  - `app/Providers/Filament/AdminPanelProvider.php` *(Navigation group 'Catalogus')*
+  - `tests/Feature/FilamentCatalogResourcesTest.php` *(Updated test assertions for Dutch UI)*
+
+- **Technical Logic:**
+  Dostosowanie całego modułu katalogowego i zarządzania subskrypcjami do standardu projektu Master-Digit / Syntra West:
+  1. **Warstwa Prezentacji (UI):** 100% po niderlandzku (Nederlands) — etykiety pól, nagłówki sekcji, komunikaty pomocnicze (`helperText`), statusy enuma (`Beschikbaar`, `Gereserveerd`, `Verkocht / Geadopteerd`, `Verborgen`), waluta (`€`), grupy nawigacyjne (`Catalogus`).
+  2. **Warstwa Kodu Źródłowego:** 100% angielskie komentarze, DocBlocki i nazewnictwo metod, zgodnie z regułą Separation of Concerns oraz wytycznymi `rules.md`.
+
+  **Weryfikacja:** Wszystkie 42 testy Pest przechodzą pomyślnie (136 asercji).
+
+- **Senior Concept:** *Consistent Domain Terminology & Internationalization Standards.* W aplikacjach enterprise kod źródłowy, docstringi oraz nazwy klas są zawsze w języku angielskim (standard uniwersalny dla zespołów inżynieryjnych), natomiast warstwa UI konsekwentnie operuje językiem docelowego rynku (w tym przypadku język niderlandzki dla belgijskiego/holenderskiego rynku B2B).
+
+- **Exam Defense Tip:** *„Kod źródłowy oraz dokumentacja techniczna w docblockach są w 100% po angielsku zgodnie z międzynarodowymi standardami inżynierii oprogramowania, natomiast interfejs użytkownika w panelu Filament został w pełni zlokalizowany w języku niderlandzkim (Nederlands), spójnie z resztą platformy dla rynku flamandzkiego."*
+
+- **Keywords to Learn:** `UI Localization`, `Codebase Consistency`, `Language Separation Pattern`
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation

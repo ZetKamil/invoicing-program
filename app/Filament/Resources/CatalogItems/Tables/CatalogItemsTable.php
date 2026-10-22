@@ -23,15 +23,15 @@ class CatalogItemsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nazwa')
+                    ->label('Naam')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('category.name')
-                    ->label('Kategoria')
+                    ->label('Categorie')
                     ->badge()
                     ->color('info')
-                    ->placeholder('Bez kategorii')
+                    ->placeholder('Geen categorie')
                     ->sortable()
                     ->searchable(),
 
@@ -46,21 +46,21 @@ class CatalogItemsTable
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => match ($state?->value ?? $state) {
-                        CatalogItemStatus::AVAILABLE->value    => 'Dostępny',
-                        CatalogItemStatus::RESERVED->value     => 'Zarezerwowany',
-                        CatalogItemStatus::SOLD_ADOPTED->value => 'Sprzedany / Adoptowany',
-                        CatalogItemStatus::HIDDEN->value       => 'Ukryty',
+                        CatalogItemStatus::AVAILABLE->value    => 'Beschikbaar',
+                        CatalogItemStatus::RESERVED->value     => 'Gereserveerd',
+                        CatalogItemStatus::SOLD_ADOPTED->value => 'Verkocht / Geadopteerd',
+                        CatalogItemStatus::HIDDEN->value       => 'Verborgen',
                         default => $state,
                     })
                     ->sortable(),
 
                 TextColumn::make('price_minor')
-                    ->label('Cena')
-                    ->formatStateUsing(fn ($record) => $record->price_formatted ? $record->price_formatted . ' zł' : 'Zapytaj o cenę')
+                    ->label('Prijs')
+                    ->formatStateUsing(fn ($record) => $record->price_formatted ? '€ ' . $record->price_formatted : 'Prijs op aanvraag')
                     ->sortable(),
 
                 TextColumn::make('attributes')
-                    ->label('Atrybuty (JSON)')
+                    ->label('Kenmerken (JSON)')
                     ->formatStateUsing(function ($state) {
                         if (! is_array($state) || empty($state)) {
                             return '-';
@@ -73,7 +73,7 @@ class CatalogItemsTable
                     ->limit(45),
 
                 TextColumn::make('created_at')
-                    ->label('Utworzono')
+                    ->label('Aangemaakt op')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -82,14 +82,14 @@ class CatalogItemsTable
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
-                        CatalogItemStatus::AVAILABLE->value    => 'Dostępny',
-                        CatalogItemStatus::RESERVED->value     => 'Zarezerwowany',
-                        CatalogItemStatus::SOLD_ADOPTED->value => 'Sprzedany / Adoptowany',
-                        CatalogItemStatus::HIDDEN->value       => 'Ukryty',
+                        CatalogItemStatus::AVAILABLE->value    => 'Beschikbaar',
+                        CatalogItemStatus::RESERVED->value     => 'Gereserveerd',
+                        CatalogItemStatus::SOLD_ADOPTED->value => 'Verkocht / Geadopteerd',
+                        CatalogItemStatus::HIDDEN->value       => 'Verborgen',
                     ]),
 
                 SelectFilter::make('category_id')
-                    ->label('Kategoria')
+                    ->label('Categorie')
                     ->relationship('category', 'name', fn ($query) => $query->where('type', 'catalog')),
 
                 TrashedFilter::make(),

@@ -15,10 +15,10 @@ class CategoryForm
     {
         return $schema
             ->components([
-                Section::make('Informacje o Kategorii')
+                Section::make('Categoriegegevens')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nazwa Kategorii')
+                            ->label('Categorienaam')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -32,17 +32,17 @@ class CategoryForm
                             ->label('Slug (URL)')
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Identyfikator w adresie URL, np. koty-brytyjskie'),
+                            ->helperText('Unieke identificatie in de URL, bijv. kittens-te-koop'),
 
                         Select::make('type')
-                            ->label('Przeznaczenie (Typ)')
+                            ->label('Bestemming (Type)')
                             ->options([
-                                CategoryType::CATALOG->value => 'Katalog Pozycji (Produkty / Koty / Usługi)',
-                                CategoryType::POST->value    => 'Blog (Wpisy / Artykuły)',
+                                CategoryType::CATALOG->value => 'Productcatalogus',
+                                CategoryType::POST->value    => 'Blogberichten',
                             ])
                             ->default(CategoryType::CATALOG->value)
                             ->required()
-                            ->helperText('Wzorzec Single Table: kategoria może służyć do katalogu lub bloga.'),
+                            ->helperText('Bepaalt of de categorie wordt gebruikt voor catalogusartikelen of blogberichten.'),
                     ])->columns(2),
             ]);
     }

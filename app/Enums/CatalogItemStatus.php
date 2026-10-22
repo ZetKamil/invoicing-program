@@ -5,15 +5,8 @@ namespace App\Enums;
 /**
  * CatalogItemStatus Enum
  *
- * Status pozycji w katalogu. Celowo branżowo-neutralny:
- * - 'available'    = dostępny kot / produkt / usługa
- * - 'reserved'     = zarezerwowany (oczekuje na finalizację)
- * - 'sold_adopted' = sprzedany / adoptowany (archiwum)
- * - 'hidden'       = ukryty (draft, nie pokazuje się na froncie)
- *
- * Wzorzec Senior: Enum jako State Machine — każda pozycja
- * przechodzi przez stany w logiczny sposób i nigdy nie
- * zawiera nieprawidłowej wartości (w przeciwieństwie do stringa).
+ * Status machine for items in the universal catalog.
+ * Represents industry-neutral lifecycle states.
  */
 enum CatalogItemStatus: string
 {
@@ -23,21 +16,20 @@ enum CatalogItemStatus: string
     case HIDDEN       = 'hidden';
 
     /**
-     * Zwraca czytelną etykietę do wyświetlenia w UI i panelu.
+     * Get human-readable label in Dutch for UI display.
      */
     public function label(): string
     {
         return match($this) {
-            self::AVAILABLE    => 'Dostępny',
-            self::RESERVED     => 'Zarezerwowany',
-            self::SOLD_ADOPTED => 'Sprzedany / Adoptowany',
-            self::HIDDEN       => 'Ukryty',
+            self::AVAILABLE    => 'Beschikbaar',
+            self::RESERVED     => 'Gereserveerd',
+            self::SOLD_ADOPTED => 'Verkocht / Geadopteerd',
+            self::HIDDEN       => 'Verborgen',
         };
     }
 
     /**
-     * Zwraca kolor znacznika (badge) Filament dla danego statusu.
-     * Używane przez ->badge()->color(fn(CatalogItemStatus $s) => $s->badgeColor())
+     * Get badge color for Filament UI badge rendering.
      */
     public function badgeColor(): string
     {
@@ -50,8 +42,7 @@ enum CatalogItemStatus: string
     }
 
     /**
-     * Czy pozycja jest widoczna publicznie na stronie?
-     * Używane w query scope i na froncie.
+     * Determine if the catalog item is publicly visible.
      */
     public function isPublic(): bool
     {
