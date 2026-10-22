@@ -1,6 +1,81 @@
 # Development Journal
 
+---
+
+## 2026-10-22: Refaktoryzacja Architektoniczna — Modularny Monolith Multi-Tenant
+
+### [2026-10-22 10:00] - Task: Krok 1 — TenantPlan Enum & Feature Flag dla Modularnego ERP
+
+- **Files Modified:**
+  - `app/Enums/TenantPlan.php` *(nowy plik)*
+  - `database/migrations/2026_10_22_080013_add_plan_and_custom_domain_to_bedrijven_table.php` *(nowy plik)*
+  - `app/Models/Bedrijf.php` *(rozszerzony)*
+
+- **Technical Logic:**
+  Przystąpiliśmy do pierwszej fazy refaktoryzacji architektury, inspirowanej wzorcem *Modular Monolith Multi-Tenant*. Cel: przekształcenie projektu z systemu specyficznego dla logistyki w uniwersalną platformę SaaS.
+
+  **Krok 1** obejmuje najfundamentalniejszą zmianę: dodanie systemu `plan` do tabeli `bedrijven`, co pozwala na *modularne ukrywanie/pokazywanie funkcji* bez zmian w kodzie routingu.
+
+  1. **`TenantPlan` Enum** (`start | pro | scale`) zastępuje dotychczasowy system `active_packages` (tablica stringów w JSON). Każdy case Enuma ma metodę `hasErpAccess(): bool` — Feature Flag decydujący, czy tenant widzi moduł ERP (faktury, oferty).
+
+  2. **Migracja** dodaje dwie kolumny do `bedrijven`:
+     - `plan string default('start')` — `default('start')` to kluczowa decyzja: istniejące rekordy demo automatycznie dostają pakiet Start i nie widzą ERP, co nie psuje żadnych danych.
+     - `custom_domain string nullable unique` — przyszła obsługa własnych domen klientów (np. `kotyzmazowieckiejszwajcarii.pl`).
+
+  3. **Model `Bedrijf`** otrzymał cast `plan => TenantPlan::class` oraz metodę pomocniczą `hasErpAccess(): bool`, która deleguje pytanie do Enuma. Dzięki temu w Filament Resource wystarczy napisać:
+     ```php
+     public static function canViewAny(): bool {
+         return auth()->user()->bedrijf->hasErpAccess();
+     }
+     ```
+     ... aby cały moduł fakturowania stał się niewidoczny dla klientów planu Start.
+
+  **Weryfikacja:** Migracja wykonana pomyślnie (14.57ms). Wszystkie 33 testy Pest przechodzą — brak regresji.
+
+- **Senior Concept:** *Feature Flag przez Enum + Modular Monolith.* Zamiast utrzymywać osobne branche lub osobne aplikacje dla różnych klientów, jeden codebase obsługuje wszystkich. Enum w PHP 8.1 daje nam `type-safety` — nie można przypadkowo przekazać nieprawidłowego stringa. Metoda `hasErpAccess()` jako Feature Flag na Enumie to wzorzec ze świata mikroserwisów zaadaptowany do monolitu: moduł "istnieje" w kodzie, ale jest ukryty za flagą sterowaną danymi.
+
+- **Exam Defense Tip:** *„W celu stworzenia modularnej platformy SaaS bez zbędnej złożoności, zamiast rozgałęzionego kodu lub wielu aplikacji, użyłem wzorca Feature Flag opartego na Enum PHP 8.1. Kolumna `plan` w tabeli `bedrijven` steruje przez metodę `hasErpAccess()` widocznością całych modułów Filament. To pozwala dodać nowego klienta w 30 sekund i jedną zmianą w bazie odblokować mu moduł fakturowania."*
+
+- **Keywords to Learn:** `Feature Flag`, `Modular Monolith`, `PHP 8.1 Backed Enum`
+
+### [2026-10-22 10:20] - Task: Krok 2 — Uniwersalny Schemat Katalogu (Category, CatalogItem, 3NF + JSON Attributes)
+
+- **Files Modified:**
+  - `app/Enums/CategoryType.php` *(nowy plik)*
+  - `app/Enums/CatalogItemStatus.php` *(nowy plik)*
+  - `database/migrations/2026_10_22_081008_create_categories_table.php` *(nowy plik)*
+  - `database/migrations/2026_10_22_081035_create_catalog_items_table.php` *(nowy plik)*
+  - `app/Models/Category.php` *(nowy plik)*
+  - `app/Models/CatalogItem.php` *(nowy plik)*
+  - `app/Models/Bedrijf.php` *(dodane relacje categories() i catalogItems())*
+  - `tests/Feature/CatalogModuleTest.php` *(nowy plik testów)*
+
+- **Technical Logic:**
+  Krok 2 rozwiązuje główny zarzut komisji egzaminacyjnej dotyczący bazy danych: sztywne kolumny specyficzne dla jednej branży (np. transportu lub kotów) oraz redundancję schematu.
+  
+  1. **Single Table ze wskaźnikiem dyskryminatora (`CategoryType`):** Zamiast tworzyć osobne tabele `catalog_categories` i `post_categories`, tabela `categories` obsługuje kategorie produktów i wpisów blogowych za pomocą kolumny dyskryminatora `type` (`catalog` lub `post`), zabezpieczonej unikalnym indeksem złożonym `[bedrijf_id, type, slug]`.
+  
+  2. **Uniwersalny model `CatalogItem` (Wzorzec 3NF + Schemaless JSON):** 
+     Tabela `catalog_items` posiada znormalizowane twarde kolumny biznesowe (`id`, `bedrijf_id`, `category_id`, `name`, `slug`, `status`, `price_minor`, `description`, `whatsapp_prefill_text`, `soft_deletes`), natomiast wszystkie zmienne cechy branżowe (np. rasa, płeć, wiek kota lub rocznik i przebieg samochodu) są przechowywane w elastycznej kolumnie JSON `attributes`.
+  
+  3. **Standard walutowy BCMath/Minor Units (`price_minor`):**
+     Cena w groszach/centach jako `unsignedBigInteger` eliminuje błędy zaokrągleń zmiennoprzecinkowych `float`. Dedykowany accessor `price_formatted` formatuje kwotę w locie (np. `350000` -> `3 500,00 PLN`).
+  
+  4. **State Machine (`CatalogItemStatus`):** Statusy (`available`, `reserved`, `sold_adopted`, `hidden`) sterują widocznością publiczną oraz kolorystyką badge'y w Filament PHP.
+  
+  **Weryfikacja:** Utworzono testy Pest w `tests/Feature/CatalogModuleTest.php`. Wszystkie 35 testów w pakiecie przechodzą pomyślnie.
+
+- **Senior Concept:** *3NF + Schemaless JSON (Hybrid Relational Pattern).* Zamiast antywzorca EAV (Entity-Attribute-Value) rozbijającego dane na wiele powolnych tabel z JOIN-ami, przechowujemy wspólne atrybuty relacyjnie w 3NF, a specyfikację branżową w kolumnie JSON z automatycznym rzutowaniem w Eloquent. W połączeniu z ULID, soft deletes i izolacją Multi-Tenant (`HasBedrijf`), tworzy to uniwersalny rdzeń katalogowy dla dowolnego klienta SaaS.
+
+- **Exam Defense Tip:** *„Zamiast sztywnych kolumn pod jedną branżę lub skomplikowanego EAV, zastosowałem hybrydowy wzorzec 3NF + JSON Attributes. Twarde dane jak cena w minor units, status i relacje podlegają pełnej normalizacji relacyjnej, a dynamiczne atrybuty produktowe trafiają do walidowanego pola JSON. Dzięki temu ta sama baza obsługuje hodowlę kotów, komis samochodowy czy usługi transportowe bez zmian w schemacie migracji."*
+
+- **Keywords to Learn:** `Schemaless JSON Attributes`, `Minor Units (BCMath)`, `Discriminator Pattern`
+
+---
+
 ## 2026-04-30: Multi-tenancy Foundation
+
+
 
 ### Task Summary
 Initialized the multi-tenancy foundation by creating the `Bedrijf` model, a `HasBedrijf` trait for automated scoping, and updating the `User` model with roles and bedrijf association.

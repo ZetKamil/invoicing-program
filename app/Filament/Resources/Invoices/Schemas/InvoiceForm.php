@@ -63,7 +63,7 @@ class InvoiceForm
                                 'DDP' => 'DDP (Delivered Duty Paid)',
                             ])
                             ->columnSpan(1),
-                            
+
                         Select::make('trailer_type')
                             ->label('Type Trailer')
                             ->options([
@@ -75,7 +75,7 @@ class InvoiceForm
                                 'Kipper' => 'Kipper',
                                 'Tankwagen' => 'Tankwagen',
                             ])->columnSpan(1),
-                            
+
                         TextInput::make('cmr_number')
                             ->label('CMR Number')
                             ->maxLength(255)
@@ -90,12 +90,12 @@ class InvoiceForm
                             ->label('Kenteken Trailer')
                             ->maxLength(255)
                             ->columnSpan(1),
-                            
+
                         TextInput::make('driver_name')
                             ->label('Naam Chauffeur')
                             ->maxLength(255)
                             ->columnSpan(1),
-                            
+
                         TextInput::make('driver_phone')
                             ->label('Telefoonnummer Chauffeur')
                             ->maxLength(255)
@@ -110,15 +110,15 @@ class InvoiceForm
                             ->label('Aantal Pallets')
                             ->numeric()
                             ->columnSpan(2),
-                            
+
                         TextInput::make('loading_address')
                             ->label('Laadadres (Volledig)')
                             ->columnSpan(2),
-                            
+
                         DatePicker::make('loading_date')
                             ->label('Laaddatum')
                             ->columnSpan(2),
-                            
+
                         TextInput::make('delivery_address')
                             ->label('Losadres (Volledig)')
                             ->columnSpan(2),
@@ -147,7 +147,7 @@ class InvoiceForm
                             ->numeric()
                             ->prefix('€')
                             ->required(),
-                            
+
                         Toggle::make('is_reverse_charge')
                             ->label('Btw verlegd (Reverse Charge)')
                             ->live()
@@ -189,24 +189,26 @@ class InvoiceForm
                             ->inline()
                             ->default(InvoiceStatus::DRAFT)
                             ->required(),
-                            
+
                         TextInput::make('stripe_payment_intent_id')
                             ->label('Stripe Payment Intent ID')
                             ->disabled()
                             ->helperText('Automatisch ingevuld via Stripe webhook na betaling.'),
-                            
+
                         \Filament\Forms\Components\Placeholder::make('payment_link')
                             ->label('Publieke Betaallink')
                             ->content(function (?\App\Models\Invoice $record) {
-                                if (!$record || !$record->id) return '-';
+                                if (!$record || !$record->id)
+                                    return '-';
                                 $url = route('invoice.pay', ['invoice' => $record->id]);
                                 return new \Illuminate\Support\HtmlString("<a href=\"{$url}\" target=\"_blank\" class=\"text-blue-600 underline\">{$url}</a>");
                             }),
-                            
+
                         \Filament\Forms\Components\Placeholder::make('quote_link')
                             ->label('Bron Offerte')
                             ->content(function (?\App\Models\Invoice $record) {
-                                if (!$record || !$record->quote_id) return 'Geen gekoppelde offerte';
+                                if (!$record || !$record->quote_id)
+                                    return 'Geen gekoppelde offerte';
                                 $url = \App\Filament\Resources\Quotes\QuoteResource::getUrl('edit', ['record' => $record->quote_id]);
                                 $number = $record->quote->quote_number ?? 'Bekijk Offerte';
                                 return new \Illuminate\Support\HtmlString("<a href=\"{$url}\" class=\"text-blue-600 underline font-bold\">{$number}</a>");

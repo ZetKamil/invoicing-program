@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\TenantPlan;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'slug', 'vat_number', 'peppol_id', 'stripe_id', 'stripe_subscription_id', 'stripe_subscription_status', 'settings', 'active_packages'])]
+#[Fillable([
+    'name', 'slug', 'plan', 'custom_domain',
+    'vat_number', 'peppol_id',
+    'stripe_id', 'stripe_subscription_id', 'stripe_subscription_status',
+    'settings', 'active_packages',
+])]
 class Bedrijf extends Model
 {
     /** @use HasFactory<\Database\Factories\BedrijfFactory> */
@@ -24,9 +30,22 @@ class Bedrijf extends Model
     protected function casts(): array
     {
         return [
-            'settings' => 'array',
+            'plan'            => TenantPlan::class,
+            'settings'        => 'array',
             'active_packages' => 'array',
         ];
+    }
+
+    /**
+     * Sprawdza czy tenant ma dostęp do modułu ERP (faktury, oferty, Peppol).
+     * Feature Flag bazujący na TenantPlan Enum — używany w canViewAny()
+     * zasobów Filament, aby ukryć/pokazać zasoby ERP jedną linijką kodu.
+     *
+     * Wzorzec Senior: delegowanie logiki biznesowej do Enum, a nie do modelu.
+     */
+    public function hasErpAccess(): bool
+    {
+        return $this->plan?->hasErpAccess() ?? false;
     }
 
     /**
@@ -62,4 +81,13 @@ class Bedrijf extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function catalogItems(): HasMany
+    {
+        return $this->hasMany(CatalogItem::class);
+    }
 }
