@@ -49,9 +49,14 @@ class GenerateBlogPostWithAiAction
             $counter++;
         }
 
+        $targetUserId = $userId 
+            ?? auth()->id() 
+            ?? \App\Models\User::where('bedrijf_id', $targetBedrijfId)->first()?->id 
+            ?? \App\Models\User::first()?->id;
+
         return Post::create([
             'bedrijf_id'   => $targetBedrijfId,
-            'user_id'      => $userId ?? auth()->id(),
+            'user_id'      => $targetUserId,
             'category_id'  => $categoryId,
             'title'        => $data['title'],
             'slug'         => $slug,

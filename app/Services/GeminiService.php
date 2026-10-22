@@ -16,7 +16,13 @@ class GeminiService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
-        $this->model  = config('services.gemini.model', 'gemini-1.5-flash');
+        
+        $configuredModel = config('services.gemini.model', 'gemini-3.5-flash');
+        // Map older or temporarily overloaded models to ultra-fast gemini-3.5-flash
+        if (in_array($configuredModel, ['gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest']) || empty($configuredModel)) {
+            $configuredModel = 'gemini-3.5-flash';
+        }
+        $this->model = $configuredModel;
     }
 
     /**
@@ -54,13 +60,35 @@ class GeminiService
             ],
         ];
 
-        /** @var Response $response */
-        $response = Http::timeout(45)
-            ->post("{$this->baseUrl}/{$this->model}:generateContent?key={$this->apiKey}", $payload);
+        $modelsToTry = [$this->model];
+        if ($this->model !== 'gemini-3.5-flash-lite') {
+            $modelsToTry[] = 'gemini-3.5-flash-lite';
+        }
 
-        if (! $response->successful()) {
-            $errorMessage = $response->json('error.message') ?? $response->body();
-            throw new RuntimeException("Gemini API fout ({$response->status()}): {$errorMessage}");
+        $response = null;
+        $lastError = null;
+
+        foreach ($modelsToTry as $currentModel) {
+            $client = Http::timeout(45)
+                ->retry(2, 500, throw: false);
+
+            // Bypass cURL SSL verification in local/testing Windows environments without CA bundle
+            if (app()->environment('local', 'testing') || config('services.gemini.without_verifying', false)) {
+                $client->withoutVerifying();
+            }
+
+            /** @var Response $response */
+            $response = $client->post("{$this->baseUrl}/{$currentModel}:generateContent?key={$this->apiKey}", $payload);
+
+            if ($response->successful()) {
+                break;
+            }
+
+            $lastError = $response->json('error.message') ?? $response->body();
+        }
+
+        if (! $response || ! $response->successful()) {
+            throw new RuntimeException("Gemini API fout: " . ($lastError ?: 'Geen antwoord ontvangen.'));
         }
 
         $rawText = $response->json('candidates.0.content.parts.0.text');
