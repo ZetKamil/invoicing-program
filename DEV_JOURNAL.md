@@ -269,6 +269,44 @@
 
 - **Keywords to Learn:** `Blade Component Architecture`, `Conversational Commerce (WhatsApp Prefill)`, `CSS color-mix Theming`
 
+### [2026-10-22 12:05] - Task: Krok 7 — Zautomatyzowane Generowanie Artykułów przez AI (Google Gemini API Structured Outputs)
+
+- **Files Modified:**
+  - `config/services.php` *(dodana konfiguracja serwisu 'gemini')*
+  - `.env.example` *(udokumentowane zmienne środowiskowe GEMINI_API_KEY i GEMINI_MODEL)*
+  - `app/Services/GeminiService.php` *(nowy dedykowany serwis integracji z REST API Google Gemini)*
+  - `app/Actions/Blog/GenerateBlogPostWithAiAction.php` *(nowa akcja domenowa generująca i utrwalająca post ze strukturą sekcji)*
+  - `app/Filament/Resources/Posts/Pages/ListPosts.php` *(dodana akcja 'Genereer met AI' z oknem modalnym i przekierowaniem)*
+  - `tests/Feature/GeminiBlogGeneratorTest.php` *(nowy pakiet testów Pest dla serwisu, akcji i integracji z panelem Filament)*
+
+- **Technical Logic:**
+  Krok 7 wieńczy architekturę sekcyjnego bloga poprzez bezpośrednie połączenie z Google Gemini API w zaawansowanym trybie **Structured JSON Outputs** (`responseMimeType: application/json` + `responseSchema`), co pozwala modelowi sztucznej inteligencji generować treść natywnie zmapowaną na naszą kolumnę JSON `sections`:
+  
+  1. **Serwis Zewnętrzny (`GeminiService`):**
+     Zgodnie z regułą Separation of Concerns, cała komunikacja HTTP z zewnętrznym dostawcą AI została odizolowana w serwisie `app/Services/GeminiService.php`:
+     - Wykorzystuje oficjalny punkt końcowy Gemini v1beta (`models/{model}:generateContent`),
+     - Wymusza ścisły schemat JSON (`OBJECT` z właściwościami `title`, `slug`, `excerpt`, oraz tablicą `sections` zawierającą `heading`, `level` z enumem `h2|h3|h4`, `content`, `image_caption`),
+     - Obsługuje walidację obecności klucza API (`DomainException`), limity czasu żądania (`timeout(45)`) oraz błędy dekodowania odpowiedzi.
+
+  2. **Domenowa Akcja Biznesowa (`GenerateBlogPostWithAiAction`):**
+     Akcja przyjmuje `topic`, opcjonalny `categoryId`, ton artykułu (`professioneel`, `toegankelijk`, `expert`) oraz dane tenanta i autora:
+     - Wzbogaca prompt o nazwę kategorii docelowej,
+     - Gwarantuje unikalność sluga w obrębie tenanta (`slug-1`, `slug-2` w razie kolizji),
+     - Tworzy wpis w statusie `PostStatus::DRAFT`, gwarantując administratorowi pełną kontrolę przed publikacją.
+
+  3. **Integracja z Filament PHP (`ListPosts` Header Action):**
+     W panelu administracyjnym w nagłówku listy wpisów dodano przycisk z ikoną iskierki `Genereer met AI`:
+     - Otwiera modal z polami: *Onderwerp of trefwoord*, *Categorie* oraz *Toon van het artikel*,
+     - Po wygenerowaniu wyświetla niderlandzki komunikat sukcesu (`Artikel succesvol gegenereerd!`) i natychmiast przekierowuje użytkownika do edycji nowo utworzonego szkicu, gdzie sekcje pojawiają się w edytorze Filament Repeater.
+
+  **Weryfikacja:** Utworzono 4 testy w `tests/Feature/GeminiBlogGeneratorTest.php` (brak klucza, parsowanie JSON, akcja bazodanowa, Livewire action w Filament). Cały pakiet testów projektu wynosi teraz **53/53 testy** przechodzące pomyślnie (198 asercji, 0 błędów).
+
+- **Senior Concept:** *LLM Structured Outputs & Action-Service Domain Separation.* Zamiast niestabilnego parsowania Markdownu przez Regex lub podatnego na halucynacje formatowania HTML, wykorzystano natywny silnik Structured Outputs Google Gemini ze statycznym schematem JSON. Dodatkowo zachowano ścisły podział: Serwis odpowiada wyłącznie za I/O z zewnętrznym API, Akcja za logikę domenową (slug, unikalność, zapis), a Filament za warstwę prezentacji (UI/UX).
+
+- **Exam Defense Tip:** *„Zintegrowałem model Google Gemini za pomocą wzorca Structured Outputs, definiując ścisły schemat JSON bezpośrednio odpowiadający naszej architekturze sekcyjnej. Dzięki temu model AI zwraca nie surowy tekst, lecz zwalidowaną strukturę sekcji z nagłówkami h2/h3 i propozycjami ilustracji, która natychmiast zasila edytor Filament Repeater bez konieczności parsowania DOM."*
+
+- **Keywords to Learn:** `LLM Structured Outputs`, `Action-Service Pattern`, `Gemini JSON Schema Enforcement`
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation
