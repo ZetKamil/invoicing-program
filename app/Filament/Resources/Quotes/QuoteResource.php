@@ -28,12 +28,15 @@ class QuoteResource extends Resource
     public static function canViewAny(): bool
     {
         $user = auth()->user();
-        if (! $user || ! $user->bedrijf) {
+        if (! $user) {
             return false;
         }
 
-        $packages = $user->bedrijf->active_packages ?? [];
-        return in_array('2', $packages) || in_array('3', $packages);
+        if ($user->is_super_admin) {
+            return true;
+        }
+
+        return $user->bedrijf?->hasErpAccess() ?? false;
     }
 
     public static function form(Schema $schema): Schema

@@ -71,6 +71,41 @@
 
 - **Keywords to Learn:** `Schemaless JSON Attributes`, `Minor Units (BCMath)`, `Discriminator Pattern`
 
+### [2026-10-22 10:25] - Task: Krok 3 — Modułowa Izolacja ERP w Filament PHP (`hasErpAccess` Feature Flag)
+
+- **Files Modified:**
+  - `app/Filament/Resources/Invoices/InvoiceResource.php` *(zaktualizowany)*
+  - `app/Filament/Resources/Quotes/QuoteResource.php` *(zaktualizowany)*
+  - `app/Filament/Resources/Products/ProductResource.php` *(zaktualizowany)*
+  - `app/Filament/Resources/Bedrijven/Schemas/BedrijfForm.php` *(dodane pola plan i custom_domain)*
+  - `app/Filament/Resources/Bedrijven/Tables/BedrijvenTable.php` *(dodany badge kolumny plan i custom_domain)*
+  - `tests/Feature/ModularErpAccessTest.php` *(nowy plik testów)*
+
+- **Technical Logic:**
+  Krok 3 zamyka proces zamrażania i modularnego ukrywania modułów ERP / logistycznych zgodnie z wytycznymi nowej architektury SaaS:
+  
+  1. **Zastąpienie kruchej tablicy `active_packages`:** Dotychczas w `InvoiceResource`, `QuoteResource` i `ProductResource` dostęp sprawdzano przez `in_array('3', $packages)`. Zostało to zastąpione jednolitym Feature Flagiem:
+     ```php
+     public static function canViewAny(): bool
+     {
+         $user = auth()->user();
+         if (! $user) return false;
+         if ($user->is_super_admin) return true;
+         return $user->bedrijf?->hasErpAccess() ?? false;
+     }
+     ```
+  2. **Zachowanie logiki subskrypcyjnej:** Klienci na planie `START` (np. hodowla kotów `kotyzmazowieckiejszwajcarii.pl`) w panelu Filament nie widzą w ogóle modułów Faktur, Ofert ani Produktów transportowych. Klienci na planie `PRO` i `SCALE` mają pełen dostęp do tych modułów. Super Administrator ma zawsze pełny wgląd.
+  
+  3. **Zarządzanie planami w panelu Super Admina:** Formularz [`BedrijfForm`](file:///c:/wamp64/www/facturatieprogramma/app/Filament/Resources/Bedrijven/Schemas/BedrijfForm.php) i tabela [`BedrijvenTable`](file:///c:/wamp64/www/facturatieprogramma/app/Filament/Resources/Bedrijven/Tables/BedrijvenTable.php) otrzymały obsługę enuma [`TenantPlan`](file:///c:/wamp64/www/facturatieprogramma/app/Enums/TenantPlan.php) z dynamicznymi kolorami badge'y oraz pole własnej domeny `custom_domain`.
+
+  **Weryfikacja:** Utworzono 4 testy w [`tests/Feature/ModularErpAccessTest.php`](file:///c:/wamp64/www/facturatieprogramma/tests/Feature/ModularErpAccessTest.php). Cały pakiet testów przechodzi pomyślnie (39/39 testów, 129 asercji).
+
+- **Senior Concept:** *RBAC / Feature Flagging at Navigation & Resource Level.* Zamiast warunkowych widoków Blade lub skomplikowanego middleware'u dla każdego routa, Filament wykorzystuje statyczną metodę autoryzacyjną `canViewAny()`. Dzięki powiązaniu jej z metodą domeny [`Bedrijf::hasErpAccess()`](file:///c:/wamp64/www/facturatieprogramma/app/Models/Bedrijf.php#L45-L48) logika uprawnień subskrypcyjnych jest scentralizowana, silnie typowana (Enum) i w pełni testowalna jednostkowo bez uruchamiania przeglądarki.
+
+- **Exam Defense Tip:** *„Aby przekształcić dedykowany system transportowy w uniwersalny SaaS bez przepisywania panelu administracyjnego, zaimplementowałem wzorzec Feature Flag w metodach `canViewAny()` zasobów Filament PHP. Zasoby fakturowania i logistyki są dynamicznie ukrywane dla tenantów na planie podstawowym (START), a aktywowane dla pakietów wyższych (PRO/SCALE) jedną flagą enuma w bazie danych."*
+
+- **Keywords to Learn:** `Filament canViewAny()`, `Subscription-driven Feature Flags`, `Multi-Tenant Resource Scoping`
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation

@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Bedrijven\Schemas;
 
+use App\Enums\TenantPlan;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -20,6 +22,18 @@ class BedrijfForm
                             ->required(),
                         TextInput::make('slug')
                             ->required(),
+                        Select::make('plan')
+                            ->label('Abonament / SaaS Plan')
+                            ->options([
+                                TenantPlan::START->value => 'Start (Katalog + Blog, brak ERP)',
+                                TenantPlan::PRO->value   => 'Pro (Katalog + Blog + Fakturowanie)',
+                                TenantPlan::SCALE->value => 'Scale (Pełny ERP + Peppol UBL)',
+                            ])
+                            ->default(TenantPlan::START->value)
+                            ->required(),
+                        TextInput::make('custom_domain')
+                            ->label('Własna Domena (np. kotyzmazowieckiejszwajcarii.pl)')
+                            ->placeholder('twojadomena.pl'),
                         TextInput::make('vat_number'),
                         TextInput::make('peppol_id'),
                         TextInput::make('stripe_id'),

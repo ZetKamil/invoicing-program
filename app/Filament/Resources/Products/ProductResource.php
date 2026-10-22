@@ -28,11 +28,15 @@ class ProductResource extends Resource
     public static function canViewAny(): bool
     {
         $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
         if ($user->is_super_admin) {
             return true;
         }
 
-        return in_array('7', $user->bedrijf?->active_packages ?? []);
+        return $user->bedrijf?->hasErpAccess() ?? false;
     }
 
     public static function form(Schema $schema): Schema

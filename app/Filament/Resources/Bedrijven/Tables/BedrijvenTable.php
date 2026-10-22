@@ -21,6 +21,18 @@ class BedrijvenTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
+                TextColumn::make('plan')
+                    ->label('Plan')
+                    ->badge()
+                    ->color(fn ($state) => match ($state?->value ?? $state) {
+                        'scale' => 'success',
+                        'pro' => 'info',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+                TextColumn::make('custom_domain')
+                    ->label('Własna Domena')
+                    ->searchable(),
                 TextColumn::make('vat_number')
                     ->searchable(),
                 TextColumn::make('peppol_id')
