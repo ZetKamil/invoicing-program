@@ -21,7 +21,13 @@ Route::redirect('/pakketten', '/diensten');
 Route::view('/cases', 'pages.cases')->name('cases');
 Route::redirect('/realisaties', '/cases');
 Route::view('/over-ons', 'pages.about')->name('about');
-Route::view('/blog', 'pages.blog')->name('blog');
+// Public Blog (Modular Sectional Content)
+Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
+// Public Catalog (Universal 3NF + Schemaless JSON Attributes)
+Route::get('/aanbod', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/aanbod/{slug}', [\App\Http\Controllers\CatalogController::class, 'show'])->name('catalog.show');
 
 // Public Invoice Payment Portal
 // Rate-limited to prevent ULID enumeration attacks on customer invoices.

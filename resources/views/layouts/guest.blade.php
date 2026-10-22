@@ -24,9 +24,9 @@
       --navy-mid:   #121214;
       --navy-light: #18181b;
       --navy-card:  #18181b;
-      /* Electric Lime Accent */
-      --orange:     #D4FF00;
-      --orange-d:   #bce600;
+      /* Dynamic Tenant Primary Accent */
+      --orange:     {{ $tenantPrimaryColor ?? '#D4FF00' }};
+      --orange-d:   color-mix(in srgb, var(--orange) 85%, black);
       --orange-glow:rgba(212,255,0,0.15);
       --gold:       #FBBF24;
       --white:      #FFFFFF;

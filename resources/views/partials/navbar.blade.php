@@ -3,6 +3,7 @@
     <div class="nav-logo"><a href="{{ url('/') }}">TransDigit<em>.</em></a></div>
     <ul class="nav-links">
       <li><a href="{{ url('/diensten') }}">Diensten & Pakketten</a></li>
+      <li><a href="{{ url('/aanbod') }}">Aanbod</a></li>
       <li><a href="{{ url('/#smartquote') }}">Smart Quote</a></li>
       <li><a href="{{ url('/cases') }}">Realisaties</a></li>
       <li><a href="{{ url('/over-ons') }}">Over ons</a></li>

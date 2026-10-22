@@ -226,6 +226,49 @@
 
 - **Keywords to Learn:** `Structured JSON Content`, `Filament Repeater`, `Discriminator Relationship Filtering`
 
+### [2026-10-22 11:45] - Task: Krok 6 — Frontend & Modułowe Komponenty Blade (Blog Sekcyjny, Dynamiczny Katalog & Theming)
+
+- **Files Modified:**
+  - `resources/views/components/blocks/section.blade.php` *(nowy komponent sekcji artykułu)*
+  - `app/Http/Controllers/BlogController.php` *(nowy kontroler bloga: index & show z filtracją kategorii)*
+  - `app/Http/Controllers/CatalogController.php` *(nowy kontroler katalogu: index & show z WhatsApp CTA)*
+  - `resources/views/pages/blog/index.blade.php` *(nowy dynamiczny widok listy bloga z filtrami)*
+  - `resources/views/pages/blog/show.blade.php` *(nowy widok szczegółów artykułu iterujący po sekcjach JSON)*
+  - `resources/views/pages/catalog/index.blade.php` *(nowy dynamiczny widok katalogu z formatowaniem minor units i podglądem cech)*
+  - `resources/views/pages/catalog/show.blade.php` *(nowy widok szczegółów pozycji, tabela atrybutów JSON i sticky WhatsApp CTA)*
+  - `resources/views/layouts/guest.blade.php` *(obsługa dynamicznego brandingu tenanta CSS --orange i color-mix)*
+  - `resources/views/partials/navbar.blade.php` *(dodany link nawigacyjny 'Aanbod')*
+  - `routes/web.php` *(rejestracja tras publicznych dla bloga i katalogu)*
+  - `tests/Feature/FrontendBlogAndCatalogTest.php` *(nowy zestaw testów Pest dla frontendu)*
+
+- **Technical Logic:**
+  Krok 6 łączy backendową architekturę danych (3NF + JSON) z interfejsem publicznym, eliminując wszelkie statyczne atrapy kart i zastępując je w 100% dynamicznym, responsywnym systemem prezentacji:
+  
+  1. **Modułowy Komponent Sekcji (`<x-blocks.section :section="$section" />`):**
+     Renderuje pojedynczy blok ustrukturyzowanej treści z bazy danych (`sections` JSON):
+     - Dynamiczne dopasowanie poziomu nagłówka SEO (`h2`, `h3`, `h4`) z unikalnym ID sluga dla bezpośrednich kotwic (`anchor links`),
+     - Bezpieczne parsowanie tekstu akapitów (`nl2br(e(...))`),
+     - Responsywna ramka multimediów (`<figure class="section-figure">`) z obsługą `loading="lazy"`, obrazu oraz dedykowanego podpisu (`figcaption`).
+
+  2. **Optymalne Zapytania i Filtrowanie (`whereHas` zamiast `HAVING`):**
+     Zarówno w `BlogController`, jak i `CatalogController` zastosowano relacyjny warunek `whereHas` generujący szybkie zapytanie `EXISTS (...)`, co gwarantuje kompatybilność ze wszystkimi silnikami SQL (w tym rygorystycznym SQLite `:memory:` bez antywzorców agregacji). Paginacja z `withQueryString()` zachowuje filtry kategorii podczas przewijania stron.
+
+  3. **Uniwersalna Prezentacja Katalogu i Integracja WhatsApp (`whatsapp_prefill_text`):**
+     - Ceny z kolumny `price_minor` formatowane są z zachowaniem precyzji finansowej (`€ 3 500,00`).
+     - Dowolne atrybuty branżowe zapisane w JSON `attributes` (rasa, płeć, stamboom, itp.) są dynamicznie transformowane w czytelną siatkę cech (`Kenmerken & Specificaties`).
+     - Sticky CTA Card generuje bezpośredni link do komunikatora WhatsApp (`https://wa.me/?text=...`) z zakodowanym tekstem zapytania (`rawurlencode`), umożliwiając błyskawiczną konwersję klienta bez konieczności wypełniania skomplikowanych formularzy.
+
+  4. **Multi-Tenant CSS Theming (`color-mix`):**
+     W `layouts/guest.blade.php` zmienna `--orange` przyjmuje opcjonalny kolor tenanta (`$tenantPrimaryColor ?? '#D4FF00'`), a barwy pochodne (np. stany hover `--orange-d`) są wyliczane automatycznie przez natywną funkcję nowoczesnego CSS `color-mix(in srgb, var(--orange) 85%, black)`.
+
+  **Weryfikacja:** Utworzono 5 testów Pest w `tests/Feature/FrontendBlogAndCatalogTest.php` weryfikujących routing, filtrowanie, widoczność draftów/ukrytych pozycji, poprawne generowanie linków WhatsApp oraz renderowanie komponentu sekcji. Cały pakiet testów projektu przechodzi pomyślnie (49/49 testów, 175 asercji).
+
+- **Senior Concept:** *Component-Driven Rendering & Conversational Commerce Integration.* Separacja struktury danych od szablonu w oparciu o komponenty Blade pozwala na bezproblemową podmianę layoutu bez dotykania bazy danych. Wprowadzenie wzorca Conversational Commerce (WhatsApp Prefill Direct Action) drastycznie skraca ścieżkę zakupową klienta w sektorach high-touch (takich jak hodowle zwierząt rasowych czy usługi B2B).
+
+- **Exam Defense Tip:** *„Zastąpiłem statyczny kod HTML dynamicznym systemem komponentów Blade <x-blocks.section>, który renderuje ustrukturyzowane bloki JSON z bazy danych. Taki wzorzec uniezależnia prezentację od edycji treści, gwarantuje semantyczne nagłówki SEO (h2-h4) i bezproblemową integrację z kanałem bezpośredniej konwersji WhatsApp z predefiniowanym szablonem zapytania."*
+
+- **Keywords to Learn:** `Blade Component Architecture`, `Conversational Commerce (WhatsApp Prefill)`, `CSS color-mix Theming`
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation
