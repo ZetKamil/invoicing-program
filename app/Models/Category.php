@@ -41,6 +41,14 @@ class Category extends Model
         return $this->hasMany(CatalogItem::class);
     }
 
+    /**
+     * Blog posts associated with this category.
+     */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
     // ──────────────────────────────────────────────
     // Query Scopes
     // ──────────────────────────────────────────────

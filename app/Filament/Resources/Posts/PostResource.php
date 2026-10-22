@@ -23,12 +23,11 @@ class PostResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Communicatie';
 
-    protected static ?string $modelLabel = 'Bericht';
-    protected static ?string $pluralModelLabel = 'Berichten';
+    protected static ?string $modelLabel = 'Blogbericht';
+
+    protected static ?string $pluralModelLabel = 'Blogberichten';
 
     protected static ?int $navigationSort = 2;
-
-    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
     {
@@ -48,7 +47,7 @@ class PostResource extends Resource
             ])
             ->with([
                 'user:id,name',
-                'categories:id,name',
+                'category:id,name',
                 'featuredImage',
             ]);
     }
@@ -56,9 +55,9 @@ class PostResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListPosts::route('/'),
+            'index'  => ListPosts::route('/'),
             'create' => CreatePost::route('/create'),
-            'edit' => EditPost::route('/{record}/edit'),
+            'edit'   => EditPost::route('/{record}/edit'),
         ];
     }
 }

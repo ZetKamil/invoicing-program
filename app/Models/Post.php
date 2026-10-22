@@ -5,22 +5,34 @@ namespace App\Models;
 use App\Enums\PostStatus;
 use App\Traits\HasBedrijf;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Prunable;
-use Illuminate\Database\Eloquent\Builder;
 
-#[Fillable(['bedrijf_id', 'user_id', 'title', 'slug', 'excerpt', 'body', 'status', 'published_at'])]
+#[Fillable([
+    'bedrijf_id', 'user_id', 'category_id',
+    'title', 'slug', 'excerpt', 'body', 'sections',
+    'status', 'published_at',
+])]
 class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Post $post) {
+            if (auth()->check() && ! $post->user_id) {
+                $post->user_id = auth()->id();
+            }
+        });
+    }
 
     /**
      * Get the prunable model query.
@@ -38,23 +50,30 @@ class Post extends Model
     protected function casts(): array
     {
         return [
-            'status' => PostStatus::class,
+            'status'       => PostStatus::class,
+            'sections'     => 'array',
             'published_at' => 'datetime',
         ];
     }
 
     /**
-     * Get the user that authored the post.
+     * Category associated with this blog post.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Author of the blog post.
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-
-
     /**
-     * Get all of the post's media.
+     * All media items associated with the post.
      */
     public function media(): MorphMany
     {
@@ -62,7 +81,7 @@ class Post extends Model
     }
 
     /**
-     * Get the post's featured image.
+     * Featured image for the blog post.
      */
     public function featuredImage(): MorphOne
     {

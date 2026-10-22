@@ -185,6 +185,47 @@
 
 - **Keywords to Learn:** `UI Localization`, `Codebase Consistency`, `Language Separation Pattern`
 
+### [2026-10-22 11:15] - Task: Krok 5 — Strukturyzowany Blog Sekcyjny & Filament PostResource z Repeaterem i Relacją Kategorii
+
+- **Files Modified:**
+  - `database/migrations/2026_10_22_111000_add_category_id_and_sections_to_posts_table.php` *(nowa migracja)*
+  - `app/Models/Post.php` *(dodane category_id, sections array casting, relacja category(), auto user_id)*
+  - `app/Models/Category.php` *(dodana relacja posts() HasMany)*
+  - `app/Enums/PostStatus.php` *(angielskie docstringi, holenderskie etykiety, metoda badgeColor())*
+  - `app/Filament/Resources/Posts/PostResource.php` *(odblokowana nawigacja 'Artikelen', eager loading relacji category)*
+  - `app/Filament/Resources/Posts/Schemas/PostForm.php` *(formularz z niderlandzkim UI, relacją do kategorii postów i Filament Repeaterem dla sekcji)*
+  - `app/Filament/Resources/Posts/Tables/PostsTable.php` *(tabela z kolumnami, licznikiem sekcji badge, filtrami i SoftDeletes)*
+  - `app/Filament/Resources/Posts/Pages/ListPosts.php` *(holenderska etykieta akcji 'Nieuw Bericht')*
+  - `tests/Feature/FilamentBlogResourceTest.php` *(nowy pakiet testów)*
+
+- **Technical Logic:**
+  Krok 5 wprowadza nowoczesną architekturę tworzenia i renderowania treści blogowych, która eliminuje przestarzały antywzorzec "jednego wielkiego bloku HTML" na rzecz strukturyzowanych sekcji w formacie JSON (`Structured Sectional Content`):
+  
+  1. **Relacja z Uniwersalną Tabelą Kategorii (Dyskryminator `CategoryType::POST`):**
+     Do tabeli `posts` dodano klucz obcy `category_id` (z `nullOnDelete()`). W formularzu Filament `category_id` filtruje wyłącznie kategorie typu blogowego (`where('type', CategoryType::POST->value)`), zapobiegając przypisaniu postu do kategorii produktów/katalogu.
+
+  2. **Strukturyzowane Sekcje Artykułu (Filament `Repeater` -> JSON `sections`):**
+     Zamiast niespójnego, trudnego do parsowania pola WYSIWYG, artykuł składa się z listy modułowych bloków. Każda sekcja posiada:
+     - `heading` (nagłówek sekcji, np. "Dlaczego żywienie jest kluczowe"),
+     - `level` (wybór poziomu nagłówka SEO: `h2`, `h3`, `h4`),
+     - `content` (treść akapitu w Markdown / RichText),
+     - `image_url` & `image_caption` (opcjonalna ilustracja wraz z podpisem dla danej sekcji).
+     Dane zapisywane są bezpośrednio do kolumny `sections` typu JSON z automatycznym rzutowaniem `'sections' => 'array'` na modelu `Post`. Pozwala to w przyszłości na bezpośrednią integrację z generatorami AI (np. Gemini API zwracający ustrukturyzowany JSON sekcji).
+
+  3. **Izolacja Multi-Tenant i Automatyzacja Auteur (`booted` hook):**
+     Dzięki traitowi `HasBedrijf` posty są automatycznie przypisywane do bieżącego tenanta. Hook `booted()` automatycznie uzupełnia pole `user_id` zalogowanego administratora, jeśli nie zostało podane ręcznie.
+
+  4. **Spójność Językowa (UI Nederlands, Kod English):**
+     Wszystkie elementy interfejsu (formularze, tabele, filtry, komunikaty, statusy `Concept` / `Gepubliceerd`) są w języku niderlandzkim, natomiast komentarze i dokumentacja w kodzie – po angielsku.
+
+  **Weryfikacja:** Utworzono testy Pest w `tests/Feature/FilamentBlogResourceTest.php` (walidacja relacji, JSON sekcji, routingu indeksu i formularza tworzenia). Cały pakiet testów projektu przechodzi pomyślnie (44/44 testy, 148 asercji).
+
+- **Senior Concept:** *Headless-Ready Structured Content & Clean Component Modeling.* Przechowywanie treści jako tablicy obiektów sekcji zamiast surowego HTML daje pełną kontrolę nad frontendem (Design System, komponenty Blade `<x-blocks.section>`, czyste SEO bez inline stylów) oraz umożliwia łatwe zasilanie aplikacji mobilnych lub zewnętrznych API bez konieczności parsowania DOM.
+
+- **Exam Defense Tip:** *„Zamiast klasycznego, trudnego w utrzymaniu monolitycznego pola HTML/WYSIWYG, wdrożyłem wzorzec Structured Sectional Content z użyciem Filament Repeater i kolumny JSON. Każda sekcja artykułu posiada zdefiniowany poziom nagłówka, treść i media, co gwarantuje 100% spójność z systemem designu na frontendzie i idealną bazę pod automatyczne generowanie treści przez modele AI."*
+
+- **Keywords to Learn:** `Structured JSON Content`, `Filament Repeater`, `Discriminator Relationship Filtering`
+
 ---
 
 ## 2026-04-30: Multi-tenancy Foundation
