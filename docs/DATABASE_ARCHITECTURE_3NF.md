@@ -398,6 +398,9 @@ erDiagram
 | `created_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 | `updated_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 
+*Indeksy:*
+* `UNIQUE INDEX idx_tax_rates_tenant_code (tenant_id, code)` — uniemożliwia duplikację kodów podatkowych w obrębie tego samego tenanta.
+
 ---
 
 #### 16. `commercial_documents` (Zunifikowane Dokumenty Handlowe & Okres Księgowy BI)
@@ -417,7 +420,7 @@ erDiagram
 | `tax_total_minor`| `BIGINT` | `NOT NULL, DEFAULT 0` | Łączna kwota VAT w centach |
 | `total_minor` | `BIGINT` | `NOT NULL, DEFAULT 0` | Kwota brutto w centach do zapłaty |
 | `issued_at` | `DATE` | `NOT NULL` | Data wystawienia |
-| `due_at` | `DATE` | `NOT NULL` | Termin płatności |
+| `due_at` | `DATE` | `NULLABLE` | Termin płatności (opcjonalny dla roboczych szkiców `draft` i ofert `quote`) |
 | `paid_at` | `TIMESTAMP` | `NULLABLE` | Czas zaksięgowania wpłaty |
 | `vcs_reference`| `VARCHAR(17)` | `NULLABLE` | Belgijski kod VCS (`+++123/4567/89012+++`) |
 | `ubl_xml_path` | `VARCHAR(500)`| `NULLABLE` | Ścieżka do pliku Peppol UBL 2.1 XML |
@@ -425,7 +428,7 @@ erDiagram
 | **Legal Snapshot:** | | | *(Zamrożenie danych prawnych w chwili zatwierdzenia)* |
 | `snapshot_customer_name` | `VARCHAR(255)` | `NOT NULL` | Zamrożona nazwa klienta |
 | `snapshot_customer_vat` | `VARCHAR(50)` | `NULLABLE` | Zamrożony NIP/BTW |
-| `snapshot_customer_address`| `JSON` | `NOT NULL` | Zamrożony pełny adres |
+| `snapshot_customer_address`| `JSON` | `NULLABLE` | Zamrożony pełny adres (opcjonalny dla roboczych szkiców `draft`) |
 | `created_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 | `updated_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 
@@ -475,7 +478,7 @@ erDiagram
 | `method` | `VARCHAR(50)` | `NOT NULL` | Metoda (`stripe_checkout`, `bancontact`, `sepa_debit`, `bank_transfer`) |
 | `status` | `VARCHAR(30)` | `NOT NULL, DEFAULT 'pending'`| Status (`pending`, `completed`, `failed`, `refunded`) |
 | `transaction_reference`| `VARCHAR(255)`| `NULLABLE` | Identyfikator Stripe PaymentIntent ID lub wyciągu |
-| `paid_at` | `TIMESTAMP` | `NOT NULL` | Data zaksięgowania |
+| `paid_at` | `TIMESTAMP` | `NULLABLE` | Data zaksięgowania (wypełniana po zatwierdzeniu wpłaty, pusta przy statusie `pending`) |
 | `created_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 | `updated_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 
@@ -845,6 +848,8 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->unique(['tenant_id', 'code'], 'idx_tax_rates_tenant_code');
         });
 
         // 16. COMMERCIAL_DOCUMENTS
@@ -862,14 +867,14 @@ return new class extends Migration
             $table->bigInteger('tax_total_minor')->default(0);
             $table->bigInteger('total_minor')->default(0);
             $table->date('issued_at');
-            $table->date('due_at');
+            $table->date('due_at')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->string('vcs_reference', 17)->nullable();
             $table->string('ubl_xml_path', 500)->nullable();
             $table->string('peppol_message_id', 255)->nullable();
             $table->string('snapshot_customer_name', 255);
             $table->string('snapshot_customer_vat', 50)->nullable();
-            $table->json('snapshot_customer_address');
+            $table->json('snapshot_customer_address')->nullable();
             $table->timestamps();
 
             $table->unique(['tenant_id', 'type', 'document_number'], 'idx_commercial_docs_tenant_number');
@@ -916,7 +921,7 @@ return new class extends Migration
             $table->string('method', 50);
             $table->string('status', 30)->default('pending');
             $table->string('transaction_reference', 255)->nullable();
-            $table->timestamp('paid_at');
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

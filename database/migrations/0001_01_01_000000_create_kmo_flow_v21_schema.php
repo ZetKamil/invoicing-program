@@ -279,6 +279,8 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->unique(['tenant_id', 'code'], 'idx_tax_rates_tenant_code');
         });
 
         // 16. COMMERCIAL_DOCUMENTS
@@ -296,14 +298,14 @@ return new class extends Migration
             $table->bigInteger('tax_total_minor')->default(0);
             $table->bigInteger('total_minor')->default(0);
             $table->date('issued_at');
-            $table->date('due_at');
+            $table->date('due_at')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->string('vcs_reference', 17)->nullable();
             $table->string('ubl_xml_path', 500)->nullable();
             $table->string('peppol_message_id', 255)->nullable();
             $table->string('snapshot_customer_name', 255);
             $table->string('snapshot_customer_vat', 50)->nullable();
-            $table->json('snapshot_customer_address');
+            $table->json('snapshot_customer_address')->nullable();
             $table->timestamps();
 
             $table->unique(['tenant_id', 'type', 'document_number'], 'idx_commercial_docs_tenant_number');
@@ -350,7 +352,7 @@ return new class extends Migration
             $table->string('method', 50);
             $table->string('status', 30)->default('pending');
             $table->string('transaction_reference', 255)->nullable();
-            $table->timestamp('paid_at');
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

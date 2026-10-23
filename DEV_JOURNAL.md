@@ -17,18 +17,21 @@
      - **Detal B (Izolacja Ofert i Szkiców w Raporcie 2):** Do zapytania o rentowność pozycji katalogowych dodano `JOIN commercial_documents d ON lines.document_id = d.id` z filtrowaniem `d.type IN ('invoice', 'credit_note') AND d.status = 'paid'`, co wyklucza pozycje z otwartych ofert (`quote`), wersji roboczych (`draft`) oraz anulowanych faktur (`canceled`).
      - **Detal C (Konwencja Księgowa A / Peppol UBL):** Udokumentowano zasadę zapobiegania podwójnemu minusowi: w bazie danych wszystkie wartości (`total_minor`, `line_net_minor`) przechowywane są jako wartości dodatnie (zgodnie ze schematem Peppol BIS 3.0 / `<cbc:PayableAmount>`), a o znaku w agregacjach finansowych decyduje wyłącznie `CASE WHEN d.type = 'credit_note' THEN -d.total_minor`.
      - **Detal D (Indeks Złożony pod TenantScope w tabeli `media`):** Zmodyfikowano indeks polimorficzny w tabeli `media` na `idx_media_tenant_polymorphic (tenant_id, model_type, model_id, collection_name)`, dzięki czemu zapytania z globalnym `TenantScope` od razu trafiają w pierwszą kolumnę indeksu B-Tree.
-  2. **Skonsolidowana Migracja Laravel 11/13:**
+  2. **Skonsolidowana Migracja Laravel 11/13 & Trzy Kluczowe Szlify Integralności:**
      - Zbudowano plik `0001_01_01_000000_create_kmo_flow_v21_schema.php` zawierający 18 ściśle znormalizowanych tabel 3NF.
+     - **Poprawka A (Bezpieczeństwo Płatności Stripe/Bancontact):** W tabeli `payments` zmieniono `paid_at` na `nullable()`. Przy domyślnym statusie `pending` (inicjalizacja sesji Stripe Checkout przed autoryzacją bankową) brak `nullable` rzucałby błąd naruszenia więzów spójności `SQLSTATE[23000]`.
+     - **Poprawka B (Elastyczność Szkiców w `commercial_documents`):** Kolumny `due_at` oraz `snapshot_customer_address` ustawiono jako `nullable()`. Umożliwia to zapisywanie wersji roboczych (`draft`) ofert i faktur proforma przed ustaleniem terminu zapłaty i pobraniem pełnych danych adresowych.
+     - **Poprawka C (Unikalność Kodów Stawek VAT):** W tabeli `tax_rates` dodano indeks `idx_tax_rates_tenant_code (tenant_id, code)`, zapobiegający przypadkowemu dublowaniu kodów podatkowych (np. dwóch stawek `BE_21`) u tego samego tenanta.
      - Zastosowano natywny typ `$table->ulid('id')->primary()` oraz powiązania `$table->foreignUlid(...)`.
      - Poprawna kolejność tworzenia tabel (tabela `customers` przed `leads`, relacja zwrotna `parent_document_id` w `commercial_documents` dodana przez `Schema::table`).
      - Wycofano i zarchiwizowano 34 pliki starych migracji prototypowych do katalogu `database/migrations_archive/`.
-     - Uruchomiono `php artisan migrate:fresh` — wszystkie 18 tabel zostało utworzonych w 89 ms bez żadnych ostrzeżeń czy konfliktów.
+     - Uruchomiono `php artisan migrate:fresh` — wszystkie 18 tabel zostało pomyślnie utworzonych z kompletem indeksów unikalnych i złożonych.
 
 - **Senior Concept:** *Zero-Data Schema Consolidation & Cross-Engine Portability.* W fazie przedprodukcyjnej (gdy nie ma danych produkcyjnych), utrzymywanie dziesiątek drobnych migracji prototypowych wprowadza dług technologiczny. Konsolidacja całego schematu do jednej atomowej migracji 3NF v2.1 eliminuje dryf schematów, gwarantuje 100% przenośność z PostgreSQL i natywną zgodność z Filament v3 Multi-Tenancy.
 
-- **Exam Defense Tip:** *„W celu zapewnienia pełnej spójności 3NF, przenośności z PostgreSQL oraz wsparcia dla Peppol BIS Billing 3.0, skonsolidowałem schemat bazy do jednej czystej migracji 18 tabel. Zastosowałem konwencję przechowywania kwot dodatnich w centach (minor units), tabelę pośrednią tenant_user dla relacji wielodostępnej w Filament v3 oraz zoptymalizowałem indeksy B-Tree pod globalne scope'y tenanta."*
+- **Exam Defense Tip:** *„W celu zapewnienia pełnej spójności 3NF, przenośności z PostgreSQL oraz wsparcia dla Peppol BIS Billing 3.0, skonsolidowałem schemat bazy do jednej czystej migracji 18 tabel. Zastosowałem konwencję przechowywania kwot dodatnich w centach (minor units), tabelę pośrednią tenant_user dla relacji wielodostępnej w Filament v3, unikalne indeksy kodów podatkowych oraz elastyczne pola nullable dla statusów draft i pending."*
 
-- **Keywords to Learn:** `3NF Normalization`, `B-Tree Composite Indexing`, `ULID Primary Keys`, `Peppol BIS Billing 3.0 Compliance`, `Schema Consolidation`
+- **Keywords to Learn:** `3NF Normalization`, `B-Tree Composite Indexing`, `ULID Primary Keys`, `Peppol BIS Billing 3.0 Compliance`, `Schema Consolidation`, `Draft Lifecycle Resiliency`
 
 ---
 
