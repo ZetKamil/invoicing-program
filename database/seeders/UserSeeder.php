@@ -15,13 +15,22 @@ class UserSeeder extends Seeder
         $bedrijf = Bedrijf::where('slug', 'logi-web-pro')->first();
 
         if ($bedrijf) {
-            User::create([
-                'bedrijf_id' => $bedrijf->id,
-                'name' => 'Admin Logi-Web',
-                'email' => 'admin@logiweb.pro',
-                'password' => Hash::make('password'),
-                'role' => UserRole::ADMIN,
-                'is_super_admin' => true,
+            $user = User::firstOrCreate(
+                ['email' => 'admin@logiweb.pro'],
+                [
+                    'name' => 'Kamil (Super Admin)',
+                    'password' => Hash::make('password'),
+                    'is_super_admin' => true,
+                ]
+            );
+
+            $bedrijf->users()->syncWithoutDetaching([
+                $user->id => [
+                    'id' => (string) \Illuminate\Support\Str::ulid(),
+                    'role' => 'owner',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
             ]);
         }
     }

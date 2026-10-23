@@ -264,6 +264,7 @@ return new class extends Migration
             $table->string('status', 30)->default('new');
             $table->string('audit_report_url', 500)->nullable();
             $table->text('notes')->nullable();
+            $table->json('metadata')->nullable();
             $table->foreignUlid('converted_customer_id')->nullable()->constrained('customers')->nullOnDelete();
             $table->timestamps();
         });

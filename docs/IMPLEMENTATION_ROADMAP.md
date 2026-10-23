@@ -203,16 +203,16 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 ### 📌 FAZA 4: Klient Końcowy i Portal Płatności (Frontend & Public Web)
 > **Cel:** Umożliwienie klientom Twoich klientów przeglądania oferty, wysyłania zapytań i płacenia za faktury/zaliczki online.
 
-- [ ] **TASK-4.1: Publiczny Portal Płatności `/pay/{id}`**
+- [x] **TASK-4.1: Publiczny Portal Płatności `/pay/{id}`**
   - Dedykowany, responsywny widok Livewire/Blade zoptymalizowany pod urządzenia mobilne.
   - Wyświetlanie szczegółów faktury/oferty, danych wystawcy i nabywcy.
   - Integracja ze Stripe Checkout (obsługa kart płatniczych, Bancontact, iDEAL).
   - Natychmiastowe potwierdzenie płatności i zmiana statusu w bazie na `paid` (oraz wpis w tabeli `payments`).
-- [ ] **TASK-4.2: Silnik Renderowania Klocków Strony (`Modular Page Engine`)**
+- [x] **TASK-4.2: Silnik Renderowania Klocków Strony (`Modular Page Engine`)**
   - Kontroler publiczny pobierający stronę główną tenanta na podstawie subdomeny lub domeny własnej (`custom_domain`).
   - Szablony Blade renderujące poszczególne klocki z `pages.blocks`.
   - Ekstremalna optymalizacja wydajności: zero zewnętrznych bibliotek, natywny CSS, czas ładowania poniżej 0.4s.
-- [ ] **TASK-4.3: Publiczny Formularz Zgłoszeniowy (Lead & Order Intake)**
+- [x] **TASK-4.3: Publiczny Formularz Zgłoszeniowy (Lead & Order Intake)**
   - Bezpieczny komponent formularza na stronie klienta.
   - Tworzenie rekordu w tabeli `leads` powiązanego z danym tenantem.
   - Opcjonalne wysłanie powiadomienia e-mail/SMS do właściciela firmy: *„Nowe zapytanie od klienta!”*.
@@ -222,12 +222,12 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 ### 📌 FAZA 5: Seeder Referencyjny (Dogfooding) i Testy Automatyczne (Pest 100% Green)
 > **Cel:** Kompletna weryfikacja automatyczna oraz przygotowanie gotowego środowiska demonstracyjnego.
 
-- [ ] **TASK-5.1: Seeder Demonstracyjny (`DatabaseSeeder`)**
+- [x] **TASK-5.1: Seeder Demonstracyjny (`DatabaseSeeder`)**
   - Wyczyszczenie i zasiew bazy:
     1. **Tenant #1 (Ziemkiewicz Digital):** Super-Admin Kamil, pakiety WaaS (€39, €100, €200, €350) w `catalog_items`, strona główna agencji w `pages`.
     2. **Tenant #2 (Jan de Smet Transport & Logistiek):** Właściciel, usługi transportowe, faktura transportowa oczekująca na płatność.
     3. **Tenant #3 (Kattenkwekerij Van Het Waasland):** Właściciel, kocięta w `catalog_items`, oferta w `commercial_documents`.
-- [ ] **TASK-5.2: Zestaw Testów Jednostkowych i Integracyjnych (Pest PHP)**
+- [x] **TASK-5.2: Zestaw Testów Jednostkowych i Integracyjnych (Pest PHP)**
   - Test izolacji multi-tenant (Tenant A nie widzi danych Tenanta B).
   - Test akcji `ProvisionTenantAction` (automatyczne wygenerowanie klocków i stawek podatkowych).
   - Test akcji `SendCommercialDocumentAction` i portalu płatności `/pay/{id}`.
@@ -240,28 +240,28 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 
 | Identyfikator | Zadanie / Moduł | Faza | Rola | Status | Weryfikacja |
 |---|---|---|---|---|---|
-| `TASK-1.1` | Modele `Tenant` i alias `Bedrijf` | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Kod PHP / Migracja |
-| `TASK-1.2` | Trait `HasTenant` & `TenantScope` | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Izolacja SQL |
-| `TASK-1.3` | Relacja `tenant_user` N:M w `User` | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Autoryzacja Filament |
-| `TASK-1.4` | Modele CRM `Customer` i `Lead` | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Testy modeli |
-| `TASK-1.5` | Modele Katalogu `CatalogItem` (Minor) | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Testy minor cents |
-| `TASK-1.6` | Modele Finansowe `CommercialDocument` (STI) | Faza 1 | 👤 Architekt | ⏳ Oczekuje | Faktury & Peppol |
-| `TASK-1.7` | Modele CMS `Page` (Blocks) & Telemetria | Faza 1 | 👤 Architekt | ⏳ Oczekuje | JSON schema |
-| `TASK-2.1` | Szablony klocków `TemplateBlocks` | Faza 2 | 👤/🤖 Dual | ⏳ Oczekuje | Podgląd szablonów |
-| `TASK-2.2` | Akcja `ProvisionTenantAction` | Faza 2 | 👤/🤖 Dual | ⏳ Oczekuje | Test transakcji DB |
-| `TASK-2.3` | Akcja wysyłki faktury & Stripe Link | Faza 2 | 👤/🤖 Dual | ⏳ Oczekuje | E-mail + Stripe URL |
-| `TASK-2.4` | Akcja `BuildPageBlocksAction` | Faza 2 | 👤/🤖 Dual | ⏳ Oczekuje | Zapis w `pages.blocks` |
-| `TASK-3.1` | Filament `CatalogItemResource` (Aanbod) | Faza 3 | 👤 UI | ⏳ Oczekuje | Formularz Filament |
-| `TASK-3.2` | Filament `InvoiceResource` + Akcja Stripe | Faza 3 | 👤 UI | ⏳ Oczekuje | Tabela + Akcja wysyłki |
-| `TASK-3.3` | Filament `PageResource` (Visual Builder) | Faza 3 | 👤 UI | ⏳ Oczekuje | Drag & Drop Klocków |
-| `TASK-3.4` | Filament `Customer` & `Lead` Resource | Faza 3 | 👤 UI | ⏳ Oczekuje | Formularze CRM |
-| `TASK-3.5` | Filament `Platformbeheer` (Super-Admin) | Faza 3 | 👑 Admin | ⏳ Oczekuje | Switcher + MRR |
-| `TASK-3.6` | Bramka Płatności Tenanta (Stripe & Mollie) | Faza 3 | 👤/👑 UI | ⏳ Oczekuje | Szyfrowanie `settings` |
-| `TASK-4.1` | Publiczny Portal Płatności `/pay/{id}` | Faza 4 | 🌐 Public | ⏳ Oczekuje | Płatność Stripe test |
-| `TASK-4.2` | Renderer Klocków Strony Blade | Faza 4 | 🌐 Public | ⏳ Oczekuje | Render HTML/CSS |
-| `TASK-4.3` | Formularz Zapytania Ofertowego | Faza 4 | 🌐 Public | ⏳ Oczekuje | Zapis w tabeli `leads` |
-| `TASK-5.1` | Seeder Bazy (Dogfooding Tenant #1) | Faza 5 | 👤 Dev | ⏳ Oczekuje | `artisan db:seed` |
-| `TASK-5.2` | Pakiet Testów Pest (100% Green) | Faza 5 | 👤 Dev | ⏳ Oczekuje | `pest` 100% passing |
+| `TASK-1.1` | Modele `Tenant` i alias `Bedrijf` | Faza 1 | 👤 Architekt | ✅ Zakończone | Kod PHP / Migracja |
+| `TASK-1.2` | Trait `HasTenant` & `TenantScope` | Faza 1 | 👤 Architekt | ✅ Zakończone | Izolacja SQL |
+| `TASK-1.3` | Relacja `tenant_user` N:M w `User` | Faza 1 | 👤 Architekt | ✅ Zakończone | Autoryzacja Filament |
+| `TASK-1.4` | Modele CRM `Customer` i `Lead` | Faza 1 | 👤 Architekt | ✅ Zakończone | Testy modeli |
+| `TASK-1.5` | Modele Katalogu `CatalogItem` (Minor) | Faza 1 | 👤 Architekt | ✅ Zakończone | Testy minor cents |
+| `TASK-1.6` | Modele Finansowe `CommercialDocument` (STI) | Faza 1 | 👤 Architekt | ✅ Zakończone | Faktury & Peppol |
+| `TASK-1.7` | Modele CMS `Page` (Blocks) & Telemetria | Faza 1 | 👤 Architekt | ✅ Zakończone | JSON schema |
+| `TASK-2.1` | Szablony klocków `TemplateBlocks` | Faza 2 | 👤/🤖 Dual | ✅ Zakończone | Podgląd szablonów |
+| `TASK-2.2` | Akcja `ProvisionTenantAction` | Faza 2 | 👤/🤖 Dual | ✅ Zakończone | Test transakcji DB |
+| `TASK-2.3` | Akcja wysyłki faktury & Stripe Link | Faza 2 | 👤/🤖 Dual | ✅ Zakończone | E-mail + Stripe URL |
+| `TASK-2.4` | Akcja `BuildPageBlocksAction` | Faza 2 | 👤/🤖 Dual | ✅ Zakończone | Zapis w `pages.blocks` |
+| `TASK-3.1` | Filament `CatalogItemResource` (Aanbod) | Faza 3 | 👤 UI | ✅ Zakończone | Formularz Filament |
+| `TASK-3.2` | Filament `InvoiceResource` + Akcja Stripe | Faza 3 | 👤 UI | ✅ Zakończone | Tabela + Akcja wysyłki |
+| `TASK-3.3` | Filament `PageResource` (Visual Builder) | Faza 3 | 👤 UI | ✅ Zakończone | Drag & Drop Klocków |
+| `TASK-3.4` | Filament `Customer` & `Lead` Resource | Faza 3 | 👤 UI | ✅ Zakończone | Formularze CRM |
+| `TASK-3.5` | Filament `Platformbeheer` (Super-Admin) | Faza 3 | 👑 Admin | ✅ Zakończone | Switcher + MRR |
+| `TASK-3.6` | Bramka Płatności Tenanta (Stripe & Mollie) | Faza 3 | 👤/👑 UI | ✅ Zakończone | Szyfrowanie `settings` |
+| `TASK-4.1` | Publiczny Portal Płatności `/pay/{id}` | Faza 4 | 🌐 Public | ✅ Zakończone | Płatność Stripe test |
+| `TASK-4.2` | Renderer Klocków Strony Blade | Faza 4 | 🌐 Public | ✅ Zakończone | Render HTML/CSS |
+| `TASK-4.3` | Formularz Zapytania Ofertowego | Faza 4 | 🌐 Public | ✅ Zakończone | Zapis w tabeli `leads` |
+| `TASK-5.1` | Seeder Bazy (Dogfooding Tenant #1) | Faza 5 | 👤 Dev | ✅ Zakończone | `artisan db:seed` |
+| `TASK-5.2` | Pakiet Testów Pest (100% Green) | Faza 5 | 👤 Dev | ✅ Zakończone | `pest` 100% passing |
 
 ---
 

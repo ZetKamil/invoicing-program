@@ -29,6 +29,7 @@ class Lead extends Model
         'status',
         'audit_report_url',
         'notes',
+        'metadata',
         'converted_customer_id',
     ];
 
@@ -41,6 +42,7 @@ class Lead extends Model
     {
         return [
             'status' => LeadStatus::class,
+            'metadata' => 'array',
         ];
     }
 

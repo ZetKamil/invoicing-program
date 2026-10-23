@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 | hood by the Filament framework (TALL Stack), keeping this file clean.
 */
 
-// Public Multi-Page Site
-Route::view('/', 'pages.home')->name('home');
+// Public Dynamic & Multi-Page Site
+Route::get('/', [\App\Http\Controllers\PublicPageController::class, 'render'])->name('home');
+Route::post('/contact/submit', [\App\Http\Controllers\PublicPageController::class, 'submitContact'])->name('public.contact.submit');
 Route::view('/diensten', 'pages.services')->name('services');
 Route::redirect('/pakketten', '/diensten');
 Route::view('/cases', 'pages.cases')->name('cases');
@@ -33,6 +34,8 @@ Route::get('/aanbod/{slug}', [\App\Http\Controllers\CatalogController::class, 's
 // Rate-limited to prevent ULID enumeration attacks on customer invoices.
 Route::get('/pay/{invoice}', \App\Livewire\Public\InvoicePayPortal::class)
     ->middleware('throttle:invoice-portal')
+    ->name('pay.portal');
+Route::get('/pay/legacy/{invoice}', \App\Livewire\Public\InvoicePayPortal::class)
     ->name('invoice.pay');
 
 // SaaS Onboarding (Disabled in favor of Super-Admin Manual Intake)

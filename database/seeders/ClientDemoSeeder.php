@@ -134,13 +134,21 @@ class ClientDemoSeeder extends Seeder
                 ],
             ]);
 
-            // --- 2. Create the primary dispatcher/admin user ---
-            User::create([
-                'bedrijf_id' => $bedrijf->id,
+            // --- 2. Create the primary dispatcher/admin user and attach via tenant_user pivot ---
+            $user = User::create([
                 'name'      => 'Beheerder ' . $clientData['name'],
                 'email'     => $clientData['email'],
                 'password'  => Hash::make('password'),
-                'role'      => UserRole::ADMIN,
+                'is_super_admin' => false,
+            ]);
+
+            $bedrijf->users()->syncWithoutDetaching([
+                $user->id => [
+                    'id' => (string) \Illuminate\Support\Str::ulid(),
+                    'role' => 'owner',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
             ]);
 
             // --- 3. Seed 3 transport service products for this bedrijf ---
@@ -211,9 +219,19 @@ class ClientDemoSeeder extends Seeder
                 $qty     = rand(1, 3);
                 $amount  = $product->price * $qty;
 
-                $customer = \App\Models\Customer::where('bedrijf_id', $bedrijf->id)
-                                ->where('email', $lead->email)
-                                ->first();
+                $customer = \App\Models\Customer::firstOrCreate(
+                    ['tenant_id' => $bedrijf->id, 'email' => $lead->email],
+                    [
+                        'id' => (string) \Illuminate\Support\Str::ulid(),
+                        'company_name' => $lead->company_name,
+                        'contact_person' => $lead->contact_person,
+                        'phone' => $lead->phone,
+                        'country_code' => 'BE',
+                        'address_line1' => 'Industrieweg ' . rand(1, 99),
+                        'city' => 'Antwerpen',
+                        'postal_code' => '2000',
+                    ]
+                );
 
                 $quote = Quote::create([
                     'bedrijf_id'    => $bedrijf->id,

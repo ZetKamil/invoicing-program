@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         // 2. Multi-Tenant Demo Data (4 logistieke bedrijven met facturen, leads en producten)
         $this->call([
             ClientDemoSeeder::class,
+            WaaSDogfoodingSeeder::class,
         ]);
     }
 }
