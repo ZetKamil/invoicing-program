@@ -169,8 +169,83 @@ graph TD
 
 ---
 
-## 9. Podsumowanie Wdrożeniowe (Dlaczego ten model gwarantuje sukces)
+---
 
-1. **Wysoka rentowność (Bijberoep Constraint):** Setup w 1 wieczór za 1 000 €–2 000 € oznacza zarobek 400 €/godz. przy zaangażowaniu zaledwie kilku godzin w tygodniu.
-2. **Stabilny dochód pasywny (MRR):** 20 klientów na pakietach 39 €–200 € generuje 2 000 €–3 500 € czystego miesięcznego zysku przy niemal zerowych kosztach hostingu.
-3. **Skalowalność technologiczna:** Baza 3NF v2.1, natywny multi-tenancy Filament v3 i telemetria AI eliminują dług technologiczny na lata.
+## 10. Architektura Dual-Execution (Action-First): Człowiek + Autonomiczny Agent AI
+
+Aby platforma KMO-Flow mogła być obsługiwana zarówno **ręcznie przez człowieka** (Ciebie lub przyszłego pracownika low-code w panelu Filament v3), jak i **autonomicznie przez Agenta AI**, wdrażamy wzorzec **Dual-Execution (Action-First Architecture)**:
+
+```mermaid
+graph TD
+    subgraph INICJATOR ZADANIA
+        Human["👤 CZŁOWIEK<br/>(Ty lub pracownik w Filament Dashboard)"]
+        Agent["🤖 AGENT AI<br/>(Function Calling / WhatsApp Bot / Cron)"]
+    end
+
+    subgraph WARSTWA AKCJI BIZNESOWYCH (PHP Service Actions)
+        A1["ProvisionTenantAction<br/>(Tworzy tenanta, usera, generuje szablon w pages)"]
+        A2["BuildPageBlocksAction<br/>(Zapisuje strukturę klocków JSON w pages.blocks)"]
+        A3["CreateCatalogItemAction<br/>(Dodaje produkt/usługę z ceną w centach)"]
+        A4["GenerateBlogPostAction<br/>(Generuje wpis z sekcjami JSON i telemetrią)"]
+        A5["IssueCommercialDocumentAction<br/>(Wystawia fakturę Peppol / ofertę)"]
+    end
+
+    subgraph BAZA DANYCH 3NF
+        DB[("Baza 3NF<br/>tenants, users, pages, catalog_items, posts")]
+        Audit["Dziennik audit_logs<br/>(Zapisuje czy akcję wykonał Człowiek czy Agent)"]
+    end
+
+    Human -->|Formularz / Modal w Filament| A1
+    Human -->|Edytor Drag & Drop| A2
+    Human -->|Formularz w Aanbod| A3
+
+    Agent -->|JSON Tool Calling| A1
+    Agent -->|Parsowanie PDF / tekstu klienta| A2
+    Agent -->|Wiadomość z WhatsApp| A3
+    Agent -->|Nocny harmonogram ai_schedules| A4
+
+    A1 --> DB
+    A2 --> DB
+    A3 --> DB
+    A4 --> DB
+    A5 --> DB
+
+    A1 -.-> Audit
+    A2 -.-> Audit
+    A3 -.-> Audit
+```
+
+### Gdzie dokładnie w kodzie powstaje „blanko layout / szablon strony”?
+Logika ta znajduje się w klasie akcji:
+👉 **`app/Actions/Tenants/ProvisionTenantAction.php`**
+
+Gdy akcja ta jest wywoływana (przez kliknięcie w panelu LUB przez wywołanie Agenta), wykonuje atomowo:
+1. **Tworzy Tenanta (`tenants`):** Zapisuje nazwę firmy, NIP, domenę i status (`active` lub `pending`).
+2. **Tworzy Właściciela (`users` & `tenant_user`):** Rejestruje konto zaakvoerdera i łączy z firmą rolą `owner`.
+3. **Automatycznie generuje stronę główną (`pages`):**
+   ```php
+   Page::create([
+       'tenant_id'    => $tenant->id,
+       'title'        => 'Home',
+       'slug'         => 'home',
+       'is_homepage'  => true,
+       'is_published' => true,
+       'blocks'       => TemplateBlocks::getForNiche($niche), // <-- TUTAJ POWSTAJE LAYOUT KLOCKÓW!
+   ]);
+   ```
+4. **Wgrywa domyślne stawki podatkowe (`tax_rates`):** Peppol `BE_21`, `BE_12`, `BE_6`, `BE_0_MC`.
+5. **Wysyła e-mail powitalny:** Z bezpiecznym linkiem do ustawienia hasła przez klienta.
+
+### Rejestr Narzędzi Agenta (Agent Tools / Function Calling Schema):
+Każda akcja biznesowa posiada zdefiniowany schemat parametrów JSON, dzięki czemu dowolny model AI (Gemini, Claude, GPT) może wywołać ją bezpośrednio jako tzw. *Tool*:
+* `tool_provision_tenant(company_name, vat_number, email, plan, niche_template)`
+* `tool_build_page_blocks(tenant_id, page_slug, blocks_json)`
+* `tool_create_catalog_item(tenant_id, name, price_cents, attributes_json)`
+* `tool_generate_blog_post(tenant_id, topic_prompt, auto_publish)`
+
+### Tryb Bezpieczeństwa: Human-in-the-Loop (`requires_approval`):
+Dla operacji o kluczowym znaczeniu (zmiana układu strony głównej, wystawienie oficjalnej faktury), Agent może działać w trybie **Draft**:
+* Agent przygotowuje stronę ze statusem `draft`.
+* W panelu Super-Admina pojawia się powiadomienie: *„Agent przygotował propozycję strony dla De Smet Transport. [Przejrzyj klocki i zatwierdź]”*.
+* Człowiek rzuca okiem, ewentualnie poprawia jeden detal i klika *Zatwierdź*.
+
