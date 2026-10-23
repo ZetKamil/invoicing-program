@@ -48,6 +48,35 @@ graph TD
 4. **Co wyróżnia Ciebie od klientów?**
    - Tylko jedna cecha: flaga `is_super_admin = true` w tabeli `users`. Daje Ci ona dostęp do bocznego modułu **Platformbeheer** (monitorowanie stanu całej floty stron, globalne logi AI, MRR) oraz przełącznika firm (**Tenant Switcher** w nagłówku Filamenta), dzięki któremu w 1 sekundę możesz „wejść w buty” dowolnego klienta i skonfigurować mu ofertę lub klocki strony.
 
+### Architektura Płatności Multi-Tenant: Jak rozdzielamy konta i klucze Stripe?
+W nowoczesnym SaaS istnieją dwa różne obiegi pieniędzy:
+1. **Pieniądze za Twoją platformę (B2B SaaS):**
+   - Gdy Jan de Smet lub Hodowla Kotów płaci Tobie abonament (€39 / €100 / €200/mc) lub opłatę wdrożeniową (€1 500) ➔ pieniądze trafiają na **Twoje główne konto Stripe platformy** (`config('services.stripe.secret')`).
+2. **Pieniądze ze sprzedaży produktów/usług Twojego klienta (End-Consumer / B2B):**
+   - Gdy nabywca kota płaci Hodowli Kotów zaliczkę (€300) lub zleceniodawca płaci Janowi de Smetowi za transport (€1 200) ➔ pieniądze **MUSZĄ trafić bezpośrednio na konto bankowe tego klienta**!
+   - **Wymóg prawny w Belgii/UE (Dyrektywa PSD2):** Jako twórca oprogramowania nie możesz przyjmować pieniędzy za cudze towary na swoje konto i ręcznie im ich wypłacać, ponieważ bez licencji bankowej NBB (Narodowy Bank Belgii) byłoby to nielegalne pośrednictwo finansowe.
+
+#### Gdzie to konfigurujesz w momencie tworzenia strony dla klienta?
+* **Opcja 1 (Konfiguracja przez Ciebie podczas wieczornego setupu):**
+  W panelu Super-Admina (`Platformbeheer ➔ Ondernemingen ➔ Bewerk`) lub w modalu onboardingu masz sekcję:  
+  👉 **`Betaalinstellingen (Stripe van de klant)`**:
+  - Pole: `Stripe Publishable Key` (`pk_live_...`)
+  - Pole: `Stripe Secret Key` (`sk_live_...`)
+  - Pole: `Stripe Webhook Secret` (`whsec_...`)
+  - Opcjonalnie: `Mollie API Key` (`live_...` – niezwykle popularny we Flandrii dla Bancontact).  
+  Wklejasz klucze klienta w 10 sekund i gotowe!
+* **Opcja 2 (Klient konfiguruje sam w swoim panelu):**
+  Klient wchodzi w swoim panelu w **Instellingen ➔ Betalingen & Facturatie** i sam wkleja swoje klucze lub klika przycisk `[ Koppel met Stripe ]`.
+* **Gdzie to jest zapisywane w bazie danych 3NF?**
+  Klucze zapisują się w kolumnie `tenants.settings['payment_gateways']['stripe']`. Są **automatycznie szyfrowane kluczem aplikacji (`APP_KEY`)**, więc nawet w razie wycieku bazy nikt nie podejrzy sekretów klienta.
+* **Jak zachowuje się `StripeService`?**
+  Gdy generowany jest link `/pay/{invoice}`:
+  ```php
+  // System automatycznie pobiera klucz Stripe powiązanego tenanta!
+  $stripeSecret = $invoice->tenant->getStripeSecretKey(); 
+  ```
+  Pieniądze klienta trafiają w 100% bezpośrednio na konto bankowe klienta!
+
 ---
 
 ## 2. Matryca Odpowiedzialności i Ról (Dual-Execution)
@@ -161,6 +190,13 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
     - Lista wszystkich firm (Tenantów) ze statusem abonamentu Stripe (`active`, `past_due`, `canceled`).
     - Przycisk `[ 🔑 Log in als deze onderneming ]` (Tenant Impersonation).
     - Globalny pulpit metryk: łączny MRR platformy, liczba wygenerowanych wpisów AI, zużycie tokenów.
+- [ ] **TASK-3.6: Konfigurator Bramki Płatności Tenanta (Stripe & Mollie Settings)**
+  - Formularz konfiguracji płatności dostępny:
+    1. W modalu tworzenia/edycji firmy w `Platformbeheer` (podczas wieczornego setupu przez Ciebie).
+    2. W panelu klienta w `Instellingen ➔ Betalingen & Facturatie` (samodzielnie przez klienta).
+  - Pola: `Stripe Publishable Key`, `Stripe Secret Key`, `Stripe Webhook Secret` oraz opcjonalnie `Mollie API Key` (Bancontact).
+  - Bezpieczny zapis z automatycznym szyfrowaniem (`APP_KEY`) w kolumnie `tenants.settings`.
+  - Dynamiczne ładowanie w `StripeService` dla faktur danego tenanta.
 
 ---
 
@@ -220,6 +256,7 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 | `TASK-3.3` | Filament `PageResource` (Visual Builder) | Faza 3 | 👤 UI | ⏳ Oczekuje | Drag & Drop Klocków |
 | `TASK-3.4` | Filament `Customer` & `Lead` Resource | Faza 3 | 👤 UI | ⏳ Oczekuje | Formularze CRM |
 | `TASK-3.5` | Filament `Platformbeheer` (Super-Admin) | Faza 3 | 👑 Admin | ⏳ Oczekuje | Switcher + MRR |
+| `TASK-3.6` | Bramka Płatności Tenanta (Stripe & Mollie) | Faza 3 | 👤/👑 UI | ⏳ Oczekuje | Szyfrowanie `settings` |
 | `TASK-4.1` | Publiczny Portal Płatności `/pay/{id}` | Faza 4 | 🌐 Public | ⏳ Oczekuje | Płatność Stripe test |
 | `TASK-4.2` | Renderer Klocków Strony Blade | Faza 4 | 🌐 Public | ⏳ Oczekuje | Render HTML/CSS |
 | `TASK-4.3` | Formularz Zapytania Ofertowego | Faza 4 | 🌐 Public | ⏳ Oczekuje | Zapis w tabeli `leads` |
