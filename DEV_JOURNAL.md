@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-10-23: Faza 3 Zakończona Sukcesem – Symetryczny Panel Filament v3 & Platformbeheer
+
+### [2026-10-23 16:42] - Task: Faza 3: Filament v3 Dashboard (TASK-3.1 do TASK-3.6)
+
+- **Files Modified / Created:**
+  - `app/Filament/Resources/WebsitePages/PageResource.php` *(nowy zasób CMS do edycji klocków stron ze schematem Repeater)*
+  - `app/Filament/Resources/WebsitePages/Schemas/PageForm.php` *(formularz blokowy: Hero, Features, Catalog Grid, FAQ, Reviews, Contact)*
+  - `app/Filament/Resources/WebsitePages/Tables/PagesTable.php` *(tabela stron, status publikacji, podgląd na żywo)*
+  - `app/Filament/Resources/Invoices/Tables/InvoicesTable.php` *(przyciski: Verstuur Factuur & Betaallink ze Stripe, Kopiuj Link, Markeer als Betaald)*
+  - `app/Filament/Resources/Bedrijven/Pages/ListBedrijven.php` *(1-klik akcja [🚀 Nieuwe Klant Inrichten] wywołująca ProvisionTenantAction)*
+  - `app/Filament/Resources/Bedrijven/BedrijfResource.php` & `Tables/BedrijvenTable.php` *(przeniesienie do Platformbeheer, impersonacja i switch kontekstu tenanta)*
+  - `app/Filament/Resources/Bedrijven/Schemas/BedrijfForm.php` *(bezpieczny konfigurator dedykowanych kluczy Stripe dla każdego tenanta)*
+  - `app/Filament/Resources/Leads/Tables/LeadsTable.php` *(migracja na tenant_id, konwersja leadów do klientów i ofert)*
+  - `tests/Feature/FilamentPhase3DashboardTest.php` *(testy uprawnień super-admina, izolacji dostępu i akcji panelu)*
+
+- **Technical & Business Logic:**
+  1. **Symetria Dogfoodingu:**
+     - Ten sam interfejs Filament v3 służy Kamilowi do zarządzania ofertą WaaS i fakturami Ziemkiewicz Digital oraz klientom do ich produktów i faktur.
+     - Pełna separacja: zwykły klient nie widzi grupy `Platformbeheer`, a `BedrijfResource::canViewAny()` zwraca `false`.
+  2. **Bezpieczeństwo Wielodostępne:**
+     - Klucze Stripe każdego klienta są izolowane w `tenants.settings['payment_gateways']['stripe']` z możliwością konfiguracji w panelu.
+     - Akcje w tabelach sprawdzają zgodność kontekstu tenanta i nie pozwalają na manipulację danymi obcych firm.
+  3. **Wynik Testów Pest:**
+     - Pełny pakiet: **64 testy (62 passed, 2 skipped AI live, 0 failed, 273 asercje)**.
+
+---
+
 ## 2026-10-23: Faza 2 Zakończona Sukcesem – Warstwa Akcji Biznesowych & Dual-Execution Agenta AI
 
 ### [2026-10-23 16:36] - Task: Faza 2: Warstwa Akcji Biznesowych Dual-Execution (TASK-2.1 do TASK-2.5)

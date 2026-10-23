@@ -56,6 +56,27 @@ class BedrijvenTable
                 //
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('switch_tenant')
+                    ->label('Switch Context')
+                    ->icon('heroicon-o-arrow-right-end-on-rectangle')
+                    ->color('info')
+                    ->action(function (\App\Models\Bedrijf $record) {
+                        session(['filament_tenant_id' => $record->id]);
+                        \Filament\Notifications\Notification::make()
+                            ->title("Overgeschakeld naar context van {$record->name}")
+                            ->success()
+                            ->send();
+
+                        return redirect()->to('/admin');
+                    }),
+
+                \Filament\Actions\Action::make('view_site')
+                    ->label('Bekijk Website')
+                    ->icon('heroicon-o-globe-alt')
+                    ->color('gray')
+                    ->url(fn (\App\Models\Bedrijf $record) => url("/?tenant={$record->slug}"))
+                    ->openUrlInNewTab(),
+
                 EditAction::make(),
             ])
             ->toolbarActions([

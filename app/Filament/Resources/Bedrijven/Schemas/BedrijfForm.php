@@ -33,27 +33,40 @@ class BedrijfForm
                             ->required(),
                         TextInput::make('custom_domain')
                             ->label('Eigen Domein')
-                            ->placeholder('uwdomein.nl'),
-                        TextInput::make('vat_number'),
-                        TextInput::make('peppol_id'),
-                        TextInput::make('stripe_id'),
-                        Textarea::make('settings')
-                            ->columnSpanFull(),
-                        CheckboxList::make('active_packages')
-                            ->options([
-                                '1' => 'Webdesign: Basic Setup',
-                                '2' => 'Webdesign: Pro Transport Edition',
-                                '3' => 'Master-Digit Core: Invoicing & Peppol XML',
-                                '4' => 'Extension: Truck GPS Tracking',
-                                '5' => 'Extension: Delivery Monitoring',
-                                '6' => 'Extension: Fleet Management (TMS)',
-                                '7' => 'Extension: Products Management',
-                            ])
-                            ->columns(2)
-                            ->columnSpanFull(),
-                        TextInput::make('stripe_subscription_id'),
-                        TextInput::make('stripe_subscription_status'),
+                            ->placeholder('uwdomein.be'),
+                        TextInput::make('vat_number')
+                            ->label('BTW / KBO Nummer'),
+                        TextInput::make('peppol_endpoint_id')
+                            ->label('Peppol Endpoint ID'),
+                        TextInput::make('iban')
+                            ->label('IBAN Bankrekening'),
+                        TextInput::make('bic')
+                            ->label('BIC Code'),
+                        TextInput::make('stripe_customer_id')
+                            ->label('Stripe Klant ID'),
+                        TextInput::make('stripe_subscription_id')
+                            ->label('Stripe Abonnement ID'),
                     ])->columns(2),
+
+                Section::make('Betalingsgateways & Stripe Koppeling')
+                    ->description('Configureer de dedicated Stripe-sleutels van deze onderneming voor rechtstreekse Bancontact en kaartbetalingen.')
+                    ->schema([
+                        TextInput::make('settings.payment_gateways.stripe.publishable_key')
+                            ->label('Stripe Publishable Key (pk_...)')
+                            ->placeholder('pk_live_... of pk_test_...')
+                            ->helperText('Publieke sleutel voor de browser checkout.'),
+                        TextInput::make('settings.payment_gateways.stripe.secret_key')
+                            ->label('Stripe Secret Key (sk_...)')
+                            ->password()
+                            ->revealable()
+                            ->placeholder('sk_live_... of sk_test_...')
+                            ->helperText('Geheime API-sleutel van de klant.'),
+                        TextInput::make('settings.payment_gateways.stripe.webhook_secret')
+                            ->label('Stripe Webhook Secret (whsec_...)')
+                            ->password()
+                            ->revealable()
+                            ->placeholder('whsec_...'),
+                    ])->columns(3),
 
                 Section::make('Primary Administrator')
                     ->schema([

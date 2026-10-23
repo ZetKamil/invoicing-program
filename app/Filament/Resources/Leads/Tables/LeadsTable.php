@@ -46,7 +46,8 @@ class LeadsTable
                     ->color('success')
                     ->visible(fn (\App\Models\Lead $record) => in_array($record->status, [\App\Enums\LeadStatus::NEW, \App\Enums\LeadStatus::AUDITED]))
                     ->action(function (\App\Models\Lead $record, \App\Actions\Quotes\CreateQuoteAction $createQuoteAction) {
-                        if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
+                        $user = auth()->user();
+                        if (!$user->is_super_admin && $record->tenant_id !== $user->tenant_id) {
                             abort(403, 'Ongeautoriseerde actie.');
                         }
                         
@@ -69,7 +70,7 @@ class LeadsTable
                     ->modalHeading('Klant aanmaken')
                     ->modalDescription('Weet je zeker dat je van deze aanvraag een vaste klant wilt maken?')
                     ->action(function (\App\Models\Lead $record) {
-                        $customer = \App\Models\Customer::where('bedrijf_id', $record->bedrijf_id)
+                        $customer = \App\Models\Customer::where('tenant_id', $record->tenant_id)
                             ->where(function($q) use ($record) {
                                 $q->where('company_name', $record->company_name)
                                   ->orWhere('email', $record->email);
@@ -77,7 +78,7 @@ class LeadsTable
 
                         if (!$customer) {
                             \App\Models\Customer::create([
-                                'bedrijf_id' => $record->bedrijf_id,
+                                'tenant_id' => $record->tenant_id,
                                 'company_name' => $record->company_name,
                                 'contact_person' => $record->contact_person,
                                 'email' => $record->email,

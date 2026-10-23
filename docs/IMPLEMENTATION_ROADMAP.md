@@ -163,17 +163,17 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 ### 📌 FAZA 3: Filament v3 Dashboard – Symetryczny Interfejs (Dla Ciebie i Klientów)
 > **Cel:** Uruchomienie nowoczesnego, szybkiego panelu administracyjnego w języku niderlandzkim, w którym Ty zarządzasz agencją, a Twoi klienci swoimi biznesami.
 
-- [ ] **TASK-3.1: Zasób Oferty i Produktów (`CatalogItemResource` - Aanbod)**
+- [x] **TASK-3.1: Zasób Oferty i Produktów (`CatalogItemResource` - Aanbod)**
   - Skonfigurować pola: Nazwa, Kategoria, Status (Dostępny / Zarezerwowany / Archiwum), Cena w euro (z konwersją do `price_minor`), Atrybuty JSON (np. wiek kota, ładowność naczepy, rodzaj pakietu), Prefill tekstu WhatsApp.
   - Tabela z filtrami kategorii i statusu.
   - Wykorzystanie: U Ciebie do definiowania pakietów WaaS i wdrożeń; u klientów do ich produktów i usług.
-- [ ] **TASK-3.2: Zasób Faktur i Płatności (`CommercialDocumentResource` / Facturen)**
+- [x] **TASK-3.2: Zasób Faktur i Płatności (`CommercialDocumentResource` / Facturen)**
   - Tabela faktur z kolumnami: Numer faktury, Klient/Afnemer, Kwota brutto, Status (Draft, Sent, Paid, Overdue), Data płatności.
   - Dodanie przycisków akcji w tabeli:
     - `[ ✉️ Verstuur Factuur & Betaallink ]`: natychmiastowa wysyłka maila ze Stripe.
     - `[ 💳 Betaalherinnering ]`: wysyłka ponaglenia z bezpośrednim linkiem Stripe Checkout.
     - `[ 📄 Download PDF ]` i `[ 🇧🇪 Peppol UBL ]`.
-- [ ] **TASK-3.3: Zasób Stron i Modułowy Page Builder (`PageResource` - Pagina's)**
+- [x] **TASK-3.3: Zasób Stron i Modułowy Page Builder (`PageResource` - Pagina's)**
   - Formularz z komponentem `Builder` Filamenta mapującym kolumnę `pages.blocks` (JSON).
   - Dostępne klocki:
     - 🧱 **HeroBlock:** Tytuł, podtytuł, zdjęcie w tle, przyciski CTA (np. Zadzwoń / Zapytaj o wycenę).
@@ -182,15 +182,15 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
     - 🧱 **ContactFormBlock:** Formularz z polami dopasowanymi do branży, generujący rekordy w `leads`.
     - 🧱 **PricingTableBlock:** Tabela cenowa (używana u Ciebie na stronie głównej do prezentacji pakietów WaaS €39/€100/€200).
     - 🧱 **FaqBlock:** Rozwijane pytania i odpowiedzi (akordeon).
-- [ ] **TASK-3.4: Zasób Klientów i Leadów (`CustomerResource` & `LeadResource`)**
+- [x] **TASK-3.4: Zasób Klientów i Leadów (`CustomerResource` & `LeadResource`)**
   - Kartoteka klientów z weryfikacją numeru BTW/KBO i statusem Peppol.
   - Tabela leadów ze statusem konwersji do stałego klienta.
-- [ ] **TASK-3.5: Moduł Super-Admina (`Platformbeheer` - Tylko dla Ciebie)**
+- [x] **TASK-3.5: Moduł Super-Admina (`Platformbeheer` - Tylko dla Ciebie)**
   - Zasób widoczny wyłącznie gdy `auth()->user()->is_super_admin`:
     - Lista wszystkich firm (Tenantów) ze statusem abonamentu Stripe (`active`, `past_due`, `canceled`).
     - Przycisk `[ 🔑 Log in als deze onderneming ]` (Tenant Impersonation).
     - Globalny pulpit metryk: łączny MRR platformy, liczba wygenerowanych wpisów AI, zużycie tokenów.
-- [ ] **TASK-3.6: Konfigurator Bramki Płatności Tenanta (Stripe & Mollie Settings)**
+- [x] **TASK-3.6: Konfigurator Bramki Płatności Tenanta (Stripe & Mollie Settings)**
   - Formularz konfiguracji płatności dostępny:
     1. W modalu tworzenia/edycji firmy w `Platformbeheer` (podczas wieczornego setupu przez Ciebie).
     2. W panelu klienta w `Instellingen ➔ Betalingen & Facturatie` (samodzielnie przez klienta).

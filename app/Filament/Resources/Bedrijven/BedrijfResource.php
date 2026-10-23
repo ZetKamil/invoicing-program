@@ -24,7 +24,9 @@ class BedrijfResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Super Admin';
+    protected static string|\UnitEnum|null $navigationGroup = 'Platformbeheer';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
 
