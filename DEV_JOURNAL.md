@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-10-23: Strategiczny Blueprint Biznesowy WaaS & Architektura Flandrii (Odoo-Inspired)
+
+### [2026-10-23 15:35] - Task: Opracowanie Dokumentu BUSINESS_ARCHITECTURE_BLUEPRINT.md
+
+- **Files Modified:**
+  - `docs/BUSINESS_ARCHITECTURE_BLUEPRINT.md` *(nowy oficjalny dokument strategii biznesowo-technologicznej)*
+
+- **Technical & Business Logic:**
+  1. **Inżynieria Wsteczna Sukcesu Odoo w Belgii:**
+     - Zidentyfikowano filary dominacji Odoo: model *„Ontzorging”* (odciążenie z problemów technicznych) przez pakiety wdrożeniowe *Success Packs*, prestiżowa aktywacja przez zaproszenie (*„Zaproś do gotowego stołu”*) oraz odrzucenie taniej masowej rejestracji w modelu B2B.
+     - Przeniesiono te zasady do KMO-Flow: zamknięta rejestracja publiczna, pozyskiwanie leadów przez 7-dniowy kwalifikowany Sandbox Demo oraz 1-klikowe wdrażanie klienta z poziomu panelu Super-Admina.
+  2. **Trójstopniowa Drabina Ofertowa (Value Ladder):**
+     - **Pakiet 1: KMO-Flow Zelfbouwen (Doe-het-zelf):** Setup 199 € (lub 0 € przy umowie na 12m), abonament 39 €/mc. Własny, bezpieczny kreator klockowy bez WordPressa z wbudowanym haczykiem up-sellu na usługi doradcze 45 €/h.
+     - **Pakiet 2: Turnkey Business (Start/Pro):** Setup 1 000 € – 2 000 € (wdrożenie w 1 wieczór przez Ziemkiewicz Digital), abonament 100 € – 200 €/mc. Pełny serwis, gotowa witryna, automatyczny blog AI.
+     - **Pakiet 3: Scale Enterprise & ERP:** Setup 3 000 €+, abonament 350 €/mc. Fakturowanie B2B Peppol BIS 3.0, moduły spedycyjne, obsługa wielodostępna.
+  3. **Architektura Autorskiego Kreatora „Zelfbouwen”:**
+     - Eliminacja obcego WordPressa na rzecz natywnego edytora blokowego w Filament v3 opierającego się na kolumnie `pages.blocks` (JSON).
+     - Zdefiniowane, responsywne klocki (Hero, O nas, Oferta, Cennik, Kontakt, FAQ, Opinie). Niemożliwe do zepsucia przez klienta, zero wtyczek, ocena 99/100 Google PageSpeed.
+  4. **Izolacja Kosztowa i Telemetria AI (Gemini Multi-Tenancy):**
+     - Wykorzystanie tabeli `ai_generation_logs` do bilingu każdego wywołania AI w ułamku centa ($0.000001).
+     - Sztywne limity pakietowe (Quotas): Start = 4 wpisy/mc, Pro = 12 wpisów/mc, Scale = 30 wpisów/mc, Zelfbouw = add-on.
+     - Obsługa modelu BYOK (Bring Your Own Key) w `tenants.settings` dla klientów korporacyjnych.
+  5. **Polityka Prawna SLA we Flandrii (Gradual Feature Degradation):**
+     - Zakaz natychmiastowego wyłączania publicznej witryny przy braku płatności (ochrona przed roszczeniami o szkodę wizerunkową w prawie belgijskim).
+     - Stopniowa degradacja: `past_due` (ponawianie prób Stripe) ➔ `read_only` (blokada edycji w panelu admina i wyłączenie AI po 14 dniach przy 100% działającej stronie WWW) ➔ `canceled` (formalne rozwiązanie umowy po wezwaniu pisemnym).
+
+- **Senior Concept:** *Productized Service & SaaS Convergence (WaaS).* Połączenie wysokomarżowej usługi agencyjnej realizowanej błyskawicznie w 1 wieczór (Productized Service) ze skalowalnym, powtarzalnym abonamentem miesięcznym (Micro-SaaS) na jednym wspólnym silniku wielodostępnym.
+
+- **Exam Defense Tip:** *„Oparłem model KMO-Flow na inżynierii wstecznej belgijskiego jednorożca Odoo, dostosowując ofertę do flamandzkiego konceptu 'Ontzorging'. Wdrożyłem autorski kreator klockowy Zelfbouwen w oparciu o kolumny JSON w 3NF, telemetrię tokenów AI oraz model stopniowej degradacji uprawnień zgodny z belgijskim kodeksem prawa gospodarczego.”*
+
+- **Keywords to Learn:** *Productized Service*, *WaaS (Website-as-a-Service)*, *Ontzorging*, *Gradual Feature Degradation*, *AI Token Metering*, *Modular Page Builder*
+
+---
+
 ## 2026-10-23: Architektura Bazy Danych 3NF v2.1 & Wdrożenie Skonsolidowanej Migracji
 
 ### [2026-10-23 14:05] - Task: Wdrożenie 4 Mikro-Korekt SQL oraz Czystej Migracji 3NF v2.1 (18 Tabel)
