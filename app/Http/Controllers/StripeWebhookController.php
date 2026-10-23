@@ -19,14 +19,20 @@ class StripeWebhookController extends Controller
         $sigHeader = $request->header('Stripe-Signature');
         $endpointSecret = config('services.stripe.webhook_secret', 'whsec_dummy');
 
+        // Reject unverified webhooks in production environments
+        if (app()->isProduction() && (empty($endpointSecret) || $endpointSecret === 'whsec_dummy')) {
+            Log::critical('Stripe webhook received in production without a valid configured secret.');
+            return response()->json(['error' => 'Webhook configuration error'], 500);
+        }
+
         try {
             // Verify signature using the Stripe SDK if secret is set
-            if ($endpointSecret !== 'whsec_dummy') {
+            if ($endpointSecret && $endpointSecret !== 'whsec_dummy') {
                 $event = \Stripe\Webhook::constructEvent(
                     $payload, $sigHeader, $endpointSecret
                 );
             } else {
-                // For local testing without valid signatures
+                // Strictly permitted only in local or testing environments
                 $event = json_decode($payload);
                 $event = (object) [
                     'type' => $event->type ?? '',

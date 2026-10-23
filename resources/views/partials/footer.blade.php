@@ -28,7 +28,7 @@
         <ul>
           <li><a href="mailto:info@transdigitmaster.be">info@transdigitmaster.be</a></li>
           <li><a href="javascript:void(0)" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Neem contact op</a></li>
-          <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+          <li><a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
           <li><a href="{{ url('/') }}#audit">Gratis audit</a></li>
         </ul>
       </div>

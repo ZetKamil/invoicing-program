@@ -144,7 +144,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Features::registration(), // Disabled: User intake is exclusively handled by Super-Admin via Filament
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

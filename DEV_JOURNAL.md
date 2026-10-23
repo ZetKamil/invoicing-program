@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-10-23: Audyt Technologiczny Bezpieczeństwa & Utwardzenie Systemu (Defense-in-Depth)
+
+### [2026-10-23 12:45] - Task: Wdrożenie 4 Rekomendacji z Audytu Bezpieczeństwa
+
+- **Files Modified:**
+  - `app/Http/Middleware/SecurityHeadersMiddleware.php` *(nowy middleware bezpieczeństwa HTTP)*
+  - `bootstrap/app.php` *(rejestracja middleware w globalnym stosie)*
+  - `app/Http/Controllers/StripeWebhookController.php` *(wymuszenie weryfikacji kryptograficznej HMAC w produkcji)*
+  - `config/fortify.php` *(wyłączenie otwartej rejestracji publicznej Features::registration())*
+  - `resources/views/partials/footer.blade.php` *(dodanie rel="noopener noreferrer" przeciw reverse tabnabbing)*
+  - `tests/Feature/SecurityHardeningTest.php` *(nowy zestaw testów Pest weryfikujący nagłówki, blokadę rejestracji i webhooki)*
+
+- **Technical Logic:**
+  W oparciu o pełny audyt odporności na 7 wektorów ataków frontendowych i 7 backendowych (OWASP Top 10):
+  1. **Enterprise Security Headers:** Utworzono `SecurityHeadersMiddleware` dołączający nagłówki do każdego żądania:
+     - `X-Frame-Options: SAMEORIGIN` (całkowita eliminacja ryzyka clickjackingu/UI redressing na formularzach i portalu płatności),
+     - `X-Content-Type-Options: nosniff` (ochrona przed atakami MIME-sniffing przy uploadzie mediów),
+     - `Referrer-Policy: strict-origin-when-cross-origin` (ochrona przed wyciekiem pełnego URL w nagłówku Referer),
+     - `Permissions-Policy: camera=(), microphone=(), geolocation=()` (restrykcja wrażliwych API przeglądarki).
+  2. **Kryptograficzna Walidacja Webhooków (Stripe HMAC):** W `StripeWebhookController` dodano bezwzględną blokadę w środowisku produkcyjnym: brak sekretu lub wartość domyślna `whsec_dummy` natychmiast loguje incydent krytyczny i odrzuca żądanie (brak możliwości obejścia sygnatury w produkcji).
+  3. **Zamknięcie Publicznej Rejestracji (Fortify):** Zgodnie z architekturą SaaS (ręczny onboarding przez Super-Admina), wyłączono `Features::registration()`. Trasy `/register` zwracają teraz HTTP 404, uniemożliwiając tworzenie niepowiązanych kont użytkowników z `bedrijf_id = null`.
+  4. **Ochrona przed Reverse Tabnabbing:** Do zewnętrznych linków w stopce dodano atrybut `rel="noopener noreferrer"`, odcinający referencję `window.opener`.
+
+  **Weryfikacja:** Utworzono 3 testy w `tests/Feature/SecurityHardeningTest.php`. Wszystkie 56 testów w projekcie przechodzi pomyślnie (206 asercji, 0 błędów).
+
+- **Senior Concept:** *Defense-in-Depth & Zero-Trust Webhook Ingestion.* Prawdziwe bezpieczeństwo aplikacji enterprise nie polega na zaufaniu jednej warstwie (np. frameworkowi), lecz na wielowarstwowej obronie (Defense-in-Depth): od nagłówków HTTP na poziomie protokołu, przez izolację globalnych scope'ów bazy danych (ULID + BedrijfScope), po rygorystyczną kryptograficzną weryfikację zdarzeń zewnętrznych bez możliwości cichej degradacji w produkcji.
+
+- **Exam Defense Tip:** *„W ramach audytu technologicznego wdrożyłem strategię Defense-in-Depth obejmującą zarówno warstwę transportową (Security Headers przeciw clickjackingowi i MIME-sniffingowi), jak i aplikacyjną (zamknięcie nieautoryzowanej rejestracji, ochrona przed Reverse Tabnabbing oraz ścisła walidacja sygnatur HMAC webhooków Stripe w produkcji). Wszystkie mechanizmy zostały pokryte dedykowanymi testami automatycznymi Pest."*
+
+- **Keywords to Learn:** `Defense-in-Depth`, `Clickjacking Protection (X-Frame-Options)`, `HMAC Webhook Verification`, `Reverse Tabnabbing Mitigation`
+
+---
+
 ## 2026-10-22: Refaktoryzacja Architektoniczna — Modularny Monolith Multi-Tenant
 
 ### [2026-10-22 10:00] - Task: Krok 1 — TenantPlan Enum & Feature Flag dla Modularnego ERP
