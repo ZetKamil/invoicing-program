@@ -52,7 +52,20 @@ class Invoice extends Model
         'driver_phone',
         'is_reverse_charge',
         'cmr_document_path',
+        'payment_token',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Invoice $invoice) {
+            if (empty($invoice->customer_type) && !empty($invoice->customer_id)) {
+                $invoice->customer_type = Customer::class;
+            }
+            if (empty($invoice->due_date)) {
+                $invoice->due_date = now()->addDays(14);
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.

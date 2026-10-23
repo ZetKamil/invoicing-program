@@ -77,7 +77,7 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->string('customer_type', 100);
+            $table->string('customer_type', 100)->default('App\\Models\\Customer');
             $table->char('customer_id', 26);
             $table->foreignUlid('quote_id')->nullable()->constrained('quotes')->nullOnDelete();
             $table->string('invoice_number', 100);
@@ -88,9 +88,10 @@ return new class extends Migration
 
             $table->string('ubl_xml_path', 500)->nullable();
             $table->string('buyer_reference', 255)->nullable();
-            $table->date('due_date');
+            $table->date('due_date')->nullable();
 
             $table->string('stripe_payment_intent_id', 100)->nullable()->index('idx_invoices_stripe_pi');
+            $table->string('payment_token', 100)->nullable()->unique('idx_invoices_payment_token');
             $table->timestamp('paid_at')->nullable();
             $table->string('status', 30)->default('draft');
             $table->timestamp('last_reminder_sent_at')->nullable();
@@ -142,7 +143,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->string('subject', 255);
-            $table->text('body');
+            $table->text('body')->nullable();
             $table->string('type', 50);
             $table->string('related_type', 100)->nullable();
             $table->char('related_id', 26)->nullable();

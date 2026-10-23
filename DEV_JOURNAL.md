@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-10-23: Faza 2 Zakończona Sukcesem – Warstwa Akcji Biznesowych & Dual-Execution Agenta AI
+
+### [2026-10-23 16:36] - Task: Faza 2: Warstwa Akcji Biznesowych Dual-Execution (TASK-2.1 do TASK-2.5)
+
+- **Files Modified / Created:**
+  - `app/Support/TemplateBlocks.php` *(silnik szablonów klocków JSON dla branż flandryjskich: Transport, Hodowla, Rzemiosło, Zelfbouwen)*
+  - `app/Actions/Tenants/ProvisionTenantAction.php` *(atomowy onboarding tenanta, role owner, seed stawek Peppol BE_21/12/6/0, audyt)*
+  - `app/Actions/Pages/BuildPageBlocksAction.php` *(zarządzanie klockami strony, sanityzacja XSS, czyszczenie cache tenanta)*
+  - `app/Actions/Invoices/SendCommercialDocumentAction.php` *(generowanie PDF, token płatności, wysyłka e-mail z Bancontact, logi)*
+  - `app/Mail/SendCommercialDocumentMail.php` *(mailable z załącznikiem PDF i direct linkiem do płatności online)*
+  - `resources/views/emails/invoices/send_document.blade.php` *(responsywny, niderlandzki szablon maila z przyciskiem Bancontact)*
+  - `app/Services/Ai/AgentToolsSchema.php` *(rejestr narzędzi i handler wywołań Gemini Function Calling / OpenAI Tools)*
+  - `app/Models/AuditLog.php` *(model ścieżki audytu z izolacją wielodostępną HasTenant)*
+  - `tests/Feature/BusinessActionsAndAgentToolsTest.php` *(pełny pakiet testów weryfikujący klocki, onboarding, wysyłkę i narzędzia agenta)*
+
+- **Technical & Business Logic:**
+  1. **Dual-Execution (Człowiek & Agent AI):**
+     - Każda akcja (`ProvisionTenantAction`, `BuildPageBlocksAction`, `SendCommercialDocumentAction`) może być uruchomiona zarówno przez kliknięcie człowieka w panelu Filament, jak i autonomicznie przez Agenta AI za pośrednictwem `AgentToolsSchema`.
+     - `AuditLog` precyzyjnie rejestruje inicjatora (`human` vs `agent`).
+  2. **Bezpieczeństwo & Cyber Security:**
+     - Sanityzacja głęboka klocków HTML w `BuildPageBlocksAction` uniemożliwia wstrzyknięcie skryptów XSS.
+     - Tokeny publiczne `/pay/{payment_token}` są kryptograficznie losowe (40 znaków) i nie ujawniają ID tenanta ani bazy danych.
+     - Pełna izolacja tenantów we wszystkich wywołaniach narzędzi agenta (`AgentToolsSchema`).
+  3. **Wynik Testów Pest:**
+     - Łącznie w projekcie: **61 testów (59 passed, 2 skipped AI live, 0 failed, 267 asercji)**.
+
+---
+
 ## 2026-10-23: Faza 1 Zakończona Sukcesem – Pełna Harmonizacja 3NF v2.1 & 100% Testów Green
 
 ### [2026-10-23 16:30] - Task: Faza 1: Harmonizacja Modeli Eloquent z Bazą 3NF (TASK-1.1 do TASK-1.7)

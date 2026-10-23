@@ -125,13 +125,13 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 ### 📌 FAZA 2: Warstwa Akcji Biznesowych (Action-First / Dual-Execution)
 > **Cel:** Przygotowanie czystych klas serwisowych (Actions), które mogą być wywoływane w 100% identycznie przez kliknięcie człowieka w Filament oraz przez prompt / tool calling Agenta AI.
 
-- [ ] **TASK-2.1: Klasa Szablonów Wizualnych Klocków (`TemplateBlocks`)**
+- [x] **TASK-2.1: Klasa Szablonów Wizualnych Klocków (`TemplateBlocks`)**
   - Utworzyć `app/Support/TemplateBlocks.php` ze strukturami bloków JSON dla kluczowych branż:
     - *Transport & Logistyka:* Hero, Certyfikaty CMR/ISO, Flota pojazdów, Formularz wyceny frachtu, FAQ transportowe.
     - *Hodowla Zwierząt:* Hero ze statusem miotu, Kocięta/Szczenięta (siatka katalogowa), Rodzice i badania genetyczne, Opinie, Formularz rezerwacji.
     - *Rzemiosło / Usługi (Schrijnwerker/Elektricien):* Hero z gwarancją jakości, Galeria realizacji, Cennik usług, Formularz kontaktowy.
     - *Zelfbouwen (Czysty):* Minimalistyczny szkielet startowy do samodzielnego wyklikania.
-- [ ] **TASK-2.2: Atomowa Akcja Onboardingu Firmy (`ProvisionTenantAction`)**
+- [x] **TASK-2.2: Atomowa Akcja Onboardingu Firmy (`ProvisionTenantAction`)**
   - Utworzyć `app/Actions/Tenants/ProvisionTenantAction.php`.
   - W transakcji DB wykonać:
     1. Utworzenie rekordu `tenants`.
@@ -140,18 +140,18 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
     4. Wygenerowanie strony głównej `pages` z klockami z `TemplateBlocks::getForNiche()`.
     5. Zapisanie wpisu w `audit_logs` (kto utworzył: Człowiek czy Agent).
     6. Wysłanie e-maila powitalnego do klienta z bezpiecznym tokenem aktywacji konta.
-- [ ] **TASK-2.3: Akcja Wystawiania i Wysyłki Faktury ze Stripe (`SendCommercialDocumentAction`)**
+- [x] **TASK-2.3: Akcja Wystawiania i Wysyłki Faktury ze Stripe (`SendCommercialDocumentAction`)**
   - Utworzyć `app/Actions/Invoices/SendCommercialDocumentAction.php`.
   - Generowanie PDF faktury, przypisanie unikalnego tokenu publicznego płatności.
   - Wygenerowanie sesji Stripe Checkout lub linku płatniczego Bancontact.
   - Wysłanie e-maila do klienta (z załącznikiem PDF i dużym przyciskiem: *„Betaal direct online via Bancontact / Kaart”*).
   - Zmiana statusu faktury na `sent`.
-- [ ] **TASK-2.4: Akcja Zarządzania Klockami Strony (`BuildPageBlocksAction`)**
+- [x] **TASK-2.4: Akcja Zarządzania Klockami Strony (`BuildPageBlocksAction`)**
   - Utworzyć `app/Actions/Pages/BuildPageBlocksAction.php`.
   - Walidacja poprawności schematu klocków JSON (struktury Hero, About, CatalogGrid, ContactForm).
   - Zapis w kolumnie `pages.blocks`.
   - Czyszczenie pamięci podręcznej witryny publicznej.
-- [ ] **TASK-2.5: Rejestr Schematów Narzędzi Agenta (`AgentToolsSchema`)**
+- [x] **TASK-2.5: Rejestr Schematów Narzędzi Agenta (`AgentToolsSchema`)**
   - Utworzyć dokumentację i klasy definicji narzędzi JSON dla modeli AI:
     - `tool_provision_tenant`
     - `tool_build_page_blocks`
