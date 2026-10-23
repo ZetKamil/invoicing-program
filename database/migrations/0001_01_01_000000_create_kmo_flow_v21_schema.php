@@ -86,6 +86,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             $table->index(['tenant_id', 'auditable_type', 'auditable_id'], 'idx_audit_lookup');
+            $table->index(['tenant_id', 'created_at'], 'idx_audit_tenant_date');
         });
 
         // 5. CATEGORIES
@@ -294,6 +295,7 @@ return new class extends Migration
             $table->string('status', 30);
             $table->char('billing_period', 7); // np. '2026-10'
             $table->char('currency', 3)->default('EUR');
+            $table->decimal('exchange_rate', 12, 6)->default(1.000000);
             $table->bigInteger('subtotal_minor')->default(0);
             $table->bigInteger('tax_total_minor')->default(0);
             $table->bigInteger('total_minor')->default(0);
@@ -349,11 +351,14 @@ return new class extends Migration
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->foreignUlid('document_id')->constrained('commercial_documents')->restrictOnDelete();
             $table->bigInteger('amount_minor');
+            $table->char('currency', 3)->default('EUR');
             $table->string('method', 50);
             $table->string('status', 30)->default('pending');
-            $table->string('transaction_reference', 255)->nullable();
+            $table->string('transaction_reference', 255)->nullable()->index('idx_payments_tx_ref');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+
+            $table->index(['tenant_id', 'status', 'paid_at'], 'idx_payments_reporting');
         });
     }
 

@@ -22,12 +22,20 @@
      - **Poprawka A (Bezpieczeństwo Płatności Stripe/Bancontact):** W tabeli `payments` zmieniono `paid_at` na `nullable()`. Przy domyślnym statusie `pending` (inicjalizacja sesji Stripe Checkout przed autoryzacją bankową) brak `nullable` rzucałby błąd naruszenia więzów spójności `SQLSTATE[23000]`.
      - **Poprawka B (Elastyczność Szkiców w `commercial_documents`):** Kolumny `due_at` oraz `snapshot_customer_address` ustawiono jako `nullable()`. Umożliwia to zapisywanie wersji roboczych (`draft`) ofert i faktur proforma przed ustaleniem terminu zapłaty i pobraniem pełnych danych adresowych.
      - **Poprawka C (Unikalność Kodów Stawek VAT):** W tabeli `tax_rates` dodano indeks `idx_tax_rates_tenant_code (tenant_id, code)`, zapobiegający przypadkowemu dublowaniu kodów podatkowych (np. dwóch stawek `BE_21`) u tego samego tenanta.
+     - **Poprawka D (Optymalizacja High-Scale & Multi-Currency):**
+       - W `audit_logs` dodano indeks B-Tree `idx_audit_tenant_date (tenant_id, created_at)` eliminujący Full Table Scan przy czyszczeniu GDPR (>2 lata) i stronicowaniu osi czasu w bazie o wielkości kilkunastu GB.
+       - W `payments` dodano indeks `idx_payments_tx_ref (transaction_reference)` pod asynchroniczne webhooki Stripe `payment_intent.succeeded` oraz indeks analityczny `idx_payments_reporting (tenant_id, status, paid_at)` z kolumną waluty `currency CHAR(3) DEFAULT 'EUR'`.
+       - W `commercial_documents` dodano pole `exchange_rate DECIMAL(12, 6) DEFAULT 1.000000` pod międzynarodowe faktury Peppol BIS 3.0 z przeliczaniem VAT na EUR.
      - Zastosowano natywny typ `$table->ulid('id')->primary()` oraz powiązania `$table->foreignUlid(...)`.
      - Poprawna kolejność tworzenia tabel (tabela `customers` przed `leads`, relacja zwrotna `parent_document_id` w `commercial_documents` dodana przez `Schema::table`).
      - Wycofano i zarchiwizowano 34 pliki starych migracji prototypowych do katalogu `database/migrations_archive/`.
      - Uruchomiono `php artisan migrate:fresh` — wszystkie 18 tabel zostało pomyślnie utworzonych z kompletem indeksów unikalnych i złożonych.
+  3. **Złota Zasada Skalowania Mediów i Dokumentów (S3 / R2 Object Storage):**
+     - Baza relacyjna SQL (15 GB) przeznaczona jest wyłącznie na dane ustrukturyzowane (tekst i liczby).
+     - Pliki binarne: zdjęcia (`media.file_name`), wygenerowane faktury PDF i dokumenty Peppol XML (`commercial_documents.ubl_xml_path`) nigdy nie są składowane jako BLOB w SQL.
+     - Dzięki kolumnie `media.disk` (`default 'public'`), system uruchamia się lokalnie, a po przekroczeniu progu skali (np. >50 tenantów) następuje bezinwazyjne przełączenie na S3 / Cloudflare R2 / Hetzner bez zmian w schemacie bazy.
 
-- **Senior Concept:** *Zero-Data Schema Consolidation & Cross-Engine Portability.* W fazie przedprodukcyjnej (gdy nie ma danych produkcyjnych), utrzymywanie dziesiątek drobnych migracji prototypowych wprowadza dług technologiczny. Konsolidacja całego schematu do jednej atomowej migracji 3NF v2.1 eliminuje dryf schematów, gwarantuje 100% przenośność z PostgreSQL i natywną zgodność z Filament v3 Multi-Tenancy.
+- **Senior Concept:** *Zero-Data Schema Consolidation, High-Scale Indexing & Decoupled Storage.* W fazie przedprodukcyjnej (gdy nie ma danych produkcyjnych), utrzymywanie dziesiątek drobnych migracji prototypowych wprowadza dług technologiczny. Konsolidacja całego schematu do jednej atomowej migracji 3NF v2.1 eliminuje dryf schematów, gwarantuje 100% przenośność z PostgreSQL i natywną zgodność z Filament v3 Multi-Tenancy. Wydzielenie magazynu obiektowego (Object Storage) ze schematu SQL zapobiega bloatowi bazy danych przy setkach tysięcy plików.
 
 - **Exam Defense Tip:** *„W celu zapewnienia pełnej spójności 3NF, przenośności z PostgreSQL oraz wsparcia dla Peppol BIS Billing 3.0, skonsolidowałem schemat bazy do jednej czystej migracji 18 tabel. Zastosowałem konwencję przechowywania kwot dodatnich w centach (minor units), tabelę pośrednią tenant_user dla relacji wielodostępnej w Filament v3, unikalne indeksy kodów podatkowych oraz elastyczne pola nullable dla statusów draft i pending."*
 

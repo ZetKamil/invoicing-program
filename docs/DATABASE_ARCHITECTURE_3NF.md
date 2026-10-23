@@ -142,8 +142,11 @@ erDiagram
 | `old_values` | `JSON` | `NULLABLE` | Stan przed zmianą |
 | `new_values` | `JSON` | `NULLABLE` | Stan po zmianie |
 | `ip_address` | `VARCHAR(45)` | `NULLABLE` | Adres IP (IPv4/IPv6) |
-| `user_agent` | `TEXT` | `NULLABLE` | Przeglądarka / klient |
 | `created_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu zdarzenia |
+
+*Indeksy i optymalizacje High-Scale:*
+* `INDEX idx_audit_lookup (tenant_id, auditable_type, auditable_id)` — pobieranie historii zmian konkretnego rekordu.
+* `INDEX idx_audit_tenant_date (tenant_id, created_at)` — eliminacja Full Table Scan przy czyszczeniu GDPR (>2 lata) i stronicowaniu chronologicznym.
 
 ---
 
@@ -416,6 +419,7 @@ erDiagram
 | `status` | `VARCHAR(30)` | `NOT NULL` | Status (`draft`, `sent`, `accepted`, `paid`, `overdue`, `canceled`) |
 | `billing_period` | `CHAR(7)` | `NOT NULL` | **Sekcja 3:** Znormalizowany okres BI (`'2026-10'`) |
 | `currency` | `CHAR(3)` | `NOT NULL, DEFAULT 'EUR'` | Kod waluty ISO |
+| `exchange_rate` | `DECIMAL(12,6)`| `NOT NULL, DEFAULT 1.000000` | Kurs wymiany EBC/NBP (przeliczenie VAT na EUR dla Peppol) |
 | `subtotal_minor`| `BIGINT` | `NOT NULL, DEFAULT 0` | Wartość netto w centach (**ze znakiem pod korekty!**) |
 | `tax_total_minor`| `BIGINT` | `NOT NULL, DEFAULT 0` | Łączna kwota VAT w centach |
 | `total_minor` | `BIGINT` | `NOT NULL, DEFAULT 0` | Kwota brutto w centach do zapłaty |
@@ -475,12 +479,17 @@ erDiagram
 | `tenant_id` | `CHAR(26)` | `NOT NULL, FK -> tenants(id) ON DELETE CASCADE` | Izolacja multi-tenant |
 | `document_id` | `CHAR(26)` | `NOT NULL, FK -> commercial_documents(id) ON DELETE RESTRICT` | Opłacana faktura |
 | `amount_minor` | `BIGINT` | `NOT NULL` | Kwota wpłacona w centach |
+| `currency` | `CHAR(3)` | `NOT NULL, DEFAULT 'EUR'` | Waluta transakcji ISO-4217 |
 | `method` | `VARCHAR(50)` | `NOT NULL` | Metoda (`stripe_checkout`, `bancontact`, `sepa_debit`, `bank_transfer`) |
 | `status` | `VARCHAR(30)` | `NOT NULL, DEFAULT 'pending'`| Status (`pending`, `completed`, `failed`, `refunded`) |
 | `transaction_reference`| `VARCHAR(255)`| `NULLABLE` | Identyfikator Stripe PaymentIntent ID lub wyciągu |
 | `paid_at` | `TIMESTAMP` | `NULLABLE` | Data zaksięgowania (wypełniana po zatwierdzeniu wpłaty, pusta przy statusie `pending`) |
 | `created_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
 | `updated_at` | `TIMESTAMP` | `NOT NULL` | Znacznik czasu |
+
+*Indeksy i optymalizacje High-Scale:*
+* `INDEX idx_payments_tx_ref (transaction_reference)` — natychmiastowe wyszukiwanie webhooków Stripe (`payment_intent.succeeded`) bez Full Table Scan.
+* `INDEX idx_payments_reporting (tenant_id, status, paid_at)` — sprawozdania finansowe i bilansowanie wpłat tenanta.
 
 ---
 
@@ -655,6 +664,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             $table->index(['tenant_id', 'auditable_type', 'auditable_id'], 'idx_audit_lookup');
+            $table->index(['tenant_id', 'created_at'], 'idx_audit_tenant_date');
         });
 
         // 5. CATEGORIES
@@ -863,6 +873,7 @@ return new class extends Migration
             $table->string('status', 30);
             $table->char('billing_period', 7); // np. '2026-10'
             $table->char('currency', 3)->default('EUR');
+            $table->decimal('exchange_rate', 12, 6)->default(1.000000);
             $table->bigInteger('subtotal_minor')->default(0);
             $table->bigInteger('tax_total_minor')->default(0);
             $table->bigInteger('total_minor')->default(0);
@@ -918,11 +929,14 @@ return new class extends Migration
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->foreignUlid('document_id')->constrained('commercial_documents')->restrictOnDelete();
             $table->bigInteger('amount_minor');
+            $table->char('currency', 3)->default('EUR');
             $table->string('method', 50);
             $table->string('status', 30)->default('pending');
-            $table->string('transaction_reference', 255)->nullable();
+            $table->string('transaction_reference', 255)->nullable()->index('idx_payments_tx_ref');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+
+            $table->index(['tenant_id', 'status', 'paid_at'], 'idx_payments_reporting');
         });
     }
 
