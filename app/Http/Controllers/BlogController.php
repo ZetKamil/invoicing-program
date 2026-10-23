@@ -25,7 +25,7 @@ class BlogController extends Controller
             ->latest('published_at');
 
         if ($bedrijf) {
-            $query->where('bedrijf_id', $bedrijf->id);
+            $query->where('tenant_id', $bedrijf->id);
         }
 
         $activeCategory = null;
@@ -44,7 +44,7 @@ class BlogController extends Controller
 
         $categories = Category::query()
             ->where('type', CategoryType::POST)
-            ->when($bedrijf, fn ($q) => $q->where('bedrijf_id', $bedrijf->id))
+            ->when($bedrijf, fn ($q) => $q->where('tenant_id', $bedrijf->id))
             ->whereHas('posts', fn ($q) => $q->where('status', PostStatus::PUBLISHED))
             ->withCount(['posts' => fn ($q) => $q->where('status', PostStatus::PUBLISHED)])
             ->get();
@@ -64,7 +64,7 @@ class BlogController extends Controller
             ->firstOrFail();
 
         $relatedPosts = Post::query()
-            ->where('bedrijf_id', $post->bedrijf_id)
+            ->where('tenant_id', $post->tenant_id)
             ->where('category_id', $post->category_id)
             ->where('id', '!=', $post->id)
             ->where('status', PostStatus::PUBLISHED)

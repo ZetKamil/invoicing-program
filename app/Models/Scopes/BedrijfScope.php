@@ -2,20 +2,12 @@
 
 namespace App\Models\Scopes;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Scope;
-use Illuminate\Support\Facades\Auth;
-
-class BedrijfScope implements Scope
+/**
+ * Class BedrijfScope
+ *
+ * Backward-compatibility alias for TenantScope.
+ */
+class BedrijfScope extends TenantScope
 {
-    /**
-     * Apply the scope to a given Eloquent query builder.
-     */
-    public function apply(Builder $builder, Model $model): void
-    {
-        if (Auth::hasUser()) {
-            $builder->where($model->getTable() . '.bedrijf_id', Auth::user()->bedrijf_id);
-        }
-    }
+    // Inherits resolution and multi-tenant scoping logic from TenantScope.
 }

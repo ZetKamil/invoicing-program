@@ -7,6 +7,7 @@ namespace App\Enums;
  */
 enum UserRole: string
 {
+    case OWNER = 'owner';
     case ADMIN = 'admin';
     case MANAGER = 'manager';
     case DISPATCHER = 'dispatcher';
@@ -17,6 +18,7 @@ enum UserRole: string
     public function label(): string
     {
         return match ($this) {
+            self::OWNER => 'Eigenaar (Zaakvoerder)',
             self::ADMIN => 'Admin',
             self::MANAGER => 'Manager',
             self::DISPATCHER => 'Dispatcher',

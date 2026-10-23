@@ -3,51 +3,34 @@
 namespace App\Models;
 
 use App\Enums\LeadStatus;
-use App\Traits\HasBedrijf;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
+use App\Traits\HasTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Prunable;
-use Illuminate\Database\Eloquent\Builder;
 
-#[Fillable(['bedrijf_id', 'company_name', 'contact_person', 'email', 'phone', 'audit_report_url', 'status', 'metadata'])]
 class Lead extends Model
 {
     /** @use HasFactory<\Database\Factories\LeadFactory> */
-    use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
+    use HasFactory, HasUlids, HasTenant;
 
-    protected static function booted(): void
-    {
-        static::created(function (Lead $lead) {
-            // Automatyczna rezerwacja klienta
-            $customer = \App\Models\Customer::where('bedrijf_id', $lead->bedrijf_id)
-                ->where(function($q) use ($lead) {
-                    $q->where('company_name', $lead->company_name)
-                      ->orWhere('email', $lead->email);
-                })->first();
+    protected $table = 'leads';
 
-            if (!$customer) {
-                \App\Models\Customer::create([
-                    'bedrijf_id' => $lead->bedrijf_id,
-                    'company_name' => $lead->company_name,
-                    'contact_person' => $lead->contact_person,
-                    'email' => $lead->email,
-                    'phone' => $lead->phone,
-                ]);
-            }
-        });
-    }
-
-    /**
-     * Get the prunable model query.
-     */
-    public function prunable(): Builder
-    {
-        return static::where('deleted_at', '<=', now()->subYear());
-    }
+    protected $fillable = [
+        'tenant_id',
+        'bedrijf_id', // Backward compatibility
+        'name',
+        'contact_person', // Backward compatibility alias
+        'email',
+        'phone',
+        'company_name',
+        'source',
+        'status',
+        'audit_report_url',
+        'notes',
+        'converted_customer_id',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -58,15 +41,34 @@ class Lead extends Model
     {
         return [
             'status' => LeadStatus::class,
-            'metadata' => 'array',
         ];
     }
 
-    /**
-     * Get the quotes for the lead.
-     */
+    /* -------------------------------------------------------------------------
+     | Backward Compatibility Accessors & Mutators
+     | ------------------------------------------------------------------------- */
+
+    public function getContactPersonAttribute(): ?string
+    {
+        return $this->attributes['name'] ?? null;
+    }
+
+    public function setContactPersonAttribute(?string $value): void
+    {
+        $this->attributes['name'] = $value ?? 'Contactpersoon';
+    }
+
+    /* -------------------------------------------------------------------------
+     | Relationships
+     | ------------------------------------------------------------------------- */
+
+    public function convertedCustomer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'converted_customer_id');
+    }
+
     public function quotes(): HasMany
     {
-        return $this->hasMany(Quote::class);
+        return $this->hasMany(Quote::class, 'customer_id');
     }
 }

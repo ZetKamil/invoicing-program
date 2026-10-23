@@ -2,29 +2,77 @@
 
 namespace App\Models;
 
-use App\Traits\HasBedrijf;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
+use App\Traits\HasTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable([
-    'bedrijf_id', 'disk', 'file_name', 'file_path', 'mime_type',
-    'file_size', 'alt_text', 'caption', 'sort_order', 'is_featured',
-    'mediable_type', 'mediable_id'
-])]
 class Media extends Model
 {
-    /** @use HasFactory<\Database\Factories\MediaFactory> */
-    use HasFactory, HasUlids, HasBedrijf, SoftDeletes;
+    use HasFactory, HasUlids, HasTenant;
 
-    /**
-     * Get the parent mediable model.
-     */
-    public function mediable(): MorphTo
+    protected $table = 'media';
+
+    protected $fillable = [
+        'tenant_id',
+        'bedrijf_id', // Backward compatibility alias
+        'model_type',
+        'model_id',
+        'collection_name',
+        'file_name',
+        'mime_type',
+        'disk',
+        'size_bytes',
+        'custom_properties',
+        'sort_order',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'size_bytes'        => 'integer',
+            'custom_properties' => 'array',
+            'sort_order'        => 'integer',
+        ];
+    }
+
+    public function model(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /* -------------------------------------------------------------------------
+     | Backward Compatibility Accessors & Mutators
+     | ------------------------------------------------------------------------- */
+
+    public function getMediableTypeAttribute(): ?string
+    {
+        return $this->attributes['model_type'] ?? null;
+    }
+
+    public function setMediableTypeAttribute(?string $value): void
+    {
+        $this->attributes['model_type'] = $value;
+    }
+
+    public function getMediableIdAttribute(): ?string
+    {
+        return $this->attributes['model_id'] ?? null;
+    }
+
+    public function setMediableIdAttribute(?string $value): void
+    {
+        $this->attributes['model_id'] = $value;
+    }
+
+    public function getFileSizeAttribute(): ?int
+    {
+        return $this->attributes['size_bytes'] ?? null;
+    }
+
+    public function setFileSizeAttribute(?int $value): void
+    {
+        $this->attributes['size_bytes'] = $value;
     }
 }

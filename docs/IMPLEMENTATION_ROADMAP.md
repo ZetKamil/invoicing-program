@@ -93,29 +93,29 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 ### 📌 FAZA 1: Harmonizacja Modeli Eloquent ze Schematem 3NF v2.1
 > **Cel:** Całkowite wyeliminowanie długu technicznego, usunięcie błędów `no such table: bedrijven` oraz dopasowanie encji Eloquent do znormalizowanej bazy 18 tabel.
 
-- [ ] **TASK-1.1: Utworzenie bazowego modelu `Tenant` i zachowanie wstecznej kompatybilności**
+- [x] **TASK-1.1: Utworzenie bazowego modelu `Tenant` i zachowanie wstecznej kompatybilności**
   - Stworzyć model `app/Models/Tenant.php` mapujący tabelę `tenants` (klucze ULID, pola: `name`, `slug`, `plan`, `custom_domain`, `vat_number`, `kbo_number`, `peppol_endpoint_id`, `iban`, `bic`, `settings`, `stripe_customer_id`, `stripe_subscription_id`).
   - Zaktualizować `app/Models/Bedrijf.php` jako alias dziedziczący po `Tenant` (`class Bedrijf extends Tenant`), zapobiegając regresji w istniejących kontrolerach.
-- [ ] **TASK-1.2: Refaktoryzacja Traitu Wielodostępności (`HasTenant`)**
+- [x] **TASK-1.2: Refaktoryzacja Traitu Wielodostępności (`HasTenant`)**
   - Utworzyć `app/Traits/HasTenant.php` z globalnym zakresem `TenantScope` filtrującym po `tenant_id`.
   - Zaktualizować `app/Traits/HasBedrijf.php` jako nakładkę delegującą do `HasTenant`.
-- [ ] **TASK-1.3: Wielodostępność Użytkowników (Relacja N:M `tenant_user`)**
+- [x] **TASK-1.3: Wielodostępność Użytkowników (Relacja N:M `tenant_user`)**
   - Zaktualizować `app/Models/User.php`: usunąć sztywne `tenant_id`/`bedrijf_id`.
   - Zaimplementować relację `tenants(): BelongsToMany` przez tabelę pivot `tenant_user` z obsługą kolumny `role` (`owner`, `admin`, `dispatcher`).
   - Zapewnić obsługę interfejsu Filament v3: `HasTenants`, `canAccessTenant(Model $tenant)`.
-- [ ] **TASK-1.4: Aktualizacja Modeli CRM (`Customer` i `Lead`)**
+- [x] **TASK-1.4: Aktualizacja Modeli CRM (`Customer` i `Lead`)**
   - Zaktualizować `Customer.php`: kolumny `peppol_endpoint_id`, `address_line1`, `address_line2`, `postal_code`, `city`, `country_code` (BE).
   - Zaktualizować `Lead.php`: relacja z `converted_customer_id`, obsługa źródeł (`contact_form`, `demo_sandbox`, `catalog_inquiry`).
-- [ ] **TASK-1.5: Aktualizacja Modeli Katalogu i Produktów**
+- [x] **TASK-1.5: Aktualizacja Modeli Katalogu i Produktów**
   - Zaktualizować `CatalogItem.php`: obsługa `price_minor` (BIGINT centy), rzutowanie `attributes` (JSON), soft-deletes.
   - Zaktualizować `Category.php`: obsługa dyskryminatora `type` (`catalog` lub `post`), unikalność sluga w obrębie tenanta.
-- [ ] **TASK-1.6: Wdrożenie Modeli Finansowych (Single Table Inheritance dla Dokumentów Handlowych)**
+- [x] **TASK-1.6: Wdrożenie Modeli Finansowych (Single Table Inheritance dla Dokumentów Handlowych)**
   - Utworzyć `app/Models/CommercialDocument.php` (tabela `commercial_documents`, obsługa typów: `invoice`, `quote`, `credit_note`, kwoty minor, VCS, Peppol, snapshoty nabywcy).
   - Utworzyć `app/Models/Invoice.php` i `app/Models/Quote.php` dziedziczące po `CommercialDocument`.
   - Utworzyć `app/Models/CommercialDocumentLine.php` (tabela `commercial_document_lines`, relacja z `tax_rates` i `catalog_items`).
   - Utworzyć `app/Models/TaxRate.php` (tabela `tax_rates`, kody Peppol `S`, `Z`, `E`, `AE`).
   - Utworzyć `app/Models/Payment.php` (tabela `payments`, wielowalutowość, obsługa Stripe PaymentIntent).
-- [ ] **TASK-1.7: Wdrożenie Modeli CMS, Stron i Telemetrii AI**
+- [x] **TASK-1.7: Wdrożenie Modeli CMS, Stron i Telemetrii AI**
   - Utworzyć `app/Models/Page.php` (tabela `pages`, kolumny `blocks` JSON, `is_homepage`, `is_published`, `seo_meta` JSON).
   - Zaktualizować `app/Models/Post.php` (tabela `posts`, kolumny `sections` JSON, statusy, soft-deletes).
   - Utworzyć `app/Models/DailyMetric.php`, `app/Models/AiGenerationLog.php`, `app/Models/AiSchedule.php`.

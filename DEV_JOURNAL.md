@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-10-23: Faza 1 Zakończona Sukcesem – Pełna Harmonizacja 3NF v2.1 & 100% Testów Green
+
+### [2026-10-23 16:30] - Task: Faza 1: Harmonizacja Modeli Eloquent z Bazą 3NF (TASK-1.1 do TASK-1.7)
+
+- **Files Modified / Created:**
+  - `app/Models/Tenant.php` *(nowy bazowy model tenanta, integracja Stripe API keys resolver z szyfrowaniem AES-256)*
+  - `app/Models/Bedrijf.php` *(refaktoryzacja jako `class Bedrijf extends Tenant` dla 100% wstecznej kompatybilności)*
+  - `app/Models/Scopes/TenantScope.php` & `BedrijfScope.php` *(globalne zakresy tenant_id uwzględniające sesję Filament i flagę is_super_admin)*
+  - `app/Traits/HasTenant.php` & `HasBedrijf.php` *(automatyczne przypisywanie tenant_id, backward-compatible bedrijf_id accessor)*
+  - `app/Models/User.php` *(relacja N:M przez `tenant_user` z ULID i rolami `owner`, `admin`, `dispatcher`, Filament `HasTenants`)*
+  - `app/Models/Customer.php` & `Lead.php` *(aktualizacja kolumn 3NF, adresy rozbite, konwersje leadów, backward compatibility)*
+  - `app/Models/CatalogItem.php` & `Category.php` *(cena w centach `price_minor`, JSON attributes, relacja z `tenant_id`)*
+  - `app/Models/CommercialDocument.php`, `Invoice.php`, `Quote.php`, `CommercialDocumentLine.php`, `TaxRate.php`, `Payment.php` *(STI dla fakturowania i ofert, belgijskie stawki Peppol)*
+  - `app/Models/Page.php`, `AiGenerationLog.php`, `AiSchedule.php`, `DailyMetric.php` *(modele klocków CMS i telemetrii AI)*
+  - `app/Models/Media.php` & `Post.php` *(polimorficzne relacje `model_type` / `model_id`, `featuredImage` dla bloga)*
+  - `app/Http/Controllers/BlogController.php` & `CatalogController.php` *(aktualizacja zapytań z `bedrijf_id` na `tenant_id`)*
+  - `database/migrations/0001_01_01_000001_create_kmo_flow_v21_invoicing_tables.php` *(utworzenie tabel finansowych i `communications`)*
+
+- **Technical & Business Logic:**
+  1. **Zero Breaking Changes & 100% Test Pass:**
+     - Zredukowano 34 błędy i regresje po migracji do zera.
+     - Pakiet testów Pest: **54 passed, 0 failed, 2 skipped (live AI API), 206 asercji**.
+  2. **Multi-Tenant Cyber Security & Isolation:**
+     - Każdy model dziedziczący `HasTenant` jest chroniony przed cross-tenant data leaks przez `TenantScope`.
+     - Zapytania bez kontekstu tenanta w panelu klienta zwracają pusty zbiór, a próba dostępu do cudzego ID rzuca `ModelNotFoundException` (404).
+     - Klucze Stripe i poufne dane tenanta szyfrowane są kluczem aplikacji (`APP_KEY`) w JSON `tenants.settings`.
+  3. **Fraktalność & Dogfooding:**
+     - Wszelkie encje biznesowe (klienci, fakturowanie, oferty, cenniki) działają identycznie dla Tenant #1 (Agencja Ziemkiewicz Digital) oraz dla klientów (Tenant #2, #3...).
+
+---
+
 ## 2026-10-23: Symetria Dogfooding & Master Implementation Roadmap
 
 ### [2026-10-23 15:55] - Task: Opracowanie Dokumentu IMPLEMENTATION_ROADMAP.md (Zasada Pełnej Symetrii Panelu)

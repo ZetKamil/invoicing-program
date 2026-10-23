@@ -25,7 +25,7 @@ class CatalogController extends Controller
             ->latest();
 
         if ($bedrijf) {
-            $query->where('bedrijf_id', $bedrijf->id);
+            $query->where('tenant_id', $bedrijf->id);
         }
 
         $activeCategory = null;
@@ -44,7 +44,7 @@ class CatalogController extends Controller
 
         $categories = Category::query()
             ->where('type', CategoryType::CATALOG)
-            ->when($bedrijf, fn ($q) => $q->where('bedrijf_id', $bedrijf->id))
+            ->when($bedrijf, fn ($q) => $q->where('tenant_id', $bedrijf->id))
             ->whereHas('catalogItems', fn ($q) => $q->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED]))
             ->withCount(['catalogItems' => fn ($q) => $q->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED])])
             ->get();
@@ -69,7 +69,7 @@ class CatalogController extends Controller
         $whatsAppLink = "https://wa.me/?text=" . rawurlencode($prefillText);
 
         $similarItems = CatalogItem::query()
-            ->where('bedrijf_id', $item->bedrijf_id)
+            ->where('tenant_id', $item->tenant_id)
             ->where('category_id', $item->category_id)
             ->where('id', '!=', $item->id)
             ->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED])

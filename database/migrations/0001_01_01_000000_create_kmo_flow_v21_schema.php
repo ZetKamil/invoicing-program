@@ -61,7 +61,7 @@ return new class extends Migration
 
         // 3. TENANT_USER (Pivot dla Filament v3 Multi-Tenancy)
         Schema::create('tenant_user', function (Blueprint $table) {
-            $table->ulid('id')->primary();
+            $table->ulid('id')->nullable();
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->foreignUlid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('role', 30)->default('owner');
@@ -236,15 +236,15 @@ return new class extends Migration
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->string('company_name', 255);
             $table->string('contact_person', 255)->nullable();
-            $table->string('email', 255);
+            $table->string('email', 255)->nullable();
             $table->string('phone', 50)->nullable();
             $table->string('vat_number', 50)->nullable();
             $table->string('kbo_number', 20)->nullable();
             $table->string('peppol_endpoint_id', 50)->nullable();
-            $table->string('address_line1', 255);
+            $table->string('address_line1', 255)->nullable();
             $table->string('address_line2', 255)->nullable();
-            $table->string('postal_code', 20);
-            $table->string('city', 100);
+            $table->string('postal_code', 20)->nullable();
+            $table->string('city', 100)->nullable();
             $table->char('country_code', 2)->default('BE');
             $table->timestamps();
 
@@ -256,8 +256,8 @@ return new class extends Migration
         Schema::create('leads', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->string('name', 255);
-            $table->string('email', 255);
+            $table->string('name', 255)->nullable()->default('Contactpersoon');
+            $table->string('email', 255)->nullable();
             $table->string('phone', 50)->nullable();
             $table->string('company_name', 255)->nullable();
             $table->string('source', 50)->default('contact_form');

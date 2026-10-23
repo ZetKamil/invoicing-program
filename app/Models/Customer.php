@@ -2,46 +2,94 @@
 
 namespace App\Models;
 
-use App\Traits\HasBedrijf;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
+use App\Traits\HasTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Prunable;
-use Illuminate\Database\Eloquent\Builder;
 
-#[Fillable(['bedrijf_id', 'company_name', 'vat_number', 'contact_person', 'email', 'phone', 'address', 'zip_code', 'city', 'country', 'metadata'])]
 class Customer extends Model
 {
-    use HasFactory, HasUlids, HasBedrijf, SoftDeletes, Prunable;
+    use HasFactory, HasUlids, HasTenant;
 
-    /**
-     * Get the prunable model query.
-     */
-    public function prunable(): Builder
+    protected $table = 'customers';
+
+    protected $fillable = [
+        'tenant_id',
+        'bedrijf_id', // Backward compatibility
+        'company_name',
+        'contact_person',
+        'email',
+        'phone',
+        'vat_number',
+        'kbo_number',
+        'peppol_endpoint_id',
+        'address_line1',
+        'address', // Backward compatibility alias
+        'address_line2',
+        'postal_code',
+        'zip_code', // Backward compatibility alias
+        'city',
+        'country_code',
+        'country', // Backward compatibility alias
+    ];
+
+    /* -------------------------------------------------------------------------
+     | Backward Compatibility Accessors & Mutators
+     | ------------------------------------------------------------------------- */
+
+    public function getAddressAttribute(): ?string
     {
-        return static::where('deleted_at', '<=', now()->subYear());
+        return $this->attributes['address_line1'] ?? null;
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function setAddressAttribute(?string $value): void
     {
-        return [
-            'metadata' => 'array',
-        ];
+        $this->attributes['address_line1'] = $value ?? 'Onbekend';
     }
 
-    /**
-     * Get the invoices for the customer.
-     */
-    public function invoices(): MorphMany
+    public function getZipCodeAttribute(): ?string
     {
-        return $this->morphMany(Invoice::class, 'customer');
+        return $this->attributes['postal_code'] ?? null;
+    }
+
+    public function setZipCodeAttribute(?string $value): void
+    {
+        $this->attributes['postal_code'] = $value ?? '0000';
+    }
+
+    public function getCountryAttribute(): ?string
+    {
+        return $this->attributes['country_code'] ?? 'BE';
+    }
+
+    public function setCountryAttribute(?string $value): void
+    {
+        $this->attributes['country_code'] = $value ? strtoupper(substr($value, 0, 2)) : 'BE';
+    }
+
+    /* -------------------------------------------------------------------------
+     | Relationships
+     | ------------------------------------------------------------------------- */
+
+    public function commercialDocuments(): HasMany
+    {
+        return $this->hasMany(CommercialDocument::class, 'customer_id');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'customer_id');
+    }
+
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'customer_id');
+    }
+
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'converted_customer_id');
     }
 }
