@@ -234,7 +234,7 @@ erDiagram
 | `updated_at` | `TIMESTAMP` | `NOT NULL` | Data modyfikacji |
 
 *Indeksy:*
-* `INDEX idx_media_polymorphic (model_type, model_id, collection_name)`
+* `INDEX idx_media_tenant_polymorphic (tenant_id, model_type, model_id, collection_name)`
 
 ---
 
@@ -483,9 +483,11 @@ erDiagram
 
 ## 4. Przenośne Zapytania Raportowe BI (100% Zgodne z PostgreSQL, MySQL i SQLite)
 
-Dzięki wprowadzeniu kolumny `billing_period` (`CHAR(7)`) oraz tabeli `daily_metrics`, zapytania analityczne wykonują się błyskawicznie na każdym silniku relacyjnym bez nieprzenośnych funkcji daty:
+Dzięki wprowadzeniu kolumny `billing_period` (`CHAR(7)`), tabeli `daily_metrics` oraz parametryzacji dat przez Carbon w PHP, zapytania analityczne wykonują się błyskawicznie na każdym silniku relacyjnym bez nieprzenośnych funkcji dialektowych:
 
 ### Raport 1: Miesięczny Przychód, Kwoty Korekt i Konwersja Ofert (SQL Przenośny)
+> **Konwencja A (Księgowość & Peppol UBL):** W bazie danych wszystkie kwoty (`total_minor`, `line_net_minor`) przechowywane są jako liczby dodatnie (zgodnie ze standardem Peppol BIS 3.0 `<cbc:PayableAmount>`), a o znaku bilansującym w sprawozdaniach finansowych decyduje kolumna `type = 'credit_note'` (`-d.total_minor`), co eliminuje ryzyko podwójnego minusa.
+
 ```sql
 SELECT 
     d.billing_period AS month,
@@ -495,7 +497,7 @@ SELECT
         COUNT(CASE WHEN d.type = 'invoice' AND d.parent_document_id IS NOT NULL THEN 1 END) * 100.0 / 
         NULLIF(COUNT(CASE WHEN d.type = 'quote' THEN 1 END), 0), 2
     ) AS quote_conversion_pct,
-    -- Prawidłowe bilansowanie faktur i korekt (Credit Notes):
+    -- Prawidłowe bilansowanie faktur i not kredytowych (Credit Notes):
     ROUND(SUM(
         CASE 
             WHEN d.type = 'invoice' AND d.status = 'paid' THEN d.total_minor 
@@ -510,23 +512,40 @@ GROUP BY d.billing_period
 ORDER BY d.billing_period DESC;
 ```
 
-### Raport 2: Rentowność Pozycji Katalogowych (Bezpośredni Index Scan)
+### Raport 2: Rzeczywista Sprzedaż Pozycji Katalogowych (Zabezpieczenie przed ofertami i szkicami)
+> **Detal B:** Dołączenie `JOIN commercial_documents d ON lines.document_id = d.id` (wykorzystujące indeks klucza obcego) gwarantuje, że do zsumowanej sprzedaży wliczane są wyłącznie zrealizowane pozycje z opłaconych faktur i korekt (`type IN ('invoice', 'credit_note') AND status = 'paid'`), odrzucając otwarte oferty (`quote`), szkice (`draft`) oraz anulowane dokumenty (`canceled`).
+
 ```sql
 SELECT 
     c.name AS item_name,
     c.slug,
-    COUNT(lines.id) AS orders_count,
-    ROUND(SUM(lines.line_net_minor) / 100.0, 2) AS total_net_sales_eur,
-    ROUND(SUM(lines.line_tax_minor) / 100.0, 2) AS total_vat_collected_eur
+    COUNT(lines.id) AS units_sold,
+    ROUND(SUM(
+        CASE 
+            WHEN d.type = 'credit_note' THEN -lines.line_net_minor
+            ELSE lines.line_net_minor
+        END
+    ) / 100.0, 2) AS total_net_sales_eur,
+    ROUND(SUM(
+        CASE 
+            WHEN d.type = 'credit_note' THEN -lines.line_tax_minor
+            ELSE lines.line_tax_minor
+        END
+    ) / 100.0, 2) AS total_vat_collected_eur
 FROM commercial_document_lines lines
+JOIN commercial_documents d ON lines.document_id = d.id
 JOIN catalog_items c ON lines.catalog_item_id = c.id
-WHERE lines.tenant_id = :tenant_id
+WHERE d.tenant_id = :tenant_id
+  AND d.type IN ('invoice', 'credit_note')
+  AND d.status = 'paid'
 GROUP BY c.id, c.name, c.slug
 ORDER BY total_net_sales_eur DESC
 LIMIT 10;
 ```
 
 ### Raport 3: Wykres Konwersji Odsłon na Zapytania WhatsApp (Z tabeli `daily_metrics`)
+> **Detal A (Przenośność PostgreSQL / SQLite):** Zamiast dialektu SQLite `DATE('now', '-30 days')`, zapytanie przyjmuje parametr `:start_date` wygenerowany po stronie PHP przez `now()->subDays(30)->toDateString()`, co bezbłędnie uruchamia indeks `idx_daily_metrics_date_lookup (tenant_id, date)`.
+
 ```sql
 SELECT 
     m.date,
@@ -540,7 +559,7 @@ SELECT
     ) AS conversion_rate_pct
 FROM daily_metrics m
 WHERE m.tenant_id = :tenant_id
-  AND m.date >= DATE('now', '-30 days')
+  AND m.date >= :start_date
 GROUP BY m.date
 ORDER BY m.date ASC;
 ```
@@ -553,3 +572,376 @@ ORDER BY m.date ASC;
 2. **Pełna przenośność PostgreSQL:** Zero słów kluczowych `UNSIGNED`, liczby ze znakiem `BIGINT` dla pełnej obsługi księgowych korekt in minus.
 3. **Pancerna wielodostępność Filament v3:** Tabela `tenant_user` daje natywną obsługę `BelongsToTenants`, umożliwiając jednemu użytkownikowi bezpieczne administrowanie wieloma firmami.
 4. **Wbudowana analityka:** Tabela `daily_metrics` i okres `billing_period` dają klientom wgląd w realną wartość biznesową platformy (konwersje, kliknięcia WhatsApp, przychody).
+
+---
+
+## 6. Gotowy Szkielet Migracji Laravel 11/13
+
+Poniższy kod tworzy całą strukturę bazy danych (wszystkie 18 tabel) w jednej, atomowej transakcji z właściwą kolejnością tworzenia kluczy obcych (np. `customers` przed `leads`, self-referencing `parent_document_id` w `commercial_documents`):
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // 1. TENANTS
+        Schema::create('tenants', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->string('name', 255);
+            $table->string('slug', 100)->unique('idx_tenants_slug');
+            $table->string('custom_domain', 255)->nullable()->unique('idx_tenants_custom_domain');
+            $table->string('plan', 20)->default('start');
+            $table->string('status', 20)->default('active');
+            $table->string('vat_number', 50)->nullable();
+            $table->string('kbo_number', 20)->nullable();
+            $table->string('peppol_endpoint_id', 50)->nullable();
+            $table->string('iban', 34)->nullable();
+            $table->string('bic', 11)->nullable();
+            $table->json('settings');
+            $table->string('stripe_customer_id', 100)->nullable()->index();
+            $table->string('stripe_subscription_id', 100)->nullable();
+            $table->timestamps();
+
+            $table->index(['plan', 'status'], 'idx_tenants_plan_status');
+        });
+
+        // 2. USERS
+        Schema::create('users', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->string('name', 255);
+            $table->string('email', 255)->unique('idx_users_email');
+            $table->string('password', 255);
+            $table->boolean('is_super_admin')->default(false);
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        // 3. TENANT_USER (Pivot dla Filament v3 Multi-Tenancy)
+        Schema::create('tenant_user', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('role', 30)->default('owner');
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'user_id'], 'idx_tenant_user_unique');
+            $table->index(['user_id', 'tenant_id'], 'idx_tenant_user_lookup');
+        });
+
+        // 4. AUDIT_LOGS
+        Schema::create('audit_logs', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('action', 100);
+            $table->string('auditable_type', 100);
+            $table->char('auditable_id', 26);
+            $table->json('old_values')->nullable();
+            $table->json('new_values')->nullable();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->index(['tenant_id', 'auditable_type', 'auditable_id'], 'idx_audit_lookup');
+        });
+
+        // 5. CATEGORIES
+        Schema::create('categories', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('type', 20); // 'catalog' lub 'post'
+            $table->string('name', 150);
+            $table->string('slug', 150);
+            $table->text('description')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'type', 'slug'], 'idx_categories_tenant_type_slug');
+        });
+
+        // 6. CATALOG_ITEMS
+        Schema::create('catalog_items', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->string('name', 255);
+            $table->string('slug', 255);
+            $table->string('sku', 100)->nullable();
+            $table->string('status', 30)->default('available');
+            $table->bigInteger('price_minor')->nullable();
+            $table->text('description')->nullable();
+            $table->json('attributes');
+            $table->string('whatsapp_prefill_text', 500)->nullable();
+            $table->integer('views_count')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['tenant_id', 'slug'], 'idx_catalog_items_tenant_slug');
+            $table->index(['tenant_id', 'status', 'price_minor'], 'idx_catalog_items_status_price');
+        });
+
+        // 7. PAGES
+        Schema::create('pages', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('title', 255);
+            $table->string('slug', 150);
+            $table->boolean('is_homepage')->default(false);
+            $table->boolean('is_published')->default(true);
+            $table->json('blocks');
+            $table->json('seo_meta')->nullable();
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'slug'], 'idx_pages_tenant_slug');
+            $table->index(['tenant_id', 'is_homepage'], 'idx_pages_tenant_homepage');
+        });
+
+        // 8. MEDIA
+        Schema::create('media', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('model_type', 100);
+            $table->char('model_id', 26);
+            $table->string('collection_name', 50)->default('default');
+            $table->string('file_name', 255);
+            $table->string('mime_type', 100);
+            $table->string('disk', 50)->default('public');
+            $table->bigInteger('size_bytes');
+            $table->json('custom_properties')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'model_type', 'model_id', 'collection_name'], 'idx_media_tenant_polymorphic');
+        });
+
+        // 9. POSTS
+        Schema::create('posts', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignUlid('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('title', 255);
+            $table->string('slug', 255);
+            $table->text('excerpt')->nullable();
+            $table->json('sections');
+            $table->string('status', 30)->default('draft');
+            $table->boolean('is_ai_generated')->default(false);
+            $table->boolean('show_global_announcement')->default(true);
+            $table->integer('views_count')->default(0);
+            $table->timestamp('published_at')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['tenant_id', 'slug'], 'idx_posts_tenant_slug');
+            $table->index(['tenant_id', 'status', 'published_at'], 'idx_posts_reporting');
+        });
+
+        // 10. DAILY_METRICS
+        Schema::create('daily_metrics', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->date('date');
+            $table->string('trackable_type', 100);
+            $table->char('trackable_id', 26);
+            $table->integer('views_count')->default(0);
+            $table->integer('whatsapp_clicks')->default(0);
+            $table->integer('messenger_clicks')->default(0);
+            $table->integer('phone_clicks')->default(0);
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'date', 'trackable_type', 'trackable_id'], 'idx_daily_metrics_unique');
+            $table->index(['tenant_id', 'date'], 'idx_daily_metrics_date_lookup');
+        });
+
+        // 11. AI_GENERATION_LOGS
+        Schema::create('ai_generation_logs', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('post_id')->nullable()->constrained('posts')->nullOnDelete();
+            $table->string('model_used', 100);
+            $table->string('topic_prompt', 500);
+            $table->integer('input_tokens')->default(0);
+            $table->integer('output_tokens')->default(0);
+            $table->integer('estimated_cost_micro_usd')->default(0);
+            $table->integer('execution_time_ms');
+            $table->string('status', 30);
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->index(['tenant_id', 'created_at'], 'idx_ai_logs_tenant_date');
+        });
+
+        // 12. AI_SCHEDULES
+        Schema::create('ai_schedules', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->unique()->constrained('tenants')->cascadeOnDelete();
+            $table->boolean('is_enabled')->default(false);
+            $table->string('frequency', 20)->default('weekly');
+            $table->integer('day_of_week')->default(1);
+            $table->integer('preferred_hour')->default(9);
+            $table->boolean('auto_publish')->default(false);
+            $table->foreignUlid('target_category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->text('niche_guidelines')->nullable();
+            $table->timestamp('last_run_at')->nullable();
+            $table->timestamp('next_run_at')->nullable()->index();
+            $table->timestamps();
+        });
+
+        // 13. CUSTOMERS
+        Schema::create('customers', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('company_name', 255);
+            $table->string('contact_person', 255)->nullable();
+            $table->string('email', 255);
+            $table->string('phone', 50)->nullable();
+            $table->string('vat_number', 50)->nullable();
+            $table->string('kbo_number', 20)->nullable();
+            $table->string('peppol_endpoint_id', 50)->nullable();
+            $table->string('address_line1', 255);
+            $table->string('address_line2', 255)->nullable();
+            $table->string('postal_code', 20);
+            $table->string('city', 100);
+            $table->char('country_code', 2)->default('BE');
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'vat_number'], 'idx_customers_tenant_vat');
+            $table->index(['tenant_id', 'company_name'], 'idx_customers_tenant_name');
+        });
+
+        // 14. LEADS (Tworzone po Customers z uwagi na klucz obcy converted_customer_id!)
+        Schema::create('leads', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('name', 255);
+            $table->string('email', 255);
+            $table->string('phone', 50)->nullable();
+            $table->string('company_name', 255)->nullable();
+            $table->string('source', 50)->default('contact_form');
+            $table->string('status', 30)->default('new');
+            $table->string('audit_report_url', 500)->nullable();
+            $table->text('notes')->nullable();
+            $table->foreignUlid('converted_customer_id')->nullable()->constrained('customers')->nullOnDelete();
+            $table->timestamps();
+        });
+
+        // 15. TAX_RATES
+        Schema::create('tax_rates', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->string('code', 20);
+            $table->string('name', 100);
+            $table->decimal('rate_percentage', 5, 2);
+            $table->string('peppol_category_code', 5)->default('S');
+            $table->string('peppol_exemption_code', 50)->nullable();
+            $table->boolean('is_default')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+
+        // 16. COMMERCIAL_DOCUMENTS
+        Schema::create('commercial_documents', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('customer_id')->constrained('customers')->restrictOnDelete();
+            $table->char('parent_document_id', 26)->nullable()->index('idx_commercial_docs_parent');
+            $table->string('type', 30);
+            $table->string('document_number', 100);
+            $table->string('status', 30);
+            $table->char('billing_period', 7); // np. '2026-10'
+            $table->char('currency', 3)->default('EUR');
+            $table->bigInteger('subtotal_minor')->default(0);
+            $table->bigInteger('tax_total_minor')->default(0);
+            $table->bigInteger('total_minor')->default(0);
+            $table->date('issued_at');
+            $table->date('due_at');
+            $table->timestamp('paid_at')->nullable();
+            $table->string('vcs_reference', 17)->nullable();
+            $table->string('ubl_xml_path', 500)->nullable();
+            $table->string('peppol_message_id', 255)->nullable();
+            $table->string('snapshot_customer_name', 255);
+            $table->string('snapshot_customer_vat', 50)->nullable();
+            $table->json('snapshot_customer_address');
+            $table->timestamps();
+
+            $table->unique(['tenant_id', 'type', 'document_number'], 'idx_commercial_docs_tenant_number');
+            $table->index(['tenant_id', 'billing_period', 'type', 'status'], 'idx_commercial_docs_reporting');
+        });
+
+        // Self-referencing FK dodawany po utworzeniu tabeli (kompatybilność z PostgreSQL)
+        Schema::table('commercial_documents', function (Blueprint $table) {
+            $table->foreign('parent_document_id')
+                ->references('id')
+                ->on('commercial_documents')
+                ->nullOnDelete();
+        });
+
+        // 17. COMMERCIAL_DOCUMENT_LINES
+        Schema::create('commercial_document_lines', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('document_id')->constrained('commercial_documents')->cascadeOnDelete();
+            $table->foreignUlid('catalog_item_id')->nullable()->constrained('catalog_items')->nullOnDelete();
+            $table->foreignUlid('tax_rate_id')->constrained('tax_rates')->restrictOnDelete();
+            $table->text('description');
+            $table->decimal('quantity', 10, 3)->default(1.000);
+            $table->bigInteger('unit_price_minor');
+            $table->decimal('discount_percentage', 5, 2)->default(0.00);
+            $table->bigInteger('line_net_minor');
+            $table->bigInteger('line_tax_minor');
+            $table->bigInteger('line_gross_minor');
+            $table->decimal('snapshot_tax_rate', 5, 2);
+            $table->string('snapshot_peppol_cat', 5)->default('S');
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'catalog_item_id'], 'idx_doc_lines_tenant_catalog');
+            $table->index(['document_id', 'sort_order'], 'idx_doc_lines_document');
+        });
+
+        // 18. PAYMENTS
+        Schema::create('payments', function (Blueprint $table) {
+            $table->ulid('id')->primary();
+            $table->foreignUlid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUlid('document_id')->constrained('commercial_documents')->restrictOnDelete();
+            $table->bigInteger('amount_minor');
+            $table->string('method', 50);
+            $table->string('status', 30)->default('pending');
+            $table->string('transaction_reference', 255)->nullable();
+            $table->timestamp('paid_at');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('payments');
+        Schema::dropIfExists('commercial_document_lines');
+        Schema::dropIfExists('commercial_documents');
+        Schema::dropIfExists('tax_rates');
+        Schema::dropIfExists('leads');
+        Schema::dropIfExists('customers');
+        Schema::dropIfExists('ai_schedules');
+        Schema::dropIfExists('ai_generation_logs');
+        Schema::dropIfExists('daily_metrics');
+        Schema::dropIfExists('posts');
+        Schema::dropIfExists('media');
+        Schema::dropIfExists('pages');
+        Schema::dropIfExists('catalog_items');
+        Schema::dropIfExists('categories');
+        Schema::dropIfExists('audit_logs');
+        Schema::dropIfExists('tenant_user');
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('tenants');
+    }
+};
+```
+

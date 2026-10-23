@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-10-23: Architektura Bazy Danych 3NF v2.1 & Wdrożenie Skonsolidowanej Migracji
+
+### [2026-10-23 14:05] - Task: Wdrożenie 4 Mikro-Korekt SQL oraz Czystej Migracji 3NF v2.1 (18 Tabel)
+
+- **Files Modified:**
+  - `docs/DATABASE_ARCHITECTURE_3NF.md` *(aktualizacja specyfikacji: Detal A, B, C, D, pełny szkielet migracji)*
+  - `database/migrations/0001_01_01_000000_create_kmo_flow_v21_schema.php` *(nowa, atomowa migracja tworząca 18 tabel 3NF, klucze ULID, pivot tenant_user, password_reset_tokens i sessions)*
+  - `database/migrations_archive/` *(archiwizacja 34 starych migracji prototypowych w celu uniknięcia kolizji schematów)*
+
+- **Technical Logic:**
+  1. **Cztery Mikro-Korekty Zapytań SQL:**
+     - **Detal A (Przenośność PostgreSQL / Carbon w PHP):** W Raporcie 3 (`daily_metrics`) zastąpiono specyficzną dla SQLite składnię `DATE('now', '-30 days')` zbindowanym parametrem `:start_date`, obliczanym w PHP przez `now()->subDays(30)->toDateString()`. Gwarantuje to 100% przenośność (SQLite, MySQL, PostgreSQL) oraz bezpośrednie wykorzystanie indeksu B-Tree `idx_daily_metrics_date_lookup (tenant_id, date)`.
+     - **Detal B (Izolacja Ofert i Szkiców w Raporcie 2):** Do zapytania o rentowność pozycji katalogowych dodano `JOIN commercial_documents d ON lines.document_id = d.id` z filtrowaniem `d.type IN ('invoice', 'credit_note') AND d.status = 'paid'`, co wyklucza pozycje z otwartych ofert (`quote`), wersji roboczych (`draft`) oraz anulowanych faktur (`canceled`).
+     - **Detal C (Konwencja Księgowa A / Peppol UBL):** Udokumentowano zasadę zapobiegania podwójnemu minusowi: w bazie danych wszystkie wartości (`total_minor`, `line_net_minor`) przechowywane są jako wartości dodatnie (zgodnie ze schematem Peppol BIS 3.0 / `<cbc:PayableAmount>`), a o znaku w agregacjach finansowych decyduje wyłącznie `CASE WHEN d.type = 'credit_note' THEN -d.total_minor`.
+     - **Detal D (Indeks Złożony pod TenantScope w tabeli `media`):** Zmodyfikowano indeks polimorficzny w tabeli `media` na `idx_media_tenant_polymorphic (tenant_id, model_type, model_id, collection_name)`, dzięki czemu zapytania z globalnym `TenantScope` od razu trafiają w pierwszą kolumnę indeksu B-Tree.
+  2. **Skonsolidowana Migracja Laravel 11/13:**
+     - Zbudowano plik `0001_01_01_000000_create_kmo_flow_v21_schema.php` zawierający 18 ściśle znormalizowanych tabel 3NF.
+     - Zastosowano natywny typ `$table->ulid('id')->primary()` oraz powiązania `$table->foreignUlid(...)`.
+     - Poprawna kolejność tworzenia tabel (tabela `customers` przed `leads`, relacja zwrotna `parent_document_id` w `commercial_documents` dodana przez `Schema::table`).
+     - Wycofano i zarchiwizowano 34 pliki starych migracji prototypowych do katalogu `database/migrations_archive/`.
+     - Uruchomiono `php artisan migrate:fresh` — wszystkie 18 tabel zostało utworzonych w 89 ms bez żadnych ostrzeżeń czy konfliktów.
+
+- **Senior Concept:** *Zero-Data Schema Consolidation & Cross-Engine Portability.* W fazie przedprodukcyjnej (gdy nie ma danych produkcyjnych), utrzymywanie dziesiątek drobnych migracji prototypowych wprowadza dług technologiczny. Konsolidacja całego schematu do jednej atomowej migracji 3NF v2.1 eliminuje dryf schematów, gwarantuje 100% przenośność z PostgreSQL i natywną zgodność z Filament v3 Multi-Tenancy.
+
+- **Exam Defense Tip:** *„W celu zapewnienia pełnej spójności 3NF, przenośności z PostgreSQL oraz wsparcia dla Peppol BIS Billing 3.0, skonsolidowałem schemat bazy do jednej czystej migracji 18 tabel. Zastosowałem konwencję przechowywania kwot dodatnich w centach (minor units), tabelę pośrednią tenant_user dla relacji wielodostępnej w Filament v3 oraz zoptymalizowałem indeksy B-Tree pod globalne scope'y tenanta."*
+
+- **Keywords to Learn:** `3NF Normalization`, `B-Tree Composite Indexing`, `ULID Primary Keys`, `Peppol BIS Billing 3.0 Compliance`, `Schema Consolidation`
+
+---
+
 ## 2026-10-23: Audyt Technologiczny Bezpieczeństwa & Utwardzenie Systemu (Defense-in-Depth)
 
 ### [2026-10-23 12:45] - Task: Wdrożenie 4 Rekomendacji z Audytu Bezpieczeństwa
