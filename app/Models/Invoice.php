@@ -42,8 +42,13 @@ class Invoice extends Model
         'delivery_date',
         'due_date',
         'stripe_payment_intent_id',
+        'payment_method',
+        'payment_reference',
+        'payment_token',
         'paid_at',
         'status',
+        'peppol_status',
+        'peppol_transmission_id',
         'last_reminder_sent_at',
         'cargo_weight_kg',
         'pallet_count',
@@ -52,7 +57,6 @@ class Invoice extends Model
         'driver_phone',
         'is_reverse_charge',
         'cmr_document_path',
-        'payment_token',
     ];
 
     protected static function booted(): void

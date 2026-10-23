@@ -157,6 +157,28 @@ class InvoicesTable
                                 'Content-Disposition' => 'attachment; filename="'.$record->invoice_number.'-peppol.xml"',
                             ]);
                         }),
+                    \Filament\Actions\Action::make('send_peppol_as4')
+                        ->label('Verzend via Peppol AS4 Netwerk')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Officiële B2B Peppol AS4 Verzending')
+                        ->modalDescription('De factuur wordt via het gecertificeerde Peppol Access Point rechtstreeks verzonden naar het boekhoudpakket van de ontvanger.')
+                        ->action(function (\App\Models\Invoice $record, \App\Actions\Invoices\SendPeppolInvoiceAction $sendAction) {
+                            try {
+                                $result = $sendAction->execute($record);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Peppol AS4 Verzending Geslaagd!')
+                                    ->body("Transmissie ID: {$result['transmission_id']}")
+                                    ->success()
+                                    ->send();
+                            } catch (\Throwable $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Fout bij Peppol verzending: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
                     \Filament\Actions\EditAction::make(),
                     \Filament\Actions\ViewAction::make(),
                 ])

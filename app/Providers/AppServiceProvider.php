@@ -89,6 +89,13 @@ class AppServiceProvider extends ServiceProvider
             });
         });
 
+        // Mollie webhook rate limiter (60/min per IP)
+        RateLimiter::for('mollie-webhooks', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip())->response(function () {
+                return response('Too Many Requests', 429);
+            });
+        });
+
         // The public invoice payment portal should not be hammerable.
         // 10 attempts per minute per IP prevents ULID enumeration attacks.
         RateLimiter::for('invoice-portal', function (Request $request) {

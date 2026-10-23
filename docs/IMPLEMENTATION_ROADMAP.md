@@ -262,6 +262,11 @@ Wszystkie prace i funkcje systemu projektowane są pod podwójne wykonanie (**Ac
 | `TASK-4.3` | Formularz Zapytania Ofertowego | Faza 4 | 🌐 Public | ✅ Zakończone | Zapis w tabeli `leads` |
 | `TASK-5.1` | Seeder Bazy (Dogfooding Tenant #1) | Faza 5 | 👤 Dev | ✅ Zakończone | `artisan db:seed` |
 | `TASK-5.2` | Pakiet Testów Pest (100% Green) | Faza 5 | 👤 Dev | ✅ Zakończone | `pest` 100% passing |
+| `TASK-6.1` | Caddy On-Demand TLS & SSL Check Endpoint | Faza 6 | 🛡️ DevOps | ✅ Zakończone | `/caddy/check-domain` |
+| `TASK-6.2` | Mollie Bancontact & Dynamic Webhook | Faza 6 | 💳 Płatności | ✅ Zakończone | `MollieService` + Webhook |
+| `TASK-6.3` | Stripe Auto-Webhook API Provisioning | Faza 6 | 💳 Płatności | ✅ Zakończone | `autoRegisterWebhook()` |
+| `TASK-6.4` | Peppol AS4 Certified Access Point Dispatch | Faza 6 | 🏛️ Peppol | ✅ Zakończone | `SendPeppolInvoiceAction` |
+| `TASK-6.5` | Anti-Cannibalization Layout Engine (Wireframe vs Turnkey) | Faza 6 | 📈 Biznes | ✅ Zakończone | `ProvisionTenantAction` |
 
 ---
 

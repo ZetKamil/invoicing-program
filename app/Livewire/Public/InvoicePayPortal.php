@@ -3,6 +3,7 @@
 namespace App\Livewire\Public;
 
 use App\Models\Invoice;
+use App\Services\MollieService;
 use App\Services\StripeService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -65,27 +66,43 @@ class InvoicePayPortal extends Component
         }
     }
 
-    public function pay(StripeService $stripeService)
+    public function payMollie(MollieService $mollieService)
     {
-        // SERVER-SIDE RE-VERIFICATION: Re-fetch the invoice fresh from the database
-        // using the locked ID. This guarantees we always operate on the authoritative
-        // server state, not on any potentially stale or tampered browser snapshot.
-        //
-        // We use withoutGlobalScopes() because this is a PUBLIC portal — the customer
-        // accessing their invoice is not authenticated as a tenant user.
         $invoice = Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId);
 
-        // TENANT OWNERSHIP GUARD: Even though the ULID is locked, we add an explicit
-        // check to ensure the invoice belongs to a valid, active tenant.
-        // This is the "Defense in Depth" principle applied to the payment pipeline.
         if (! $invoice->tenant_id || ! $invoice->tenant) {
             abort(403, 'Invalid invoice access.');
         }
 
-        // Reload relationships for Stripe session metadata
+        $invoice->load(['tenant', 'customer', 'items']);
+        $payment = $mollieService->createPaymentForInvoice($invoice);
+
+        return redirect()->away($payment['checkout_url']);
+    }
+
+    public function payStripe(StripeService $stripeService)
+    {
+        $invoice = Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId);
+
+        if (! $invoice->tenant_id || ! $invoice->tenant) {
+            abort(403, 'Invalid invoice access.');
+        }
+
         $invoice->load(['tenant', 'customer', 'items']);
 
         return $stripeService->createCheckoutSessionForInvoice($invoice);
+    }
+
+    public function pay(MollieService $mollieService, StripeService $stripeService)
+    {
+        $invoice = Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId);
+        $primary = $invoice->tenant?->settings['payment_gateways']['primary_provider'] ?? 'mollie';
+
+        if ($primary === 'mollie' && $mollieService->isConfiguredForTenant($invoice->tenant)) {
+            return $this->payMollie($mollieService);
+        }
+
+        return $this->payStripe($stripeService);
     }
 
     public function downloadPdf(\App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction)

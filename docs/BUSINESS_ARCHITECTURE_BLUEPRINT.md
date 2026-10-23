@@ -55,13 +55,14 @@ graph LR
 | Parametr | 1. KMO-Flow Zelfbouwen | 2. Turnkey Business (Start/Pro) | 3. Scale Enterprise & ERP |
 |---|---|---|---|
 | **Profil Klienta** | Jednoosobowa działalność, fryzjerka, początkujący rzemieślnik | Standardowa firma (transport, instalator, hodowla, gabinet) | Średnia firma z flotą, handlem B2B i wymogami Peppol |
-| **Opłata Setup (Wdrożenie)** | **199 €** (15 min pracy szablonowej) | **1 000 € – 2 000 €** (wdrożenie w 1 wieczór) | **3 000 €+** (indywidualne integracje) |
+| **Opłata Setup (Wdrożenie)** | **199 €** (surowy szkielet wireframe) | **1 000 € – 2 000 €** (wdrożenie pod klucz w 1 wieczór) | **3 000 €+** (indywidualne integracje) |
 | **Abonament Miesięczny (MRR)** | **39 € / mies.** | **100 € – 200 € / mies.** | **350 € / mies.** |
-| **Kto buduje stronę?** | Klient sam w naszym Page Builderze | **Ziemkiewicz Digital (Gotowiec w 1 wieczór)** | Ziemkiewicz Digital + audyt procesów |
+| **Kto buduje stronę?** | Klient sam w naszym edytorze (Wireframe / Lorem Ipsum) | **Ziemkiewicz Digital (Gotowe teksty branżowe, zdjęcia, SEO pod miasto)** | Ziemkiewicz Digital + audyt procesów |
+| **Bramka Płatności** | Samodzielna konfiguracja | **Mollie Bancontact 1-klik + Stripe (Auto-Webhook)** | Dedykowane terminale / B2B Peppol |
 | **Katalog Produktów/Usług** | Do 15 pozycji | Bez limitu + kategoryzacja | Bez limitu + stany magazynowe / warianty |
 | **Autonomiczny Blog AI** | Opcjonalny add-on (+19 €/mc) | **W cenie (4–12 artykułów/mc)** | **W cenie (30 artykułów/mc + social snippets)** |
-| **Fakturowanie Peppol BIS 3.0** | Brak (lub proste PDF) | Podstawowe | **Pełne B2B Peppol UBL + KBO Lookup** |
-| **Wsparcie techniczne** | Baza wiedzy + płatne 45 €/h | Drobne korekty w cenie (do 30 min/mc) | Priorytetowe SLA 4h + dedykowany opiekun |
+| **Fakturowanie Peppol BIS 3.0** | Brak (lub proste PDF) | Podstawowe | **Oficjalna sieć Peppol AS4 Access Point (Belgijskie Prawo 2026)** |
+| **Wsparcie i SLA** | Samodzielna edycja 24/7 + Baza wiedzy + pomoc 75 €/h | Samodzielna edycja 24/7 + Asystent AI na WhatsAppie. Ręczne poprawki: 75 €/h | Priorytetowe SLA 4h + dedykowany opiekun |
 
 ---
 
@@ -248,4 +249,62 @@ Dla operacji o kluczowym znaczeniu (zmiana układu strony głównej, wystawienie
 * Agent przygotowuje stronę ze statusem `draft`.
 * W panelu Super-Admina pojawia się powiadomienie: *„Agent przygotował propozycję strony dla De Smet Transport. [Przejrzyj klocki i zatwierdź]”*.
 * Człowiek rzuca okiem, ewentualnie poprawia jeden detal i klika *Zatwierdź*.
+
+---
+
+## 11. Brutalna Weryfikacja: Załatanie 5 Kluczowych Zagrożeń Biznesowo-Technicznych
+
+Aby model biznesowy nie wywrócił się przy pierwszych klientach, wprowadzono twarde mechanizmy obronne na poziomie kodu i umów:
+
+```mermaid
+graph TD
+    subgraph 5_ZAGROZEN_I_LATY_ARCHITEKTONICZNE
+        Z1["1. Pułapka SSL domen zewnętrznych<br/>(Błąd NET::ERR_CERT)"] --> S1["Caddy On-Demand TLS + /caddy/check-domain<br/>lub Cloudflare for SaaS (100 domen free)"]
+        Z2["2. Prawo Peppol Belgia 2026<br/>(Sam plik XML to za mało)"] --> S2["AS4 Access Point API (Storecove/Digiteal)<br/>SendPeppolInvoiceAction za 0.15€/faktura"]
+        Z3["3. Wklejanie webhooków przez klienta<br/>(Pomyłki whsec_... paraliżujące płatności)"] --> S3["Mollie Bancontact (dynamiczny webhookUrl)<br/>+ Stripe autoRegisterWebhook() przez API"]
+        Z4["4. Kanibalizacja pakietu 1 000 € przez 199 €<br/>(Klienci wybierający najtańszy gotowiec)"] --> S4["Zelfbouwen dostaje surowy Wireframe<br/>Turnkey dostaje gotowe copy i SEO pod miasto"]
+        Z5["5. Pułapka '30 min/mc ręcznych poprawek'<br/>(30 klientów = 15h darmowej pracy)"] --> S5["Samodzielny panel + Asystent AI (WhatsApp)<br/>Ręczna praca wyceniona na 75 €/godz."]
+    end
+```
+
+### Szczegółowa specyfikacja wdrożonych rozwiązań:
+
+#### 1. Rozwiązanie SSL/DNS dla domen własnych (`custom_domain`)
+* **Problem:** Zwykły certyfikat serwera (`*.kamil.com`) wyświetla błąd `NET::ERR_CERT_COMMON_NAME_INVALID` na domenie klienta (np. `desmet-transport.be`).
+* **Rozwiązanie w kodzie:**
+  1. Kontroler [CaddyDomainCheckController.php](file:///c:/wamp64/www/facturatieprogramma/app/Http/Controllers/CaddyDomainCheckController.php) obsługuje endpoint `GET /caddy/check-domain?domain=...`.
+  2. Caddy Server z dyrektywą `on_demand_tls { ask http://localhost/caddy/check-domain }` w ułamku sekundy weryfikuje w bazie `tenants`, czy domena jest aktywna, i automatycznie wystawia darmowy certyfikat Let's Encrypt.
+  3. Zabezpiecza to serwer przed atakami SSL Certificate Exhaustion / DDoS.
+  4. Alternatywnie: Cloudflare for SaaS (Custom Hostnames) zapewnia darmowy SSL dla pierwszych 100 domen na brzegu sieci (Edge).
+
+#### 2. Oficjalna Sieć B2B Peppol BIS 3.0 via Access Point (AS4)
+* **Problem:** Od 1 stycznia 2026 r. w Belgii wysłanie faktury B2B mailem (PDF/XML) jest prawnie nieważne. Dokument musi przejść przez certyfikowany Peppol Access Point protokołem AS4 prosto do oprogramowania księgowego odbiorcy (Exact Online, Yuki, Octopus).
+* **Rozwiązanie w kodzie:**
+  1. Klasa [PeppolAccessPointService.php](file:///c:/wamp64/www/facturatieprogramma/app/Services/Peppol/PeppolAccessPointService.php) obsługuje sterowniki:
+     * `mock` (dla bezkosztowych testów lokalnych i automatycznych demo),
+     * `storecove` / `digiteal` / `billit` (deweloperskie API certyfikowanego Access Pointu za ~0.10 € – 0.25 € / dokument).
+  2. Akcja [SendPeppolInvoiceAction.php](file:///c:/wamp64/www/facturatieprogramma/app/Actions/Invoices/SendPeppolInvoiceAction.php) generuje UBL 2.1, przesyła go do Access Pointu, zapisuje `peppol_transmission_id` w tabeli `invoices` i rejestruje log audytowy w `communications`.
+  3. W tabeli faktur Filamenta dostępny jest przycisk *„Verzend via Peppol AS4 Netwerk”*.
+
+#### 3. Podwójna Bramka Płatności: Mollie (Bancontact) + Stripe
+* **Problem:** Nietechniczni klienci we Flandrii nie potrafią konfigurować endpointów webhooków w panelach deweloperskich ani kopiować kluczy `whsec_...`.
+* **Rozwiązanie w kodzie:**
+  1. **Mollie jako król Flandrii:** [MollieService.php](file:///c:/wamp64/www/facturatieprogramma/app/Services/MollieService.php) i [MollieWebhookController.php](file:///c:/wamp64/www/facturatieprogramma/app/Http/Controllers/MollieWebhookController.php). Wystarczy jeden klucz API (`live_...` lub `test_...`). URL webhooka (`route('mollie.webhook')`) przekazywany jest dynamicznie w kodzie PHP przy każdym żądaniu. Klient nie musi nic klikać w panelu Mollie!
+  2. **Automatyczny Webhook w Stripe:** [StripeService.php](file:///c:/wamp64/www/facturatieprogramma/app/Services/StripeService.php) zawiera metodę `autoRegisterWebhook()`, która po podaniu samego Secret Key rejestruje endpoint webhooka przez API Stripe.
+  3. **Portal Płatności `/pay/{invoice}`:** Klient może zapłacić bezpośrednio przez Bancontact / iDEAL (Mollie) lub kartę (Stripe).
+
+#### 4. Ochrona przed Kanibalizacją Pakietów (Wireframe vs. Turnkey)
+* **Problem:** Jeśli klient za 199 € dostanie ten sam gotowy szablon co klient za 1 000 €, 90% firm wybierze pakiet tani.
+* **Rozwiązanie w kodzie:**
+  1. W akcji [ProvisionTenantAction.php](file:///c:/wamp64/www/facturatieprogramma/app/Actions/Tenants/ProvisionTenantAction.php):
+     * Pakiet **Zelfbouwen (€199 setup / €39 mc):** Generuje surowy szkielet Wireframe z tekstami placeholderowymi (*„Uw slogan hier... Zelf bewerken”*), bez gotowego copywritingu i bez meta-tagów SEO.
+     * Pakiet **Turnkey Business (€1 000+ setup / €100–€200 mc):** Generuje bogaty szablon branżowy z gotowymi tekstami sprzedażowymi, lokalnym SEO pod miasto (np. Roeselare) i skonfigurowanymi płatnościami pod klucz.
+  2. Naturalny upsell: Gdy klient pakietu Zelfbouwen widzi pusty szkielet, klika w panelu: *„Zleć dopracowanie strony ekspertowi za 45 €/godz.”* lub przechodzi na pakiet Turnkey.
+
+#### 5. Ochrona Czasu Założyciela (Eliminacja pułapki darmowego SLA)
+* **Problem:** Obietnica „30 minut poprawek miesięcznie w cenie” przy 30 klientach zabiera 15 godzin w miesiącu i niszczy rentowność agencji.
+* **Rozwiązanie w umowie i SLA:**
+  1. W pakietach Start i Pro klient ma do dyspozycji: **Samodzielną edycję 24/7 przez panel** oraz **Asystenta AI** (wywołującego `BuildPageBlocksAction`).
+  2. Ręczna praca założyciela agencji jest zastrzeżona wyłącznie dla płatnych zleceń dodatkowych (**75 € / godz. netto**) lub pakietu Scale Enterprise (**350 € / mies.**).
+
 

@@ -57,6 +57,16 @@ Route::post('/webhook/stripe', [\App\Http\Controllers\StripeWebhookController::c
     ->middleware('throttle:stripe-webhooks')
     ->name('stripe.webhook');
 
+// Mollie Webhook Handler (Bancontact / iDEAL dynamic webhook)
+Route::post('/webhook/mollie', [\App\Http\Controllers\MollieWebhookController::class, 'handleWebhook'])
+    ->middleware('throttle:mollie-webhooks')
+    ->name('mollie.webhook');
+
+// Caddy On-Demand TLS Verification Endpoint
+// Caddy queries this endpoint before issuing an SSL certificate for custom_domain
+Route::get('/caddy/check-domain', [\App\Http\Controllers\CaddyDomainCheckController::class, 'check'])
+    ->name('caddy.check-domain');
+
 require __DIR__ . '/settings.php';
 
 // Custom Fallback for Impersonation Exit (Hijacking the package's broken native route)

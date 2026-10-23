@@ -41,6 +41,16 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'mollie' => [
+        'key' => env('MOLLIE_KEY', 'test_dummy_key'),
+    ],
+
+    'peppol' => [
+        'driver' => env('PEPPOL_ACCESS_POINT_DRIVER', 'mock'),
+        'api_key' => env('PEPPOL_API_KEY'),
+        'endpoint' => env('PEPPOL_API_ENDPOINT', 'https://api.peppol-accesspoint.eu/v1'),
+    ],
+
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
         'model'   => env('GEMINI_MODEL', 'gemini-3.5-flash'),

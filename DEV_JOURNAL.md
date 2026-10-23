@@ -1380,3 +1380,33 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 - **Exam Defense Tip:**
   "We unified the domain model to `Tenant` across all 7 policies, WebSocket broadcast channels, filament resources, and seeders. This eradicates cognitive overhead and aligns the application directly with our 3NF schema, while preserving Flemish Dutch UI labels for our business users and maintaining 100% test coverage across our multi-tenant isolation suite."
 - **Keywords to Learn:** `Ubiquitous Language`, `Domain Normalization`, `Multi-Tenancy 3NF`, `Defense-in-Depth Authorization`
+
+---
+
+## 2026-10-23: Phase 6.1 — Sparring Partner CEO Hardening & Payment Gateways
+
+### [2026-10-23] - Task: 5-Vector Threat Mitigation, Mollie Bancontact & Peppol AS4 Access Point
+- **Files Modified/Created:**
+  - `app/Services/MollieService.php` (NEW — Bancontact / iDEAL dynamic webhook engine)
+  - `app/Http/Controllers/MollieWebhookController.php` (NEW — Bancontact webhook handler)
+  - `app/Services/StripeService.php` (MODIFIED — added `autoRegisterWebhook()` API method)
+  - `app/Http/Controllers/CaddyDomainCheckController.php` (NEW — Caddy On-Demand TLS verification)
+  - `app/Services/Peppol/PeppolAccessPointService.php` (NEW — AS4 B2B European Access Point dispatch)
+  - `app/Actions/Invoices/SendPeppolInvoiceAction.php` (NEW — Certified AS4 document pipeline)
+  - `app/Actions/Tenants/ProvisionTenantAction.php` (MODIFIED — Anti-cannibalization Wireframe vs Turnkey engine)
+  - `app/Livewire/Public/InvoicePayPortal.php` & `resources/views/livewire/public/invoice-pay-portal.blade.php` (MODIFIED — Dual Bancontact & Card options)
+  - `app/Filament/Resources/Tenants/Schemas/TenantForm.php` & `InvoicesTable.php` (MODIFIED)
+  - `tests/Feature/MollieAndPeppolIntegrationTest.php` (NEW — 5/5 passing tests, total suite: 72 tests)
+- **Technical Logic:**
+  Implemented solutions for all 5 business-critical threats identified in the CEO sparring review:
+  1. *SSL/DNS for Custom Domains:* Caddy Server On-Demand TLS check endpoint (`GET /caddy/check-domain`) verifies active tenant custom domains, preventing certificate exhaustion attacks while generating Let's Encrypt certificates in 2 seconds.
+  2. *Peppol BIS 3.0 Belgian 2026 Mandate:* Implemented `PeppolAccessPointService` and `SendPeppolInvoiceAction` connecting to certified developer Access Point APIs (Storecove / Digiteal / Billit) via AS4 protocol for direct ERP delivery.
+  3. *Payment Setup for Non-Technical Clients:* Integrated Mollie with dynamic webhook parameters (`route('mollie.webhook')`), eliminating manual merchant configuration entirely. Implemented Stripe API automated webhook creation (`autoRegisterWebhook`).
+  4. *Anti-Cannibalization:* `ProvisionTenantAction` generates a raw Wireframe / Lorem Ipsum skeleton for the €199 Zelfbouwen plan, reserving tailored industry copy and local SEO for Turnkey (€1 000+).
+  5. *Founder Time Protection:* Replaced free manual support with 24/7 self-service panel and WhatsApp AI Assistant, pricing manual changes at €75/h netto.
+- **Senior Concept:**
+  **Operational Resiliency & Zero-Friction Merchant Onboarding.** Designing for small business owners requires reducing operational friction to zero. Dynamic webhooks (Mollie), API-driven self-provisioning (Stripe), and on-demand TLS (Caddy) convert complex dev-ops tasks into zero-touch background processes.
+- **Exam Defense Tip:**
+  "We addressed the real-world operational bottlenecks of B2B SaaS: we deployed Mollie with dynamic runtime webhooks to eliminate merchant setup errors, Caddy On-Demand TLS to automate SSL for customer domains securely, and an AS4 Peppol Access Point bridge to fulfill Belgian 2026 e-invoicing laws without manual overhead."
+- **Keywords to Learn:** `On-Demand TLS`, `AS4 Protocol`, `Dynamic Webhooks`, `Anti-Cannibalization Strategy`
+

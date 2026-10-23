@@ -10,6 +10,9 @@ namespace App\Enums;
  */
 enum TenantPlan: string
 {
+    /** Basic DIY self-builder package: catalog and blog only, blank layout. */
+    case ZELFBOUWEN = 'zelfbouwen';
+
     /** Basic package: catalog and blog only. ERP is disabled. */
     case START = 'start';
 
@@ -25,9 +28,10 @@ enum TenantPlan: string
     public function label(): string
     {
         return match($this) {
-            self::START => 'Start',
-            self::PRO   => 'Pro',
-            self::SCALE => 'Scale',
+            self::ZELFBOUWEN => 'Zelfbouwen (DIY)',
+            self::START      => 'Start',
+            self::PRO        => 'Pro',
+            self::SCALE      => 'Scale',
         };
     }
 
@@ -37,9 +41,10 @@ enum TenantPlan: string
     public function description(): string
     {
         return match($this) {
-            self::START => 'Productcatalogus + Blog. Geen ERP-module.',
-            self::PRO   => 'Catalogus + Blog + Facturatie en offertes.',
-            self::SCALE => 'Volledige toegang: ERP, Peppol UBL en geavanceerde rapportages.',
+            self::ZELFBOUWEN => 'Zelfbouw CMS (€199 setup). Wireframe layout voor zelfstandigen.',
+            self::START      => 'Productcatalogus + Blog. Geen ERP-module.',
+            self::PRO        => 'Catalogus + Blog + Facturatie en offertes.',
+            self::SCALE      => 'Volledige toegang: ERP, Peppol UBL en geavanceerde rapportages.',
         };
     }
 
@@ -50,8 +55,8 @@ enum TenantPlan: string
     public function hasErpAccess(): bool
     {
         return match($this) {
-            self::START => false,
-            self::PRO, self::SCALE => true,
+            self::ZELFBOUWEN, self::START => false,
+            self::PRO, self::SCALE        => true,
         };
     }
 }

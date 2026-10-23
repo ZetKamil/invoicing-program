@@ -91,9 +91,13 @@ return new class extends Migration
             $table->date('due_date')->nullable();
 
             $table->string('stripe_payment_intent_id', 100)->nullable()->index('idx_invoices_stripe_pi');
+            $table->string('payment_method', 50)->nullable();
+            $table->string('payment_reference', 100)->nullable();
             $table->string('payment_token', 100)->nullable()->unique('idx_invoices_payment_token');
             $table->timestamp('paid_at')->nullable();
             $table->string('status', 30)->default('draft');
+            $table->string('peppol_status', 50)->nullable()->default('draft');
+            $table->string('peppol_transmission_id', 150)->nullable();
             $table->timestamp('last_reminder_sent_at')->nullable();
 
             // Logistics & CMR

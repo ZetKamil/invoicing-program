@@ -46,25 +46,40 @@ class TenantForm
                             ->label('Stripe Abonnement ID'),
                     ])->columns(2),
 
-                Section::make('Betalingsgateways & Stripe Koppeling')
-                    ->description('Configureer de dedicated Stripe-sleutels van deze onderneming voor rechtstreekse Bancontact en kaartbetalingen.')
+                Section::make('Betalingsgateways (Mollie & Stripe Bancontact)')
+                    ->description('Koppel Mollie (aanbevolen voor Vlaanderen / Bancontact zonder webhook-configuratie) of Stripe.')
                     ->schema([
+                        Select::make('settings.payment_gateways.primary_provider')
+                            ->label('Standaard Betaalmethode')
+                            ->options([
+                                'mollie' => 'Mollie (Bancontact, iDEAL, KBC/CBC) — Aanbevolen',
+                                'stripe' => 'Stripe (Kredietkaart, Bancontact)',
+                            ])
+                            ->default('mollie')
+                            ->required(),
+                        TextInput::make('settings.payment_gateways.mollie.api_key')
+                            ->label('Mollie API Key (live_... of test_...)')
+                            ->password()
+                            ->revealable()
+                            ->placeholder('live_... of test_...')
+                            ->helperText('Slechts 1 sleutel vereist! Webhooks worden dynamisch in de code doorgestuurd.'),
                         TextInput::make('settings.payment_gateways.stripe.publishable_key')
                             ->label('Stripe Publishable Key (pk_...)')
                             ->placeholder('pk_live_... of pk_test_...')
-                            ->helperText('Publieke sleutel voor de browser checkout.'),
+                            ->helperText('Publieke sleutel voor browser checkout.'),
                         TextInput::make('settings.payment_gateways.stripe.secret_key')
                             ->label('Stripe Secret Key (sk_...)')
                             ->password()
                             ->revealable()
                             ->placeholder('sk_live_... of sk_test_...')
-                            ->helperText('Geheime API-sleutel van de klant.'),
+                            ->helperText('Geheime API-sleutel.'),
                         TextInput::make('settings.payment_gateways.stripe.webhook_secret')
                             ->label('Stripe Webhook Secret (whsec_...)')
                             ->password()
                             ->revealable()
-                            ->placeholder('whsec_...'),
-                    ])->columns(3),
+                            ->placeholder('Optioneel (auto-aangemaakt indien leeg)')
+                            ->helperText('Mag leeg blijven: KMO-Flow registreert de webhook automatisch via de Stripe API.'),
+                    ])->columns(2),
 
                 Section::make('Primary Administrator')
                     ->schema([

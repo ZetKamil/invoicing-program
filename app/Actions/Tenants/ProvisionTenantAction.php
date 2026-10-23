@@ -34,6 +34,14 @@ class ProvisionTenantAction
             $operatorUserId = $data['operator_user_id'] ?? null;
 
             // 1. Prepare Settings with encrypted payment credentials if provided
+            $stripeSecret = $data['stripe_secret_key'] ?? null;
+            $stripeWebhookSecret = $data['stripe_webhook_secret'] ?? null;
+
+            // Auto-register Stripe Webhook via Stripe API if secret is provided but webhook is empty
+            if (!empty($stripeSecret) && empty($stripeWebhookSecret)) {
+                $stripeWebhookSecret = app(\App\Services\StripeService::class)->autoRegisterWebhook($stripeSecret);
+            }
+
             $settings = [
                 'theme' => [
                     'primary_color' => $data['primary_color'] ?? '#2563eb',
@@ -47,9 +55,14 @@ class ProvisionTenantAction
                     },
                 ],
                 'payment_gateways' => [
+                    'primary_provider' => $data['primary_payment_provider'] ?? 'mollie',
+                    'mollie' => [
+                        'api_key' => !empty($data['mollie_api_key']) ? Crypt::encryptString($data['mollie_api_key']) : null,
+                    ],
                     'stripe' => [
-                        'secret_key' => !empty($data['stripe_secret_key']) ? Crypt::encryptString($data['stripe_secret_key']) : null,
+                        'secret_key' => !empty($stripeSecret) ? Crypt::encryptString($stripeSecret) : null,
                         'publishable_key' => !empty($data['stripe_publishable_key']) ? Crypt::encryptString($data['stripe_publishable_key']) : null,
+                        'webhook_secret' => !empty($stripeWebhookSecret) ? Crypt::encryptString($stripeWebhookSecret) : null,
                     ],
                 ],
             ];
@@ -120,8 +133,29 @@ class ProvisionTenantAction
                 'sort_order' => 0,
             ]);
 
-            // 6. Generate Default Homepage with Niche Blocks
-            $blocks = TemplateBlocks::getForNiche($niche, $tenant->name, $data['tagline'] ?? null);
+            // 6. Anti-Cannibalization Layout Generation:
+            // - For DIY / Zelfbouwen (€199 plan), generate a neutral Wireframe / Blank skeleton.
+            //   The merchant must populate their own copy, motivating upsell to Turnkey or expert copywriting add-on (€45/h).
+            // - For Turnkey / Pro / Scale (€1 000+ plan), generate rich Flemish sales copywriting and tailored industry blocks.
+            $isDiyZelfbouw = in_array(strtolower($plan), ['starter', 'zelfbouwen', 'diy']);
+
+            if ($isDiyZelfbouw) {
+                $blocks = TemplateBlocks::getBlankBlocks(
+                    $tenant->name,
+                    'Uw professionele slogan komt hier. Bewerk deze pagina via het dashboard.'
+                );
+                $seoMeta = [
+                    'meta_title' => $tenant->name,
+                    'meta_description' => 'Welkom op de officiële website van ' . $tenant->name,
+                ];
+            } else {
+                $blocks = TemplateBlocks::getForNiche($niche, $tenant->name, $data['tagline'] ?? null);
+                $seoMeta = [
+                    'meta_title' => $tenant->name . ' | Officiële Website',
+                    'meta_description' => $data['tagline'] ?? ($tenant->name . ' - Kwaliteit en betrouwbare service.'),
+                ];
+            }
+
             $homepage = Page::create([
                 'id' => (string) Str::ulid(),
                 'tenant_id' => $tenant->id,
@@ -130,10 +164,7 @@ class ProvisionTenantAction
                 'is_homepage' => true,
                 'is_published' => true,
                 'blocks' => $blocks,
-                'seo_meta' => [
-                    'meta_title' => $tenant->name . ' | Officiële Website',
-                    'meta_description' => $data['tagline'] ?? ($tenant->name . ' - Kwaliteit en betrouwbare service.'),
-                ],
+                'seo_meta' => $seoMeta,
             ]);
 
             // 7. Audit Log recording

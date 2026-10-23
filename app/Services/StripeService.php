@@ -88,4 +88,44 @@ class StripeService
 
         return redirect()->away($session->url);
     }
+
+    /**
+     * Automatically register a Stripe Webhook endpoint via Stripe API if not already present.
+     * Prevents non-technical clients from ever having to manually configure webhooks or copy whsec_...
+     *
+     * @param  string      $secretKey
+     * @param  string|null $targetUrl
+     * @return string|null The webhook secret (whsec_...) if created/resolved, or null on failure.
+     */
+    public function autoRegisterWebhook(string $secretKey, ?string $targetUrl = null): ?string
+    {
+        $url = $targetUrl ?: route('stripe.webhook');
+
+        try {
+            $stripe = new \Stripe\StripeClient($secretKey);
+            $existing = $stripe->webhookEndpoints->all(['limit' => 25]);
+
+            foreach ($existing->data as $endpoint) {
+                if ($endpoint->url === $url && $endpoint->status === 'enabled') {
+                    return $endpoint->secret ?? null;
+                }
+            }
+
+            $endpoint = $stripe->webhookEndpoints->create([
+                'url' => $url,
+                'enabled_events' => [
+                    'checkout.session.completed',
+                    'invoice.paid',
+                    'customer.subscription.updated',
+                    'customer.subscription.deleted',
+                ],
+                'description' => 'Automated KMO-Flow Invoicing Webhook',
+            ]);
+
+            return $endpoint->secret ?? null;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Stripe Auto-Webhook Registration skipped: ' . $e->getMessage());
+            return null;
+        }
+    }
 }
