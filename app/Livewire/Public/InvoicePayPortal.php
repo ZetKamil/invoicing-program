@@ -52,7 +52,7 @@ class InvoicePayPortal extends Component
                     ]);
                     
                     app(\App\Actions\Communications\LogCommunicationAction::class)->execute(
-                        $invoice->bedrijf_id,
+                        $invoice->tenant_id,
                         'Invoice Mark As Paid via Stripe (Sync Fallback)',
                         $invoice,
                         \App\Enums\CommType::SYSTEM,
@@ -72,18 +72,18 @@ class InvoicePayPortal extends Component
         // server state, not on any potentially stale or tampered browser snapshot.
         //
         // We use withoutGlobalScopes() because this is a PUBLIC portal — the customer
-        // accessing their invoice is not authenticated as a bedrijf user.
+        // accessing their invoice is not authenticated as a tenant user.
         $invoice = Invoice::withoutGlobalScopes()->findOrFail($this->invoiceId);
 
-        // BEDRIJF OWNERSHIP GUARD: Even though the ULID is locked, we add an explicit
-        // check to ensure the invoice belongs to a valid, active bedrijf.
+        // TENANT OWNERSHIP GUARD: Even though the ULID is locked, we add an explicit
+        // check to ensure the invoice belongs to a valid, active tenant.
         // This is the "Defense in Depth" principle applied to the payment pipeline.
-        if (! $invoice->bedrijf_id || ! $invoice->bedrijf) {
+        if (! $invoice->tenant_id || ! $invoice->tenant) {
             abort(403, 'Invalid invoice access.');
         }
 
         // Reload relationships for Stripe session metadata
-        $invoice->load(['bedrijf', 'customer', 'items']);
+        $invoice->load(['tenant', 'customer', 'items']);
 
         return $stripeService->createCheckoutSessionForInvoice($invoice);
     }
@@ -95,10 +95,14 @@ class InvoicePayPortal extends Component
         // Use the action to generate or get the HTML/PDF content
         // Alternatively, since the action saves it to storage:
         $filename = "invoice-{$invoice->invoice_number}.pdf";
-        $pdfPath = "bedrijven/{$invoice->bedrijf_id}/invoices/{$filename}";
+        $pdfPath = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
 
         if (!\Illuminate\Support\Facades\Storage::exists($pdfPath)) {
-            // If it doesn't exist yet, we can try to generate it, or just return an error
+            // Also check legacy path
+            $legacyPath = "bedrijven/{$invoice->tenant_id}/invoices/{$filename}";
+            if (\Illuminate\Support\Facades\Storage::exists($legacyPath)) {
+                return \Illuminate\Support\Facades\Storage::download($legacyPath, $filename);
+            }
             try {
                 $generatePdfAction->execute($invoice);
             } catch (\Exception $e) {
@@ -117,7 +121,7 @@ class InvoicePayPortal extends Component
     {
         // Re-fetch fresh data on every render — never trust stale hydrated model state.
         $invoice = Invoice::withoutGlobalScopes()
-            ->with(['bedrijf', 'customer', 'items'])
+            ->with(['tenant', 'customer', 'items'])
             ->findOrFail($this->invoiceId);
 
         return view('livewire.public.invoice-pay-portal', [

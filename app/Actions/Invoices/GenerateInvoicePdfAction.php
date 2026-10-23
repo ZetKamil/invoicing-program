@@ -31,12 +31,12 @@ class GenerateInvoicePdfAction
     public function execute(Invoice $invoice): Invoice
     {
         // Load all relationships needed for rendering both documents.
-        $invoice->load(['bedrijf', 'customer', 'items']);
+        $invoice->load(['tenant', 'customer', 'items']);
 
         // --- PDF Generation (always succeeds or throws non-UBL exception) ---
         $html     = View::make('invoices.pdf', compact('invoice'))->render();
         $filename = $invoice->invoice_number . '_' . time() . '.html';
-        $pdfPath  = "bedrijven/{$invoice->bedrijf_id}/invoices/{$filename}";
+        $pdfPath  = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
         Storage::put($pdfPath, $html);
 
         // --- UBL 2.1 XML Generation (independent — failures are recoverable) ---

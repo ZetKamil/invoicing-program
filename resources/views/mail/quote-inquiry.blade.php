@@ -14,7 +14,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>{{ $quote->bedrijf->name }}</h2>
+            <h2>{{ $quote->tenant->name ?? $quote->bedrijf->name }}</h2>
         </div>
         
         <p>Beste {{ $quote->customer->contact_person ?? $quote->customer->company_name }},</p>
@@ -34,7 +34,7 @@
 
         
         <div class="footer">
-            &copy; {{ date('Y') }} {{ $quote->bedrijf->name }}. Alle rechten voorbehouden.<br>
+            &copy; {{ date('Y') }} {{ $quote->tenant->name ?? $quote->bedrijf->name }}. Alle rechten voorbehouden.<br>
             Dit is een automatisch gegenereerd bericht, gelieve hier niet direct op te antwoorden.
         </div>
     </div>

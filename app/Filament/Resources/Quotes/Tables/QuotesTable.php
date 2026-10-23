@@ -49,7 +49,7 @@ class QuotesTable
                         ->requiresConfirmation()
                         ->visible(fn (\App\Models\Quote $record) => in_array($record->status, [\App\Enums\QuoteStatus::SENT, \App\Enums\QuoteStatus::ACCEPTED]))
                         ->action(function (\App\Models\Quote $record, \App\Actions\Invoices\CreateInvoiceFromQuoteAction $createInvoiceAction, \App\Actions\Invoices\GenerateInvoicePdfAction $generatePdfAction) {
-                            if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
+                            if ($record->tenant_id !== auth()->user()->tenant_id && !auth()->user()->is_super_admin) {
                                 abort(403, 'Ongeautoriseerde actie.');
                             }
 
@@ -75,7 +75,7 @@ class QuotesTable
                         ->color('primary')
                         ->requiresConfirmation()
                         ->action(function (\App\Models\Quote $record, \App\Actions\Communications\LogCommunicationAction $logCommunicationAction) {
-                            if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
+                            if ($record->tenant_id !== auth()->user()->tenant_id && !auth()->user()->is_super_admin) {
                                 abort(403, 'Ongeautoriseerde actie.');
                             }
         
@@ -86,10 +86,10 @@ class QuotesTable
         
                             \Illuminate\Support\Facades\Mail::to($record->customer->email)->queue(new \App\Mail\QuoteInquiryMail($record));
         
-                            $subject = 'Uw offerte van ' . $record->bedrijf->name;
+                            $subject = 'Uw offerte van ' . ($record->tenant->name ?? 'ons bedrijf');
                             $body = 'Automatisch systeembericht verzonden naar ' . $record->customer->email . ' met de offerte.';
-                            $logCommunicationAction->execute($record->bedrijf_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
-        
+                            $logCommunicationAction->execute($record->tenant_id, $subject, $record, \App\Enums\CommType::EMAIL, $body);
+
                             $record->update(['status' => \App\Enums\QuoteStatus::SENT]);
         
                             \Filament\Notifications\Notification::make()

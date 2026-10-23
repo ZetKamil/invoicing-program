@@ -6,7 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lead;
 use App\Models\Product;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Enums\ProductType;
 use App\Enums\InvoiceStatus;
@@ -19,10 +19,10 @@ class BillingEngineTest extends TestCase
 
     public function test_can_create_product_with_ulid()
     {
-        $bedrijf = Bedrijf::factory()->create();
+        $tenant = Tenant::factory()->create();
         
         $product = Product::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'name' => 'Transport Service',
             'description' => 'Pallet transport',
             'price' => 500.00,
@@ -41,18 +41,18 @@ class BillingEngineTest extends TestCase
 
     public function test_invoice_totals_are_calculated_by_observer()
     {
-        $bedrijf = Bedrijf::factory()->create();
+        $tenant = Tenant::factory()->create();
         $product = Product::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'name' => 'Pallet Transport',
             'price' => 100.00,
             'type' => ProductType::SERVICE,
         ]);
 
-        $user = User::factory()->create(['bedrijf_id' => $bedrijf->id]);
+        $user = User::factory()->create(['tenant_id' => $tenant->id]);
         
         $invoice = Invoice::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'customer_type' => User::class,
             'customer_id' => $user->id,
             'invoice_number' => 'INV-001',
@@ -83,17 +83,17 @@ class BillingEngineTest extends TestCase
 
     public function test_invoice_can_belong_to_customer_or_user()
     {
-        $bedrijf = Bedrijf::factory()->create();
+        $tenant = Tenant::factory()->create();
         
-        $user = User::factory()->create(['bedrijf_id' => $bedrijf->id]);
+        $user = User::factory()->create(['tenant_id' => $tenant->id]);
         $customer = \App\Models\Customer::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'company_name' => 'Test Corp',
             'contact_person' => 'John Doe',
         ]);
 
         $invoiceUser = Invoice::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'customer_type' => User::class,
             'customer_id' => $user->id,
             'invoice_number' => 'INV-USER',
@@ -101,7 +101,7 @@ class BillingEngineTest extends TestCase
         ]);
 
         $invoiceCustomer = Invoice::create([
-            'bedrijf_id' => $bedrijf->id,
+            'tenant_id' => $tenant->id,
             'customer_type' => \App\Models\Customer::class,
             'customer_id' => $customer->id,
             'invoice_number' => 'INV-CUSTOMER',

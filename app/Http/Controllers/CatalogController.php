@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\CatalogItemStatus;
 use App\Enums\CategoryType;
-use App\Models\Bedrijf;
 use App\Models\CatalogItem;
 use App\Models\Category;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,15 +17,16 @@ class CatalogController extends Controller
      */
     public function index(Request $request): View
     {
-        $bedrijf = Bedrijf::where('custom_domain', $request->getHost())->first() ?? Bedrijf::first();
+        $tenant = Tenant::where('custom_domain', $request->getHost())->first() ?? Tenant::first();
+        $bedrijf = $tenant;
 
         $query = CatalogItem::query()
             ->with('category')
             ->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED])
             ->latest();
 
-        if ($bedrijf) {
-            $query->where('tenant_id', $bedrijf->id);
+        if ($tenant) {
+            $query->where('tenant_id', $tenant->id);
         }
 
         $activeCategory = null;
@@ -44,12 +45,12 @@ class CatalogController extends Controller
 
         $categories = Category::query()
             ->where('type', CategoryType::CATALOG)
-            ->when($bedrijf, fn ($q) => $q->where('tenant_id', $bedrijf->id))
+            ->when($tenant, fn ($q) => $q->where('tenant_id', $tenant->id))
             ->whereHas('catalogItems', fn ($q) => $q->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED]))
             ->withCount(['catalogItems' => fn ($q) => $q->whereIn('status', [CatalogItemStatus::AVAILABLE, CatalogItemStatus::RESERVED])])
             ->get();
 
-        return view('pages.catalog.index', compact('items', 'categories', 'activeCategory', 'bedrijf'));
+        return view('pages.catalog.index', compact('items', 'categories', 'activeCategory', 'tenant', 'bedrijf'));
     }
 
     /**

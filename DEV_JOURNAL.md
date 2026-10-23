@@ -1357,3 +1357,26 @@ Implemented a dynamic subscription-based Feature Flagging engine. The visibility
 - **Senior Concept:** Event-Driven Architecture & Entity Segregation. Leads represent inbound Data Capture (Events), while Customers represent long-term B2B Relationships (Entities). By auto-provisioning Customers from Leads via Model Events, we maintain a clean Domain-Driven Design (DDD) where dispatchers don't have to manually 'convert' or type data twice.
 - **Exam Defense Tip:** "We implemented Event-Driven Auto-Provisioning. When a web form (Data Capture) hits the database, a Model Observer fires instantly to allocate a strict Customer profile in the background. This segregates our Sales Pipeline (Leads) from our Financial Ledger (Customers) without creating extra manual work for dispatchers."
 - **Keywords to Learn:** `Auto-Provisioning`, `Model Events`, `Entity Segregation`
+
+---
+
+## 2026-10-23: Phase 6 — Full Migration to Pure Tenant Domain Architecture
+
+### [2026-10-23] - Task: Comprehensive Codebase Migration to Tenants / Tenant Domain
+- **Files Modified:**
+  - `app/Policies/*` (Invoice, InvoiceItem, Quote, QuoteItem, Product, Post, Lead)
+  - `app/Actions/*` (Leads, Invoices, Communications, Blog)
+  - `app/Events/*` & `routes/channels.php` (Private Reverb WebSockets channels)
+  - `app/Filament/Resources/Tenants/*` & `app/Filament/Widgets/LiveLeadNotificationWidget.php`
+  - `app/Http/Controllers/*` (CatalogController, BlogController, ImpersonationController)
+  - `app/Jobs/ProcessStripeWebhookJob.php` & `app/Services/StripeService.php`
+  - `app/Livewire/TenantSwitcher.php` & `resources/views/livewire/tenant-switcher.blade.php`
+  - `database/factories/*` & `database/seeders/*` (100% Tenant-driven)
+  - `tests/Feature/*` (Full test suite of 67 tests passing green)
+- **Technical Logic:**
+  Unified the application layer domain model to pure `Tenant` (`tenants`, `tenant_id`, `Tenant::class`), aligning with the 3NF database schema. Migrated all Eloquent relationships, policies, events, filament resources, and actions from the transitional `Bedrijf` model to `Tenant`. Maintained thin backward-compatibility aliases (`Bedrijf` extending `Tenant`, `BedrijfResource` extending `TenantResource` with navigation registration disabled, and `$user->bedrijf` accessors) to guarantee zero downtime or legacy regression. Preserved Dutch UI labels (`Bedrijf`, `Bedrijven`, `Platformbeheer`) for Flemish business users.
+- **Senior Concept:**
+  **Domain-Driven Normalization & Ubiquitous Language for AI/WaaS Systems.** In multi-tenant SaaS and agentic workflows, domain models must follow an unambiguous ubiquitous language. By standardizing internal domain entities on `Tenant` while preserving locale-specific presentation labels (`Bedrijf`), we decouple international system architecture from localized end-user interfaces.
+- **Exam Defense Tip:**
+  "We unified the domain model to `Tenant` across all 7 policies, WebSocket broadcast channels, filament resources, and seeders. This eradicates cognitive overhead and aligns the application directly with our 3NF schema, while preserving Flemish Dutch UI labels for our business users and maintaining 100% test coverage across our multi-tenant isolation suite."
+- **Keywords to Learn:** `Ubiquitous Language`, `Domain Normalization`, `Multi-Tenancy 3NF`, `Defense-in-Depth Authorization`

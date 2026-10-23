@@ -3,7 +3,7 @@
 use App\Enums\CatalogItemStatus;
 use App\Enums\CategoryType;
 use App\Enums\UserRole;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\CatalogItem;
 use App\Models\Category;
 use App\Models\User;
@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\Auth;
 uses(RefreshDatabase::class);
 
 test('category and catalog_item use ULIDs and cast enums and JSON correctly', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Koty z Mazowieckiej Szwajcarii',
         'slug' => 'koty-mazowsze',
     ]);
 
     $category = Category::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'type' => CategoryType::CATALOG,
         'name' => 'Koty Hodowlane',
         'slug' => 'koty-hodowlane',
@@ -27,10 +27,10 @@ test('category and catalog_item use ULIDs and cast enums and JSON correctly', fu
 
     expect(strlen($category->id))->toBe(26) // ULID length
         ->and($category->type)->toBe(CategoryType::CATALOG)
-        ->and($category->bedrijf_id)->toBe($bedrijf->id);
+        ->and($category->tenant_id)->toBe($tenant->id);
 
     $item = CatalogItem::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'category_id' => $category->id,
         'name' => 'Apollo',
         'slug' => 'apollo',
@@ -54,11 +54,11 @@ test('category and catalog_item use ULIDs and cast enums and JSON correctly', fu
 });
 
 test('categories and catalog_items are scoped to the authenticated tenant', function () {
-    $bedrijf1 = Bedrijf::create(['name' => 'Tenant 1', 'slug' => 't1']);
-    $bedrijf2 = Bedrijf::create(['name' => 'Tenant 2', 'slug' => 't2']);
+    $tenant1 = Tenant::create(['name' => 'Tenant 1', 'slug' => 't1']);
+    $tenant2 = Tenant::create(['name' => 'Tenant 2', 'slug' => 't2']);
 
     $user1 = User::create([
-        'bedrijf_id' => $bedrijf1->id,
+        'tenant_id' => $tenant1->id,
         'name' => 'Tenant 1 User',
         'email' => 't1@example.com',
         'password' => bcrypt('secret'),
@@ -66,7 +66,7 @@ test('categories and catalog_items are scoped to the authenticated tenant', func
     ]);
 
     $user2 = User::create([
-        'bedrijf_id' => $bedrijf2->id,
+        'tenant_id' => $tenant2->id,
         'name' => 'Tenant 2 User',
         'email' => 't2@example.com',
         'password' => bcrypt('secret'),
@@ -74,28 +74,28 @@ test('categories and catalog_items are scoped to the authenticated tenant', func
     ]);
 
     Category::create([
-        'bedrijf_id' => $bedrijf1->id,
+        'tenant_id' => $tenant1->id,
         'type' => CategoryType::CATALOG,
         'name' => 'Koty B1',
         'slug' => 'koty-b1',
     ]);
 
     Category::create([
-        'bedrijf_id' => $bedrijf2->id,
+        'tenant_id' => $tenant2->id,
         'type' => CategoryType::CATALOG,
         'name' => 'Psy B2',
         'slug' => 'psy-b2',
     ]);
 
     CatalogItem::create([
-        'bedrijf_id' => $bedrijf1->id,
+        'tenant_id' => $tenant1->id,
         'name' => 'Kot 1',
         'slug' => 'kot-1',
         'status' => CatalogItemStatus::AVAILABLE,
     ]);
 
     CatalogItem::create([
-        'bedrijf_id' => $bedrijf2->id,
+        'tenant_id' => $tenant2->id,
         'name' => 'Pies 2',
         'slug' => 'pies-2',
         'status' => CatalogItemStatus::AVAILABLE,

@@ -20,7 +20,7 @@ class EditInvoice extends EditRecord
                 ->action(function (\App\Models\Invoice $record) {
                     // Generowanie widoku faktury "w locie"
                     $html = \Illuminate\Support\Facades\View::make('invoices.pdf', [
-                        'invoice' => $record->load(['bedrijf', 'customer', 'items'])
+                        'invoice' => $record->load(['tenant', 'customer', 'items'])
                     ])->render();
 
                     return response()->streamDownload(function () use ($html) {

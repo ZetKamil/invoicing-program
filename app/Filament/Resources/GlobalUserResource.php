@@ -41,7 +41,7 @@ class GlobalUserResource extends Resource
             ->columns([
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
-                TextColumn::make('bedrijf.name')->label('Bedrijf')->searchable(),
+                TextColumn::make('tenants.name')->label('Bedrijf')->badge()->searchable(),
                 TextColumn::make('role')->badge(),
             ])
             ->filters([])

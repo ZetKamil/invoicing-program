@@ -6,7 +6,7 @@ use App\Enums\PostStatus;
 use App\Enums\TenantPlan;
 use App\Enums\UserRole;
 use App\Filament\Resources\Posts\Pages\ListPosts;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
@@ -19,14 +19,15 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->bedrijf = Bedrijf::create([
+    $this->tenant = Tenant::create([
         'name' => 'Katten & Transport B.V.',
         'slug' => 'katten-transport',
         'plan' => TenantPlan::START,
     ]);
+    $this->bedrijf = $this->tenant; // compatibility
 
     $this->user = User::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'name'       => 'Admin Tester',
         'email'      => 'admin.tester@example.com',
         'password'   => bcrypt('password'),
@@ -94,7 +95,7 @@ test('generate blog post with ai action creates draft post with structured secti
     Config::set('services.gemini.api_key', 'test-fake-gemini-key');
 
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Verzorging',
         'slug'       => 'verzorging',
@@ -139,7 +140,7 @@ test('generate blog post with ai action creates draft post with structured secti
         topic: 'Vaccinatieschema voor kittens',
         categoryId: $category->id,
         tone: 'expert',
-        bedrijfId: $this->bedrijf->id,
+        tenantId: $this->tenant->id,
         userId: $this->user->id,
     );
 
@@ -149,7 +150,7 @@ test('generate blog post with ai action creates draft post with structured secti
         ->and($post->status)->toBe(PostStatus::DRAFT)
         ->and($post->category_id)->toBe($category->id)
         ->and($post->user_id)->toBe($this->user->id)
-        ->and($post->bedrijf_id)->toBe($this->bedrijf->id)
+        ->and($post->tenant_id)->toBe($this->tenant->id)
         ->and(count($post->sections))->toBe(2)
         ->and($post->sections[0]['heading'])->toBe('Eerste inenting op 9 weken');
 
@@ -165,7 +166,7 @@ test('filament posts list has generate with ai action that creates post and redi
     Config::set('services.gemini.api_key', 'test-fake-gemini-key');
 
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Gezondheid',
         'slug'       => 'gezondheid',

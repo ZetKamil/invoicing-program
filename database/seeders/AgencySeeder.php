@@ -3,10 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AgencySeeder extends Seeder
 {
@@ -15,28 +16,45 @@ class AgencySeeder extends Seeder
      */
     public function run(): void
     {
-        $bedrijf = Bedrijf::create([
-            'name' => 'Logi-Web PRO',
-            'slug' => 'logi-web-pro',
-            'settings' => [
-                'theme' => 'dark',
-                'package' => 'agency',
-            ],
-        ]);
+        $tenant = Tenant::firstOrCreate(
+            ['slug' => 'logi-web-pro'],
+            [
+                'name' => 'Logi-Web PRO',
+                'status' => 'active',
+                'settings' => [
+                    'theme' => 'dark',
+                    'package' => 'agency',
+                ],
+            ]
+        );
 
-        User::create([
-            'bedrijf_id' => $bedrijf->id,
-            'name' => 'Admin Logi-Web',
-            'email' => 'admin@logiweb.pro',
-            'password' => Hash::make('password'),
-            'role' => UserRole::ADMIN,
-        ]);
-                User::create([
-            'bedrijf_id' => $bedrijf->id,
-            'name' => 'Admin Logi-Web',
-            'email' => 'kamil@test.com',
-            'password' => Hash::make('password'),
-            'role' => UserRole::ADMIN,
+        $user1 = User::firstOrCreate(
+            ['email' => 'admin@logiweb.pro'],
+            [
+                'name' => 'Admin Logi-Web',
+                'password' => Hash::make('password'),
+                'is_super_admin' => true,
+            ]
+        );
+
+        $user2 = User::firstOrCreate(
+            ['email' => 'kamil@test.com'],
+            [
+                'name' => 'Admin Logi-Web',
+                'password' => Hash::make('password'),
+                'is_super_admin' => true,
+            ]
+        );
+
+        $tenant->users()->syncWithoutDetaching([
+            $user1->id => [
+                'id' => (string) Str::ulid(),
+                'role' => 'owner',
+            ],
+            $user2->id => [
+                'id' => (string) Str::ulid(),
+                'role' => 'admin',
+            ],
         ]);
     }
 }

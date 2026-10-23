@@ -54,10 +54,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
             ])
-            // Inject the bedrijf switcher dropdown just before the user avatar menu
+            // Inject the tenant switcher dropdown just before the user avatar menu
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn(): string => Blade::render('@livewire("bedrijf-switcher")')
+                fn(): string => Blade::render('@livewire("tenant-switcher")')
             )
             ->middleware([
                 EncryptCookies::class,

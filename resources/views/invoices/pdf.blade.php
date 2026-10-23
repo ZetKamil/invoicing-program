@@ -26,8 +26,8 @@
 <body>
     <div class="header">
         <div>
-            <h2>{{ $invoice->bedrijf->name ?? 'Logistics Agency' }}</h2>
-            <p>123 Business Road<br>City, Country<br>VAT: BE0123456789</p>
+            <h2>{{ $invoice->tenant->name ?? $invoice->bedrijf->name ?? 'Logistics Agency' }}</h2>
+            <p>123 Business Road<br>City, Country<br>VAT: {{ $invoice->tenant->vat_number ?? 'BE0123456789' }}</p>
         </div>
         <div class="invoice-details">
             <h1>INVOICE</h1>

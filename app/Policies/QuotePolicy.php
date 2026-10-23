@@ -21,7 +21,7 @@ class QuotePolicy
      */
     public function view(User $user, Quote $quote): bool
     {
-        return $user->bedrijf_id === $quote->bedrijf_id;
+        return $user->is_super_admin || $user->tenant_id === $quote->tenant_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class QuotePolicy
      */
     public function update(User $user, Quote $quote): bool
     {
-        return $user->bedrijf_id === $quote->bedrijf_id;
+        return $user->is_super_admin || $user->tenant_id === $quote->tenant_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class QuotePolicy
      */
     public function delete(User $user, Quote $quote): bool
     {
-        return $user->bedrijf_id === $quote->bedrijf_id;
+        return $user->is_super_admin || $user->tenant_id === $quote->tenant_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class QuotePolicy
      */
     public function restore(User $user, Quote $quote): bool
     {
-        return $user->bedrijf_id === $quote->bedrijf_id;
+        return $user->is_super_admin || $user->tenant_id === $quote->tenant_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class QuotePolicy
      */
     public function forceDelete(User $user, Quote $quote): bool
     {
-        return $user->bedrijf_id === $quote->bedrijf_id;
+        return $user->is_super_admin || $user->tenant_id === $quote->tenant_id;
     }
 }

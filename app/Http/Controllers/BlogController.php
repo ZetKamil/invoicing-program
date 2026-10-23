@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\CategoryType;
 use App\Enums\PostStatus;
-use App\Models\Bedrijf;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,15 +17,16 @@ class BlogController extends Controller
      */
     public function index(Request $request): View
     {
-        $bedrijf = Bedrijf::where('custom_domain', $request->getHost())->first() ?? Bedrijf::first();
+        $tenant = Tenant::where('custom_domain', $request->getHost())->first() ?? Tenant::first();
+        $bedrijf = $tenant;
 
         $query = Post::query()
             ->with(['category', 'user'])
             ->where('status', PostStatus::PUBLISHED)
             ->latest('published_at');
 
-        if ($bedrijf) {
-            $query->where('tenant_id', $bedrijf->id);
+        if ($tenant) {
+            $query->where('tenant_id', $tenant->id);
         }
 
         $activeCategory = null;
@@ -44,12 +45,12 @@ class BlogController extends Controller
 
         $categories = Category::query()
             ->where('type', CategoryType::POST)
-            ->when($bedrijf, fn ($q) => $q->where('tenant_id', $bedrijf->id))
+            ->when($tenant, fn ($q) => $q->where('tenant_id', $tenant->id))
             ->whereHas('posts', fn ($q) => $q->where('status', PostStatus::PUBLISHED))
             ->withCount(['posts' => fn ($q) => $q->where('status', PostStatus::PUBLISHED)])
             ->get();
 
-        return view('pages.blog.index', compact('posts', 'categories', 'activeCategory', 'bedrijf'));
+        return view('pages.blog.index', compact('posts', 'categories', 'activeCategory', 'tenant', 'bedrijf'));
     }
 
     /**

@@ -2,62 +2,20 @@
 
 namespace App\Filament\Resources\Bedrijven;
 
-use App\Filament\Resources\Bedrijven\Pages\CreateBedrijf;
-use App\Filament\Resources\Bedrijven\Pages\EditBedrijf;
-use App\Filament\Resources\Bedrijven\Pages\ListBedrijven;
-use App\Filament\Resources\Bedrijven\Schemas\BedrijfForm;
-use App\Filament\Resources\Bedrijven\Tables\BedrijvenTable;
-use App\Models\Bedrijf;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
+use App\Filament\Resources\Tenants\TenantResource;
 
-class BedrijfResource extends Resource
+/**
+ * Class BedrijfResource
+ *
+ * Backward-compatibility alias for TenantResource.
+ */
+class BedrijfResource extends TenantResource
 {
-    protected static ?string $model = Bedrijf::class;
-
-    protected static ?string $modelLabel = 'Bedrijf';
-    
-    protected static ?string $pluralModelLabel = 'Bedrijven';
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Platformbeheer';
-
-    protected static ?int $navigationSort = 1;
-
-    protected static ?string $recordTitleAttribute = 'name';
-
-    public static function canViewAny(): bool
+    /**
+     * Prevent duplicate navigation item since TenantResource is the authoritative resource.
+     */
+    public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->is_super_admin ?? false;
-    }
-
-    public static function form(Schema $schema): Schema
-    {
-        return BedrijfForm::configure($schema);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return BedrijvenTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => ListBedrijven::route('/'),
-            'create' => CreateBedrijf::route('/create'),
-            'edit' => EditBedrijf::route('/{record}/edit'),
-        ];
+        return false;
     }
 }

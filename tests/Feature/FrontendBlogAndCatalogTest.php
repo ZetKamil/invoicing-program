@@ -5,7 +5,7 @@ use App\Enums\CategoryType;
 use App\Enums\PostStatus;
 use App\Enums\TenantPlan;
 use App\Enums\UserRole;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\CatalogItem;
 use App\Models\Category;
 use App\Models\Post;
@@ -15,14 +15,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->bedrijf = Bedrijf::create([
+    $this->tenant = Tenant::create([
         'name' => 'Katten Cattery B.V.',
         'slug' => 'katten-cattery',
         'plan' => TenantPlan::START,
     ]);
+    $this->bedrijf = $this->tenant; // compatibility
 
     $this->user = User::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'name'       => 'Beheerder Sophie',
         'email'      => 'sophie@example.com',
         'password'   => bcrypt('secret'),
@@ -32,14 +33,14 @@ beforeEach(function () {
 
 test('guest can view published blog posts and filter by category on blog index', function () {
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Kattenverzorging',
         'slug'       => 'kattenverzorging',
     ]);
 
     $publishedPost = Post::create([
-        'bedrijf_id'   => $this->bedrijf->id,
+        'tenant_id'    => $this->tenant->id,
         'user_id'      => $this->user->id,
         'category_id'  => $category->id,
         'title'        => 'Gids voor voeding van kittens',
@@ -57,7 +58,7 @@ test('guest can view published blog posts and filter by category on blog index',
     ]);
 
     $draftPost = Post::create([
-        'bedrijf_id'   => $this->bedrijf->id,
+        'tenant_id'    => $this->tenant->id,
         'user_id'      => $this->user->id,
         'category_id'  => $category->id,
         'title'        => 'Geheim concept artikel',
@@ -79,14 +80,14 @@ test('guest can view published blog posts and filter by category on blog index',
 
 test('guest can view single blog post with structured sections, custom headings, and media', function () {
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Rasstandaard',
         'slug'       => 'rasstandaard',
     ]);
 
     $post = Post::create([
-        'bedrijf_id'   => $this->bedrijf->id,
+        'tenant_id'    => $this->tenant->id,
         'user_id'      => $this->user->id,
         'category_id'  => $category->id,
         'title'        => 'Karaktereigenschappen van de Bengaal',
@@ -122,7 +123,7 @@ test('guest can view single blog post with structured sections, custom headings,
 
 test('guest receives 404 for unpublished draft post', function () {
     $draftPost = Post::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'user_id'    => $this->user->id,
         'title'      => 'Nog niet klaar',
         'slug'       => 'nog-niet-klaar',
@@ -135,14 +136,14 @@ test('guest receives 404 for unpublished draft post', function () {
 
 test('guest can view catalog index with minor unit prices and dynamic attributes', function () {
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::CATALOG,
         'name'       => 'Beschikbare Kittens',
         'slug'       => 'beschikbare-kittens',
     ]);
 
     $availableItem = CatalogItem::create([
-        'bedrijf_id'   => $this->bedrijf->id,
+        'tenant_id'    => $this->tenant->id,
         'category_id'  => $category->id,
         'name'         => 'Bengaal Kitten Mila',
         'slug'         => 'bengaal-kitten-mila',
@@ -157,7 +158,7 @@ test('guest can view catalog index with minor unit prices and dynamic attributes
     ]);
 
     $hiddenItem = CatalogItem::create([
-        'bedrijf_id'  => $this->bedrijf->id,
+        'tenant_id'   => $this->tenant->id,
         'category_id' => $category->id,
         'name'        => 'Verborgen Item',
         'slug'        => 'verborgen-item',
@@ -176,14 +177,14 @@ test('guest can view catalog index with minor unit prices and dynamic attributes
 
 test('guest can view catalog item detail page with WhatsApp direct inquiry action', function () {
     $category = Category::create([
-        'bedrijf_id' => $this->bedrijf->id,
+        'tenant_id'  => $this->tenant->id,
         'type'       => CategoryType::CATALOG,
         'name'       => 'Dekkater',
         'slug'       => 'dekkater',
     ]);
 
     $item = CatalogItem::create([
-        'bedrijf_id'             => $this->bedrijf->id,
+        'tenant_id'              => $this->tenant->id,
         'category_id'            => $category->id,
         'name'                   => 'Kampioen Thor',
         'slug'                   => 'kampioen-thor',

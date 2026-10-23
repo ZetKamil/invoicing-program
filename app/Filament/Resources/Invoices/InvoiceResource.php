@@ -36,7 +36,7 @@ class InvoiceResource extends Resource
             return true;
         }
 
-        return $user->bedrijf?->hasErpAccess() ?? false;
+        return $user->tenant?->hasErpAccess() ?? false;
     }
 
     public static function form(Schema $schema): Schema

@@ -19,7 +19,7 @@ class EditLead extends EditRecord
                 ->color('success')
                 ->visible(fn (\App\Models\Lead $record) => in_array($record->status, [\App\Enums\LeadStatus::NEW, \App\Enums\LeadStatus::AUDITED]))
                 ->action(function (\App\Models\Lead $record, \App\Actions\Quotes\CreateQuoteAction $createQuoteAction) {
-                    if ($record->bedrijf_id !== auth()->user()->bedrijf_id) {
+                    if ($record->tenant_id !== auth()->user()->tenant_id && !auth()->user()->is_super_admin) {
                         abort(403, 'Ongeautoriseerde actie.');
                     }
 

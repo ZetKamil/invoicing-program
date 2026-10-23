@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\Invoices\GenerateUblXmlAction;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lead;
@@ -14,30 +14,20 @@ uses(RefreshDatabase::class);
 test('generate ubl action produces valid xml', function () {
     Storage::fake('local');
     
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Transport Co UBL', 
         'slug' => 'transport-co-ubl',
         'vat_number' => 'NL123456789B01',
-        'kvk_number' => '12345678',
-        'address' => 'Main St 1',
-        'city' => 'Amsterdam',
-        'zip_code' => '1000AA',
-        'country' => 'NL',
     ]);
 
     $lead = Lead::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'company_name' => 'Client Corp UBL',
         'contact_person' => 'Jane Doe',
-        'vat_number' => 'BE987654321',
-        'address' => 'South St 2',
-        'city' => 'Antwerp',
-        'zip_code' => '2000',
-        'country' => 'BE',
     ]);
 
     $invoice = Invoice::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_type' => Lead::class,
         'customer_id' => $lead->id,
         'invoice_number' => 'INV-UBL-001',
@@ -69,23 +59,20 @@ test('generate ubl action produces valid xml', function () {
 test('ubl xml handles reverse charge logic correctly', function () {
     Storage::fake('local');
     
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Transport Co RC', 
         'slug' => 'transport-co-rc',
         'vat_number' => 'NL123456789B01',
-        'country' => 'NL',
     ]);
 
     $lead = Lead::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'company_name' => 'Client Corp RC',
         'contact_person' => 'Jane Doe',
-        'vat_number' => 'BE987654321',
-        'country' => 'BE',
     ]);
 
     $invoice = Invoice::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_type' => Lead::class,
         'customer_id' => $lead->id,
         'invoice_number' => 'INV-RC-001',

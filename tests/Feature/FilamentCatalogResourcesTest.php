@@ -6,7 +6,7 @@ use App\Enums\TenantPlan;
 use App\Enums\UserRole;
 use App\Filament\Resources\CatalogItems\CatalogItemResource;
 use App\Filament\Resources\Categories\CategoryResource;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\CatalogItem;
 use App\Models\Category;
 use App\Models\User;
@@ -15,15 +15,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('authenticated user can view categories index page in filament', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Koci Dom',
         'slug' => 'koci-dom',
         'plan' => TenantPlan::START,
-        'stripe_subscription_status' => 'active',
+        'status' => 'active',
     ]);
 
     $user = User::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'name' => 'Admin Koci',
         'email' => 'koci@example.com',
         'password' => bcrypt('password'),
@@ -31,7 +31,7 @@ test('authenticated user can view categories index page in filament', function (
     ]);
 
     $category = Category::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'type' => CategoryType::CATALOG,
         'name' => 'Koty Hodowlane',
         'slug' => 'koty-hodowlane',
@@ -45,15 +45,15 @@ test('authenticated user can view categories index page in filament', function (
 });
 
 test('authenticated user can view catalog items index page in filament', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Hodowla Kotów',
         'slug' => 'hodowla-kotow',
         'plan' => TenantPlan::START,
-        'stripe_subscription_status' => 'active',
+        'status' => 'active',
     ]);
 
     $user = User::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'name' => 'Hodowca Jan',
         'email' => 'jan@example.com',
         'password' => bcrypt('password'),
@@ -61,7 +61,7 @@ test('authenticated user can view catalog items index page in filament', functio
     ]);
 
     $item = CatalogItem::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'name' => 'Kocur Apollo',
         'slug' => 'kocur-apollo',
         'status' => CatalogItemStatus::AVAILABLE,
@@ -81,15 +81,15 @@ test('authenticated user can view catalog items index page in filament', functio
 });
 
 test('authenticated user can access create pages for category and catalog item', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Firma Testowa',
         'slug' => 'firma-testowa',
         'plan' => TenantPlan::START,
-        'stripe_subscription_status' => 'active',
+        'status' => 'active',
     ]);
 
     $user = User::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'name' => 'Admin',
         'email' => 'admin@example.com',
         'password' => bcrypt('password'),

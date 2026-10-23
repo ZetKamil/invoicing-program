@@ -44,7 +44,7 @@ class LeadSubmittedEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * Uses a PRIVATE channel scoped to the bedrijf — prevents cross-bedrijf
+     * Uses a PRIVATE channel scoped to the tenant — prevents cross-tenant
      * data leakage via WebSocket subscriptions.
      *
      * @return array<Channel>
@@ -52,7 +52,7 @@ class LeadSubmittedEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('dispatcher.' . $this->lead->bedrijf_id),
+            new PrivateChannel('dispatcher.' . $this->lead->tenant_id),
         ];
     }
 

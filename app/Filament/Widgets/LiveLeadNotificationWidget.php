@@ -55,15 +55,15 @@ class LiveLeadNotificationWidget extends Widget
     /**
      * Listen for the real-time lead.submitted broadcast event.
      *
-     * The attribute name follows the Livewire 4 Echo naming convention:
+     * The attribute name follows the Livewire Echo naming convention:
      *   echo-private:{channelName},{eventName}
      *
-     * {bedrijfId} is resolved dynamically by Livewire from the authenticated user's
-     * bedrijf_id — preventing the dispatcher from subscribing to wrong channels.
+     * {tenant_id} is resolved dynamically by Livewire from the authenticated user's
+     * tenant_id — preventing the dispatcher from subscribing to wrong channels.
      *
      * @param  array<string, string> $data  The broadcastWith() payload from LeadSubmittedEvent
      */
-    #[On('echo-private:dispatcher.{bedrijf_id},lead.submitted')]
+    #[On('echo-private:dispatcher.{tenant_id},lead.submitted')]
     public function onLeadSubmitted(array $data): void
     {
         // Prepend to keep newest first, cap at 5 entries
@@ -88,12 +88,12 @@ class LiveLeadNotificationWidget extends Widget
     }
 
     /**
-     * Resolve the bedrijf_id for channel name substitution.
-     * Livewire replaces {bedrijf_id} in the #[On] attribute with this value.
+     * Resolve the tenant_id for channel name substitution.
+     * Livewire replaces {tenant_id} in the #[On] attribute with this value.
      */
-    public function getBedrijfIdProperty(): string
+    public function getTenantIdProperty(): string
     {
-        return auth()->user()?->bedrijf_id ?? '';
+        return auth()->user()?->tenant_id ?? '';
     }
 
     /**

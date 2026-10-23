@@ -25,7 +25,7 @@ class StripeService
         // bcmul('12345.67', '100', 0) = '1234567' (exact), then cast to int.
         $amountInCents = (int) bcmul((string) $invoice->total_amount, '100', 0);
         
-        $bedrijfName = $invoice->bedrijf->name ?? 'Logistics Provider';
+        $tenantName = $invoice->tenant->name ?? 'Logistics Provider';
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -33,7 +33,7 @@ class StripeService
                 'price_data' => [
                     'currency' => 'eur',
                     'product_data' => [
-                        'name' => 'Invoice ' . $invoice->invoice_number . ' from ' . $bedrijfName,
+                        'name' => 'Invoice ' . $invoice->invoice_number . ' from ' . $tenantName,
                         'description' => 'Payment for services rendered.',
                     ],
                     'unit_amount' => $amountInCents,
@@ -45,7 +45,8 @@ class StripeService
             'cancel_url' => route('invoice.pay', ['invoice' => $invoice->id]) . '?canceled=true',
             'metadata' => [
                 'invoice_id' => $invoice->id,
-                'bedrijf_id' => $invoice->bedrijf_id,
+                'tenant_id' => $invoice->tenant_id,
+                'bedrijf_id' => $invoice->tenant_id,
             ],
             'customer_email' => $invoice->customer->email ?? null,
         ]);
@@ -54,7 +55,7 @@ class StripeService
     }
 
     /**
-     * Create a Stripe Checkout Session for a new Bedrijf Subscription.
+     * Create a Stripe Checkout Session for a new Tenant Subscription.
      */
     public function createCheckoutSessionForSubscription(string $registrationId, string $plan)
     {

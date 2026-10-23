@@ -28,16 +28,16 @@ use Illuminate\Support\Facades\Broadcast;
  * This prevents a malicious authenticated user from subscribing to a
  * competitor bedrijf's notification channel by guessing their bedrijf ULID.
  */
-Broadcast::channel('dispatcher.{bedrijfId}', function ($user, string $bedrijfId) {
-    // Rule 1: The user must belong to the requested bedrijf.
-    if ($user->bedrijf_id !== $bedrijfId) {
+Broadcast::channel('dispatcher.{tenantId}', function ($user, string $tenantId) {
+    // Rule 1: The user must belong to the requested tenant.
+    if ($user->tenant_id !== $tenantId && ! $user->is_super_admin) {
         return false;
     }
 
-    // Rule 2: Only dispatchers and admins receive lead notifications.
-    // Regular users (e.g. read-only viewers) should not see incoming leads.
+    // Rule 2: Only dispatchers, owners and admins receive lead notifications.
     return in_array($user->role->value ?? $user->role, [
         \App\Enums\UserRole::ADMIN->value,
+        \App\Enums\UserRole::OWNER->value,
         \App\Enums\UserRole::DISPATCHER->value,
     ]);
 });

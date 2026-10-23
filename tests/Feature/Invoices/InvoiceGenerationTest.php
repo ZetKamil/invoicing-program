@@ -2,7 +2,7 @@
 
 use App\Actions\Invoices\CreateInvoiceFromQuoteAction;
 use App\Actions\Invoices\GenerateInvoicePdfAction;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\Lead;
 use App\Models\Quote;
 use App\Models\QuoteItem;
@@ -14,16 +14,16 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 test('create invoice from quote action transfers logistics fields correctly', function () {
-    $bedrijf = Bedrijf::create(['name' => 'Transport Co', 'slug' => 'transport-co']);
+    $tenant = Tenant::create(['name' => 'Transport Co', 'slug' => 'transport-co']);
     
     $customer = \App\Models\Customer::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'company_name' => 'Client Corp',
         'contact_person' => 'Jane Doe',
     ]);
 
     $quote = Quote::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_id' => $customer->id,
         'quote_number' => 'Q-123',
         'status' => QuoteStatus::ACCEPTED,
@@ -64,11 +64,11 @@ test('create invoice from quote action transfers logistics fields correctly', fu
 test('generate invoice pdf action works without throwing errors', function () {
     Storage::fake('public');
     
-    $bedrijf = Bedrijf::create(['name' => 'Transport Co', 'slug' => 'transport-co2']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client Corp', 'contact_person' => 'Jane Doe']);
+    $tenant = Tenant::create(['name' => 'Transport Co', 'slug' => 'transport-co2']);
+    $lead = Lead::create(['tenant_id' => $tenant->id, 'company_name' => 'Client Corp', 'contact_person' => 'Jane Doe']);
 
     $invoice = \App\Models\Invoice::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_type' => Lead::class,
         'customer_id' => $lead->id,
         'invoice_number' => 'INV-999',
@@ -80,7 +80,7 @@ test('generate invoice pdf action works without throwing errors', function () {
     $action = app(GenerateInvoicePdfAction::class);
     $action->execute($invoice);
 
-    $files = Storage::allFiles("bedrijven/{$bedrijf->id}/invoices");
+    $files = Storage::allFiles("tenants/{$tenant->id}/invoices");
     $htmlFile = collect($files)->first(fn($f) => str_ends_with($f, '.html'));
     expect($htmlFile)->not->toBeNull();
     

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Config;
 
 test('http responses include enterprise security headers', function () {

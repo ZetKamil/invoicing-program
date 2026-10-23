@@ -20,7 +20,7 @@ class GenerateBlogPostWithAiAction
      * @param string $topic Target subject or keyword.
      * @param string|null $categoryId Optional blog category ID.
      * @param string $tone Tone of voice ('professioneel', 'toegankelijk', 'expert').
-     * @param string|null $bedrijfId Optional tenant ID.
+     * @param string|null $tenantId Optional tenant ID.
      * @param string|null $userId Optional author ID.
      * @return Post The newly created draft post.
      */
@@ -28,7 +28,7 @@ class GenerateBlogPostWithAiAction
         string $topic,
         ?string $categoryId = null,
         string $tone = 'professioneel',
-        ?string $bedrijfId = null,
+        ?string $tenantId = null,
         ?string $userId = null
     ): Post {
         $categoryName = null;
@@ -43,19 +43,19 @@ class GenerateBlogPostWithAiAction
         $counter = 1;
 
         // Ensure unique slug within tenant
-        $targetBedrijfId = $bedrijfId ?? auth()->user()?->bedrijf_id;
-        while (Post::withoutGlobalScopes()->where('bedrijf_id', $targetBedrijfId)->where('slug', $slug)->exists()) {
+        $targetTenantId = $tenantId ?? auth()->user()?->tenant_id;
+        while (Post::withoutGlobalScopes()->where('tenant_id', $targetTenantId)->where('slug', $slug)->exists()) {
             $slug = "{$baseSlug}-{$counter}";
             $counter++;
         }
 
         $targetUserId = $userId 
             ?? auth()->id() 
-            ?? \App\Models\User::where('bedrijf_id', $targetBedrijfId)->first()?->id 
+            ?? \App\Models\User::where('tenant_id', $targetTenantId)->first()?->id 
             ?? \App\Models\User::first()?->id;
 
         return Post::create([
-            'bedrijf_id'   => $targetBedrijfId,
+            'tenant_id'    => $targetTenantId,
             'user_id'      => $targetUserId,
             'category_id'  => $categoryId,
             'title'        => $data['title'],

@@ -7,18 +7,18 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lead;
 use App\Models\Product;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 
 class InvoiceSeeder extends Seeder
 {
     public function run(): void
     {
-        $bedrijf = Bedrijf::where('slug', 'logi-web-pro')->first();
+        $tenant = Tenant::where('slug', 'logi-web-pro')->first();
 
-        if ($bedrijf) {
-            $leads = Lead::where('bedrijf_id', $bedrijf->id)->take(3)->get();
-            $products = Product::where('bedrijf_id', $bedrijf->id)->get();
+        if ($tenant) {
+            $leads = Lead::where('tenant_id', $tenant->id)->take(3)->get();
+            $products = Product::where('tenant_id', $tenant->id)->get();
 
             if ($leads->isEmpty() || $products->isEmpty()) {
                 return;
@@ -29,14 +29,14 @@ class InvoiceSeeder extends Seeder
                 $status = collect([InvoiceStatus::DRAFT, InvoiceStatus::SENT, InvoiceStatus::PAID])->random();
 
                 // Find the auto-provisioned Customer for this Lead
-                $customer = \App\Models\Customer::where('bedrijf_id', $bedrijf->id)
+                $customer = \App\Models\Customer::where('tenant_id', $tenant->id)
                     ->where(function($q) use ($lead) {
                         $q->where('email', $lead->email)
                           ->orWhere('company_name', $lead->company_name);
                     })->first();
                 
                 $invoice = Invoice::create([
-                    'bedrijf_id' => $bedrijf->id,
+                    'tenant_id' => $tenant->id,
                     'customer_type' => \App\Models\Customer::class,
                     'customer_id' => $customer ? $customer->id : null,
                     'invoice_number' => 'INV-2026-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),

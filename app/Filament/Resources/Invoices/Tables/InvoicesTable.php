@@ -121,7 +121,7 @@ class InvoicesTable
                         ->color('primary')
                         ->action(function (\App\Models\Invoice $record) {
                             $html = \Illuminate\Support\Facades\View::make('invoices.pdf', [
-                                'invoice' => $record->load(['bedrijf', 'customer', 'items'])
+                                'invoice' => $record->load(['tenant', 'customer', 'items'])
                             ])->render();
 
                             return response()->streamDownload(function () use ($html) {

@@ -20,6 +20,6 @@
     <p>Thank you for your business!</p>
     
     <p>Best regards,<br>
-    {{ $invoice->bedrijf->name }}</p>
+    {{ $invoice->tenant->name ?? $invoice->bedrijf->name }}</p>
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Resources\Bedrijven\BedrijfResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\WebsitePages\PageResource;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
-test('Super admin has exclusive access to Platformbeheer (BedrijfResource)', function () {
+test('Super admin has exclusive access to Platformbeheer (TenantResource)', function () {
     $superAdmin = User::create([
         'id' => (string) Str::ulid(),
         'name' => 'Kamil Super Admin',
@@ -32,11 +33,13 @@ test('Super admin has exclusive access to Platformbeheer (BedrijfResource)', fun
 
     // As Super Admin
     $this->actingAs($superAdmin);
-    expect(BedrijfResource::canViewAny())->toBeTrue();
+    expect(TenantResource::canViewAny())->toBeTrue()
+        ->and(BedrijfResource::canViewAny())->toBeTrue();
 
     // As Client Owner
     $this->actingAs($clientOwner);
-    expect(BedrijfResource::canViewAny())->toBeFalse();
+    expect(TenantResource::canViewAny())->toBeFalse()
+        ->and(BedrijfResource::canViewAny())->toBeFalse();
 });
 
 test('Tenant owner can access PageResource and InvoiceResource', function () {

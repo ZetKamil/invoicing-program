@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\Invoice;
 use App\Models\Lead;
 use App\Enums\InvoiceStatus;
@@ -13,11 +13,11 @@ test('invoice pay portal handles session_id fallback properly', function () {
     // We cannot easily mock the Stripe API call inside a Livewire component mount without complex setup, 
     // but we can ensure the portal renders correctly for a draft invoice.
     
-    $bedrijf = Bedrijf::create(['name' => 'Stripe Co', 'slug' => 'stripe-co']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client', 'contact_person' => 'Jane Doe']);
+    $tenant = Tenant::create(['name' => 'Stripe Co', 'slug' => 'stripe-co']);
+    $lead = Lead::create(['tenant_id' => $tenant->id, 'company_name' => 'Client', 'contact_person' => 'Jane Doe']);
     
     $invoice = Invoice::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_type' => Lead::class,
         'customer_id' => $lead->id,
         'invoice_number' => 'INV-STRIPE-001',
@@ -33,11 +33,11 @@ test('invoice pay portal handles session_id fallback properly', function () {
 });
 
 test('stripe webhook job marks invoice as paid', function () {
-    $bedrijf = Bedrijf::create(['name' => 'Stripe Co 2', 'slug' => 'stripe-co-2']);
-    $lead = Lead::create(['bedrijf_id' => $bedrijf->id, 'company_name' => 'Client 2', 'contact_person' => 'Jane Doe']);
+    $tenant = Tenant::create(['name' => 'Stripe Co 2', 'slug' => 'stripe-co-2']);
+    $lead = Lead::create(['tenant_id' => $tenant->id, 'company_name' => 'Client 2', 'contact_person' => 'Jane Doe']);
     
     $invoice = Invoice::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'customer_type' => Lead::class,
         'customer_id' => $lead->id,
         'invoice_number' => 'INV-WEBHOOK-001',

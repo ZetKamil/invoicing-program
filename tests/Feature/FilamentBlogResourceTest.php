@@ -5,7 +5,7 @@ use App\Enums\PostStatus;
 use App\Enums\TenantPlan;
 use App\Enums\UserRole;
 use App\Filament\Resources\Posts\PostResource;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
@@ -14,14 +14,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('post model stores structured sections JSON and belongs to a blog category', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name' => 'Katten Blog B.V.',
         'slug' => 'katten-blog',
         'plan' => TenantPlan::START,
     ]);
 
     $user = User::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'name' => 'Auteur Jan',
         'email' => 'jan.auteur@example.com',
         'password' => bcrypt('secret'),
@@ -29,14 +29,14 @@ test('post model stores structured sections JSON and belongs to a blog category'
     ]);
 
     $category = Category::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Verzorging & Gezondheid',
         'slug'       => 'verzorging-en-gezondheid',
     ]);
 
     $post = Post::create([
-        'bedrijf_id'   => $bedrijf->id,
+        'tenant_id'    => $tenant->id,
         'user_id'      => $user->id,
         'category_id'  => $category->id,
         'title'        => 'Gids voor de verzorging van kittens',
@@ -68,15 +68,15 @@ test('post model stores structured sections JSON and belongs to a blog category'
 });
 
 test('authenticated user can view posts index and create page in filament', function () {
-    $bedrijf = Bedrijf::create([
+    $tenant = Tenant::create([
         'name'                       => 'Test Bedrijf Blog',
         'slug'                       => 'test-bedrijf-blog',
         'plan'                       => TenantPlan::START,
-        'stripe_subscription_status' => 'active',
+        'status'                     => 'active',
     ]);
 
     $user = User::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id'  => $tenant->id,
         'name'       => 'Beheerder',
         'email'      => 'beheerder@example.com',
         'password'   => bcrypt('password'),
@@ -84,14 +84,14 @@ test('authenticated user can view posts index and create page in filament', func
     ]);
 
     $category = Category::create([
-        'bedrijf_id' => $bedrijf->id,
+        'tenant_id' => $tenant->id,
         'type'       => CategoryType::POST,
         'name'       => 'Tips & Tricks',
         'slug'       => 'tips-and-tricks',
     ]);
 
     $post = Post::create([
-        'bedrijf_id'   => $bedrijf->id,
+        'tenant_id'    => $tenant->id,
         'user_id'      => $user->id,
         'category_id'  => $category->id,
         'title'        => 'Introductie tot onze cattery',

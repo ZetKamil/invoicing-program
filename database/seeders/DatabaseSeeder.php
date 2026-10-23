@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Platform configuratie (De SaaS-eigenaar / SuperAdmin)
         $this->call([
-            BedrijfSeeder::class,
+            TenantSeeder::class,
             UserSeeder::class,
         ]);
 

@@ -31,7 +31,7 @@ class GenerateUblXmlAction
         // Ensure all required relationships are loaded before Blade rendering.
         // Missing relationships produce null values that render as 'UNKNOWN' in the XML,
         // which Peppol Access Points may reject as invalid party identifiers.
-        $invoice->loadMissing(['bedrijf', 'customer', 'items']);
+        $invoice->loadMissing(['tenant', 'customer', 'items']);
 
         // Step 1: Render the UBL Blade template into an XML string.
         $xml = View::make('invoices.ubl', compact('invoice'))->render();
@@ -59,9 +59,9 @@ class GenerateUblXmlAction
 
         libxml_clear_errors();
 
-        // Step 3: Write to bedrijf-isolated storage.
+        // Step 3: Write to tenant-isolated storage.
         $filename = $invoice->invoice_number . '.xml';
-        $path     = "bedrijven/{$invoice->bedrijf_id}/invoices/{$filename}";
+        $path     = "tenants/{$invoice->tenant_id}/invoices/{$filename}";
 
         try {
             Storage::put($path, trim($xml));

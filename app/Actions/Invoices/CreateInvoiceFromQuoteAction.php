@@ -28,7 +28,7 @@ class CreateInvoiceFromQuoteAction
             $totalAmount = bcadd($subtotal, $taxTotal, 2);
 
             $currentYear = date('Y');
-            $count = Invoice::where('bedrijf_id', $quote->bedrijf_id)
+            $count = Invoice::where('tenant_id', $quote->tenant_id)
                 ->whereYear('created_at', $currentYear)
                 ->count();
             
@@ -39,7 +39,7 @@ class CreateInvoiceFromQuoteAction
             $customer = $quote->customer;
 
             $invoice = Invoice::create([
-                'bedrijf_id'            => $quote->bedrijf_id,
+                'tenant_id'             => $quote->tenant_id,
                 'customer_type'         => get_class($customer),
                 'customer_id'           => $customer->id,
                 'quote_id'              => $quote->id,
@@ -75,7 +75,7 @@ class CreateInvoiceFromQuoteAction
                 }
             } else {
                 $product = \App\Models\Product::firstOrCreate(
-                    ['bedrijf_id' => $quote->bedrijf_id, 'name' => 'Custom Quote Service'],
+                    ['tenant_id' => $quote->tenant_id, 'name' => 'Custom Quote Service'],
                     ['description' => 'Generic service for quotes', 'price' => 0, 'type' => \App\Enums\ProductType::SERVICE]
                 );
 

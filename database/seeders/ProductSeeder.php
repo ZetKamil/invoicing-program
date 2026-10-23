@@ -4,18 +4,18 @@ namespace Database\Seeders;
 
 use App\Enums\ProductType;
 use App\Models\Product;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        $bedrijf = Bedrijf::where('slug', 'logi-web-pro')->first();
+        $tenant = Tenant::where('slug', 'logi-web-pro')->first();
 
-        if ($bedrijf) {
+        if ($tenant) {
             Product::create([
-                'bedrijf_id' => $bedrijf->id,
+                'tenant_id' => $tenant->id,
                 'name' => 'Webdesign: Basic Setup',
                 'description' => 'One-time setup for basic webdesign.',
                 'price' => 850.00,
@@ -24,7 +24,7 @@ class ProductSeeder extends Seeder
             ]);
 
             Product::create([
-                'bedrijf_id' => $bedrijf->id,
+                'tenant_id' => $tenant->id,
                 'name' => 'Webdesign: Pro Transport Edition',
                 'description' => 'One-time setup with mini-CRM for logistics.',
                 'price' => 2450.00,
@@ -33,7 +33,7 @@ class ProductSeeder extends Seeder
             ]);
 
             Product::create([
-                'bedrijf_id' => $bedrijf->id,
+                'tenant_id' => $tenant->id,
                 'name' => 'Master-Digit: Software Licentie & Support',
                 'description' => 'Yearly SaaS license / equivalent to €50/mo MRR.',
                 'price' => 600.00,
@@ -42,7 +42,7 @@ class ProductSeeder extends Seeder
             ]);
             
             Product::create([
-                'bedrijf_id' => $bedrijf->id,
+                'tenant_id' => $tenant->id,
                 'name' => 'Master-Digit: Premium Modules & API',
                 'description' => 'Yearly advanced e-invoicing extension.',
                 'price' => 1188.00,

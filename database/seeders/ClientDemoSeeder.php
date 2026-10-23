@@ -12,7 +12,7 @@ use App\Models\InvoiceItem;
 use App\Models\Lead;
 use App\Models\Product;
 use App\Models\Quote;
-use App\Models\Bedrijf;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -119,8 +119,8 @@ class ClientDemoSeeder extends Seeder
         $invoiceSeqNr = 100;
 
         foreach ($clients as $ci => $clientData) {
-            // --- 1. Create the logistics company (Bedrijf) ---
-            $bedrijf = Bedrijf::create([
+            // --- 1. Create the logistics company (Tenant) ---
+            $tenant = Tenant::create([
                 'name'                       => $clientData['name'],
                 'slug'                       => $clientData['slug'],
                 'vat_number'                 => $clientData['vat'],
@@ -142,7 +142,7 @@ class ClientDemoSeeder extends Seeder
                 'is_super_admin' => false,
             ]);
 
-            $bedrijf->users()->syncWithoutDetaching([
+            $tenant->users()->syncWithoutDetaching([
                 $user->id => [
                     'id' => (string) \Illuminate\Support\Str::ulid(),
                     'role' => 'owner',
@@ -151,10 +151,10 @@ class ClientDemoSeeder extends Seeder
                 ]
             ]);
 
-            // --- 3. Seed 3 transport service products for this bedrijf ---
+            // --- 3. Seed 3 transport service products for this tenant ---
             $products = [
                 Product::create([
-                    'bedrijf_id'    => $bedrijf->id,
+                    'tenant_id'    => $tenant->id,
                     'name'         => 'Wegtransport - Standaard',
                     'description'  => 'Standaard wegtransport binnen België',
                     'price'        => 850.00,
@@ -162,7 +162,7 @@ class ClientDemoSeeder extends Seeder
                     'is_recurring' => false,
                 ]),
                 Product::create([
-                    'bedrijf_id'    => $bedrijf->id,
+                    'tenant_id'    => $tenant->id,
                     'name'         => 'Wegtransport - Express',
                     'description'  => 'Expressleveringen op dezelfde dag',
                     'price'        => 1450.00,
@@ -170,7 +170,7 @@ class ClientDemoSeeder extends Seeder
                     'is_recurring' => false,
                 ]),
                 Product::create([
-                    'bedrijf_id'    => $bedrijf->id,
+                    'tenant_id'    => $tenant->id,
                     'name'         => 'Internationale Logistiek',
                     'description'  => 'Grensoverschrijdend EU-vrachtbeheer',
                     'price'        => 2450.00,
@@ -179,16 +179,16 @@ class ClientDemoSeeder extends Seeder
                 ]),
             ];
 
-            // --- 4. Seed 5 or 6 freight leads per bedrijf ---
+            // --- 4. Seed 5 or 6 freight leads per tenant ---
             $numLeads    = ($ci % 2 === 0) ? 6 : 5;
-            $bedrijfLeads = [];
+            $tenantLeads = [];
 
             for ($l = 0; $l < $numLeads; $l++) {
                 $rawLead = $sampleLeads[$leadCursor % count($sampleLeads)];
                 $leadCursor++;
 
                 $lead = Lead::create([
-                    'bedrijf_id'      => $bedrijf->id,
+                    'tenant_id'      => $tenant->id,
                     'company_name'   => $rawLead['company_name'],
                     'contact_person' => $rawLead['contact_person'],
                     'email'          => $rawLead['email'],
@@ -207,12 +207,12 @@ class ClientDemoSeeder extends Seeder
                     ],
                 ]);
 
-                $bedrijfLeads[] = $lead;
+                $tenantLeads[] = $lead;
             }
 
             // --- 5. Create 4 quotes linked to the first 4 leads ---
-            $quoteableLeads = array_slice($bedrijfLeads, 0, 4);
-            $bedrijfQuotes   = [];
+            $quoteableLeads = array_slice($tenantLeads, 0, 4);
+            $tenantQuotes   = [];
 
             foreach ($quoteableLeads as $qi => $lead) {
                 $product = $products[$qi % count($products)];
@@ -220,7 +220,7 @@ class ClientDemoSeeder extends Seeder
                 $amount  = $product->price * $qty;
 
                 $customer = \App\Models\Customer::firstOrCreate(
-                    ['tenant_id' => $bedrijf->id, 'email' => $lead->email],
+                    ['tenant_id' => $tenant->id, 'email' => $lead->email],
                     [
                         'id' => (string) \Illuminate\Support\Str::ulid(),
                         'company_name' => $lead->company_name,
@@ -234,7 +234,7 @@ class ClientDemoSeeder extends Seeder
                 );
 
                 $quote = Quote::create([
-                    'bedrijf_id'    => $bedrijf->id,
+                    'tenant_id'    => $tenant->id,
                     'customer_id'   => $customer->id,
                     'quote_number' => 'OFT-2026-' . str_pad(($ci * 10) + $qi + 1, 4, '0', STR_PAD_LEFT),
                     'total_amount' => $amount,
@@ -250,7 +250,7 @@ class ClientDemoSeeder extends Seeder
                     'description'  => 'Goederenvervoer op traject ' . ($lead->metadata['loading_address'] ?? '') . ' -> ' . ($lead->metadata['delivery_address'] ?? ''),
                 ]);
 
-                $bedrijfQuotes[] = [
+                $tenantQuotes[] = [
                     'quote'   => $quote,
                     'lead'    => $lead,
                     'customer'=> $customer,
@@ -260,7 +260,7 @@ class ClientDemoSeeder extends Seeder
             }
 
             // --- 6. Convert first 3 quotes into invoices with line items ---
-            $invoiceable = array_slice($bedrijfQuotes, 0, 3);
+            $invoiceable = array_slice($tenantQuotes, 0, 3);
 
             foreach ($invoiceable as $ii => $set) {
                 $invoiceSeqNr++;
@@ -272,7 +272,7 @@ class ClientDemoSeeder extends Seeder
                 $status    = $invoiceStatusCycle[$ii % count($invoiceStatusCycle)];
 
                 $invoice = Invoice::create([
-                    'bedrijf_id'      => $bedrijf->id,
+                    'tenant_id'      => $tenant->id,
                     'customer_type'  => \App\Models\Customer::class,
                     'customer_id'    => $set['customer']->id,
                     'invoice_number' => 'FACT-2026-' . $invoiceSeqNr,
