@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-10-23: Symetria Dogfooding & Master Implementation Roadmap
+
+### [2026-10-23 15:55] - Task: Opracowanie Dokumentu IMPLEMENTATION_ROADMAP.md (Zasada Pełnej Symetrii Panelu)
+
+- **Files Modified:**
+  - `docs/IMPLEMENTATION_ROADMAP.md` *(nowy oficjalny dokument operacyjno-wdrożeniowy ze statusem zadań)*
+
+- **Technical & Business Logic:**
+  1. **Zasada Pełnej Symetrii (Dogfooding / Fractal Architecture):**
+     - Zdefiniowano architekturę jednolitego panelu: Ty jako agencja (`Ziemkiewicz Digital`) jesteś w bazie po prostu **Tenantem #1**.
+     - Twoje produkty to pakiety WaaS i wdrożenia (`catalog_items`), Twoi klienci to firmy (`customers`), Twoje faktury to dokumenty handlowe (`commercial_documents`), a linki płatnicze Stripe trafiają do Twoich klientów.
+     - Twoi klienci (np. Hodowla Kotów - Tenant #2, Jan de Smet Transport - Tenant #3) korzystają z **DOKŁADNIE TYCH SAMYCH MODUŁÓW**: ich produkty to kocięta/transport, ich klienci to ich nabywcy, ich faktury/oferty mają ten sam przycisk `[ ✉️ Verstuur Factuur & Betaallink ]` i ten sam portal `/pay/{invoice}`.
+     - Klienci klientów wchodzą w interakcję przez publiczne strony z klocków (`pages.blocks`) oraz formularze zapytań/zamówień (zapisywane do tabeli `leads` w kontekście danego tenanta).
+     - Jedyna różnica: flaga `is_super_admin = true` udostępniająca moduł `Platformbeheer` (podgląd floty tenantów, globalny MRR) oraz przełącznik firm (Tenant Switcher).
+  2. **Harmonogram Wdrożenia Podzielony na 5 Faz:**
+     - **Faza 1:** Harmonizacja modeli Eloquent z bazą 3NF v2.1 (`Tenant`, alias `Bedrijf`, pivot `tenant_user`, `CommercialDocument`, `Page`).
+     - **Faza 2:** Warstwa akcji biznesowych Dual-Execution (`ProvisionTenantAction`, `TemplateBlocks`, `SendCommercialDocumentAction`, narzędzia dla Agenta AI).
+     - **Faza 3:** Panel Filament v3 (wspólne zasoby dla Ciebie i klientów + `Platformbeheer` dla Super-Admina).
+     - **Faza 4:** Frontend klienta końcowego i publiczny portal płatności `/pay/{id}`.
+     - **Faza 5:** Seeder demonstracyjny i pełny pakiet testów automatycznych Pest (100% green).
+  3. **Tabela Śledzenia Postępów:**
+     - 21 identyfikatorów zadań (`TASK-1.1` do `TASK-5.2`) umożliwiających natychmiastowe śledzenie postępów z podziałem na role (Człowiek, Agent AI, Publiczny Klient).
+
+- **Senior Concept:** *Fractal Multi-Tenancy & Dogfooding Paradigm.* Budowa systemu B2B2C, w którym platforma sama jest swoim pierwszym i najbardziej wymagającym klientem (Dogfooding). Każdy poziom hierarchii biznesowej dzieli ten sam kod domenowy, co eliminuje redundancję i gwarantuje najwyższą jakość doświadczenia użytkownika końcowego.
+
+- **Exam Defense Tip:** *„Zastosowałem architekturę fraktalną: agencja zarządza swoją ofertą i fakturowaniem przez ten sam silnik Filament, co jej klienci. Eliminuje to konieczność utrzymywania dwóch oddzielnych aplikacji i gwarantuje, że każda nowa funkcja fakturowania czy płatności Stripe działa automatycznie zarówno dla platformy, jak i dla każdego podmiotu B2B w systemie.”*
+
+---
+
 ## 2026-10-23: Strategiczny Blueprint Biznesowy WaaS & Architektura Flandrii (Odoo-Inspired)
 
 ### [2026-10-23 15:35] - Task: Opracowanie Dokumentu BUSINESS_ARCHITECTURE_BLUEPRINT.md
