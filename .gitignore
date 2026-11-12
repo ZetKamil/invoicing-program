@@ -22,3 +22,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/docs/
+*.docx
+/pest_crash.txt
+/test_results.txt

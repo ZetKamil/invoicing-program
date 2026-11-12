@@ -1,20 +1,21 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "kamilziemkiewicz/kmo-flow",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
-    "keywords": [
-        "laravel",
-        "framework"
-    ],
+    "description": "Multi-tenant WaaS, CRM, Peppol BIS 3.0 e-invoicing, and AI-powered ERP platform built with Laravel 13, Filament 5, and Livewire 4.",
+    "keywords": ["laravel", "filament", "livewire", "multi-tenant", "saas", "peppol", "invoicing", "crm"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "filament/filament": "*",
         "laravel/fortify": "^1.34",
         "laravel/framework": "^13.7",
+        "laravel/reverb": "*",
         "laravel/tinker": "^3.0",
         "livewire/flux": "^2.13.1",
-        "livewire/livewire": "^4.1"
+        "livewire/livewire": "^4.1",
+        "stechstudio/filament-impersonate": "*",
+        "stripe/stripe-php": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -69,7 +70,8 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",

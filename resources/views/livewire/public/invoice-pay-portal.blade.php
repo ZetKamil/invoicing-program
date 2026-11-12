@@ -1,0 +1,126 @@
+<div>
+    <div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans text-slate-800">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg border-t-4 border-blue-600 overflow-hidden">
+            
+            <!-- Header -->
+            <div class="px-8 py-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-blue-600">{{ $invoice->bedrijf->name ?? 'Logistieke Partner' }}</h1>
+                    <p class="text-sm text-slate-500 mt-1">Factuur Betaalportaal</p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                        {{ $invoice->status->value === 'paid' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
+                        {{ strtoupper($invoice->status->value) }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="px-8 py-8">
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Gefactureerd aan</h3>
+                        <p class="font-medium text-slate-900">{{ $invoice->customer->company_name ?? $invoice->customer->name ?? 'Klant' }}</p>
+                        <p class="text-slate-600 text-sm mt-1">{{ $invoice->customer->email ?? '' }}</p>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Factuurdetails</h3>
+                        <p class="text-slate-900"><span class="font-medium">Nummer:</span> {{ $invoice->invoice_number }}</p>
+                        <p class="text-slate-600 text-sm mt-1"><span class="font-medium">Datum:</span> {{ $invoice->created_at->format('d-m-Y') }}</p>
+                        <p class="text-slate-600 text-sm"><span class="font-medium">Vervaldatum:</span> {{ $invoice->due_date->format('d-m-Y') }}</p>
+                    </div>
+                </div>
+
+                <!-- Line Items -->
+                <div class="mb-8 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-slate-100">
+                                <th class="py-3 font-semibold text-slate-600">Omschrijving</th>
+                                <th class="py-3 font-semibold text-slate-600 text-right">Aantal</th>
+                                <th class="py-3 font-semibold text-slate-600 text-right">Prijs</th>
+                                <th class="py-3 font-semibold text-slate-600 text-right">Totaal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($invoice->items as $item)
+                                <tr class="border-b border-slate-50">
+                                    <td class="py-4 text-slate-800">{{ $item->description }}</td>
+                                    <td class="py-4 text-slate-600 text-right">{{ $item->quantity }}</td>
+                                    <td class="py-4 text-slate-600 text-right">€{{ number_format($item->unit_price, 2) }}</td>
+                                    <td class="py-4 text-slate-800 font-medium text-right">€{{ number_format($item->total, 2) }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-4 text-slate-500 text-center italic">Geen items vermeld.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals -->
+                <div class="flex justify-end mb-8">
+                    <div class="w-1/2 max-w-sm">
+                        <div class="flex justify-between py-2 text-sm text-slate-600">
+                            <span>Subtotaal</span>
+                            <span>€{{ number_format($invoice->subtotal, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 text-sm text-slate-600 border-b border-slate-100">
+                            <span>BTW (21%)</span>
+                            <span>€{{ number_format($invoice->tax_total, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-3 text-lg font-bold text-slate-900 border-b-2 border-slate-800">
+                            <span>Totaal te betalen</span>
+                            <span class="text-blue-600">€{{ number_format($invoice->total_amount, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action -->
+                <div class="mt-10 flex flex-col items-center justify-center space-y-4">
+                    @if($invoice->status->value !== 'paid')
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                            <!-- Mollie Bancontact (Preferred for Flanders) -->
+                            <button wire:click="payMollie" wire:loading.attr="disabled" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-4 border border-transparent text-base font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                                <span wire:loading.remove wire:target="payMollie" class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Betaal direct via Bancontact / iDEAL
+                                </span>
+                                <span wire:loading wire:target="payMollie" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Verbinden met Mollie...
+                                </span>
+                            </button>
+
+                            <!-- Stripe Credit Card -->
+                            <button wire:click="payStripe" wire:loading.attr="disabled" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-4 border border-slate-300 text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 disabled:opacity-50">
+                                <span wire:loading.remove wire:target="payStripe" class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Betaal met kaart (Stripe)
+                                </span>
+                                <span wire:loading wire:target="payStripe" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Verbinden...
+                                </span>
+                            </button>
+                        </div>
+
+                        <p class="text-xs text-slate-500 flex items-center mt-3">
+                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Veilig en gecertificeerd betalen via Mollie Bancontact & Stripe.
+                        </p>
+                    @else
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6 w-full text-center">
+                            <svg class="w-12 h-12 text-green-50 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <h3 class="text-lg font-medium text-green-800">Betaling Ontvangen</h3>
+                            <p class="text-green-600 mt-1">Deze factuur is betaald op {{ $invoice->paid_at ? $invoice->paid_at->format('d-m-Y') : 'een eerdere datum' }}. Bedankt!</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

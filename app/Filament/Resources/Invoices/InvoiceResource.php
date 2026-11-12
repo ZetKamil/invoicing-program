@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Filament\Resources\Invoices;
+
+use App\Filament\Resources\Invoices\Pages\CreateInvoice;
+use App\Filament\Resources\Invoices\Pages\EditInvoice;
+use App\Filament\Resources\Invoices\Pages\ListInvoices;
+use App\Filament\Resources\Invoices\Schemas\InvoiceForm;
+use App\Filament\Resources\Invoices\Tables\InvoicesTable;
+use App\Models\Invoice;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class InvoiceResource extends Resource
+{
+    protected static ?string $model = Invoice::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCurrencyEuro;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Facturatie';
+
+    protected static ?string $modelLabel = 'Factuur';
+    protected static ?string $pluralModelLabel = 'Facturen';
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->is_super_admin) {
+            return true;
+        }
+
+        return $user->tenant?->hasErpAccess() ?? false;
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return InvoiceForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return InvoicesTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery();
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListInvoices::route('/'),
+            'create' => CreateInvoice::route('/create'),
+            'view' => \App\Filament\Resources\Invoices\Pages\ViewInvoice::route('/{record}'),
+            'edit' => EditInvoice::route('/{record}/edit'),
+        ];
+    }
+}
